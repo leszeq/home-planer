@@ -36,9 +36,13 @@ interface Checklist { id: string; name: string; checklist_items: Item[] }
 function SortableItem({
   item,
   checklistId,
+  onToggle,
+  onDelete,
 }: {
   item: Item
   checklistId: string
+  onToggle: (id: string, newDone: boolean) => void
+  onDelete: (id: string) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: item.id })
@@ -65,7 +69,7 @@ function SortableItem({
       <button
         type="button"
         className="shrink-0"
-        onClick={() => toggleChecklistItem(item.id, !item.is_done, checklistId)}
+        onClick={() => onToggle(item.id, !item.is_done)}
       >
         {item.is_done ? (
           <CheckCircle2 className="w-5 h-5 text-[var(--accent-green)]" />
@@ -80,7 +84,7 @@ function SortableItem({
         variant="ghost"
         size="icon"
         className="h-6 w-6 shrink-0 opacity-0 group-hover/item:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
-        onClick={() => deleteChecklistItem(item.id)}
+        onClick={() => onDelete(item.id)}
       >
         <X className="w-3 h-3" />
       </Button>
@@ -102,6 +106,17 @@ export function ChecklistView({ checklist, projectId }: { checklist: Checklist; 
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
+  const handleToggle = (itemId: string, newDone: boolean) => {
+    // Optimistic update — instant UI response
+    setItems(prev => prev.map(i => i.id === itemId ? { ...i, is_done: newDone } : i))
+    // Fire server action in the background
+    toggleChecklistItem(itemId, newDone, checklist.id)
+  }
+
+  const handleDelete = (itemId: string) => {
+    setItems(prev => prev.filter(i => i.id !== itemId))
+    deleteChecklistItem(itemId)
+  }
   const doneCount = items.filter(i => i.is_done).length
   const progress = items.length > 0 ? (doneCount / items.length) * 100 : 0
 
@@ -197,7 +212,7 @@ export function ChecklistView({ checklist, projectId }: { checklist: Checklist; 
           <DndContext id={`checklist-items-${checklist.id}`} sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
               {items.map(item => (
-                <SortableItem key={item.id} item={item} checklistId={checklist.id} />
+                <SortableItem key={item.id} item={item} checklistId={checklist.id} onToggle={handleToggle} onDelete={handleDelete} />
               ))}
             </SortableContext>
           </DndContext>
