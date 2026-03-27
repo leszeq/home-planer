@@ -25,6 +25,7 @@ import { createStage, updateStageStatus, deleteStage, updateStagesOrder, updateS
 import { cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 import { ChecklistView } from '@/components/checklists/checklist-view'
+import { CreateChecklistForm } from '@/components/checklists/create-checklist-form'
 
 interface Stage {
   id: string
@@ -35,7 +36,7 @@ interface Stage {
   end_date?: string | null
 }
 
-interface ChecklistItem { id: string; content: string; is_done: boolean }
+interface ChecklistItem { id: string; content: string; is_done: boolean; order: number }
 interface Checklist { id: string; name: string; checklist_items: ChecklistItem[], stage_id: string | null }
 
 function SortableStage({
@@ -168,13 +169,12 @@ function SortableStage({
       )}
 
       {/* Checklists for this stage */}
-      {checklists.length > 0 && (
-        <div className="pl-9 pr-2 space-y-2 mt-2">
-          {checklists.map(cl => (
-            <ChecklistView key={cl.id} checklist={{...cl, checklist_items: cl.checklist_items || []}} />
-          ))}
-        </div>
-      )}
+      <div className="pl-9 pr-2 space-y-2 mt-2">
+        {checklists.map(cl => (
+          <ChecklistView key={cl.id} checklist={{...cl, checklist_items: cl.checklist_items || []}} projectId={projectId} />
+        ))}
+        <CreateChecklistForm projectId={projectId} stageId={stage.id} label="+ Checklista" />
+      </div>
     </div>
   )
 }
