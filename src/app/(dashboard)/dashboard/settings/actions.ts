@@ -35,6 +35,13 @@ export async function updateProfile(formData: FormData) {
 
 export async function updatePassword(formData: FormData) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Brak uprawnień' }
+  }
+
+  const oldPassword = formData.get('oldPassword') as string
   const password = formData.get('password') as string
   const confirmPassword = formData.get('confirmPassword') as string
 
@@ -44,6 +51,18 @@ export async function updatePassword(formData: FormData) {
 
   if (password.length < 6) {
     return { error: 'Hasło musi mieć co najmniej 6 znaków' }
+  }
+
+  // Verify old password
+  if (user.email) {
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: oldPassword,
+    })
+
+    if (signInError) {
+      return { error: 'Aktualne hasło jest niepoprawne' }
+    }
   }
 
   const { error } = await supabase.auth.updateUser({

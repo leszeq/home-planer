@@ -40,6 +40,25 @@ export function SecurityForm() {
 
       <form action={handleSubmit} className="space-y-4">
         <div className="space-y-2">
+          <label className="text-sm font-medium">Aktualne Hasło</label>
+          <div className="relative">
+            <Input 
+              name="oldPassword" 
+              type={showPass ? "text" : "password"} 
+              required 
+              className="h-11 pr-10"
+            />
+            <button 
+              type="button" 
+              onClick={() => setShowPass(!showPass)} 
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-2 border-t border-border/50 pt-4">
           <label className="text-sm font-medium">Nowe Hasło</label>
           <div className="relative">
             <Input 
