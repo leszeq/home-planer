@@ -30,6 +30,17 @@ export async function deleteStage(projectId: string, stageId: string) {
   revalidatePath(`/dashboard/projects/${projectId}`)
 }
 
+export async function updateStagesOrder(projectId: string, orderedIds: string[]) {
+  const supabase = await createClient()
+  await Promise.all(
+    orderedIds.map((id, index) =>
+      supabase.from('stages').update({ order: index + 1 }).match({ id })
+    )
+  )
+  revalidatePath(`/dashboard/projects/${projectId}`)
+}
+
+
 // Expenses Actions
 export async function createExpense(projectId: string, data: {
   amount: number,
