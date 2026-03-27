@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { toggleChecklistItem, deleteChecklist } from '@/app/(dashboard)/checklists/actions'
+import { toggleChecklistItem, deleteChecklist } from '@/app/(dashboard)/dashboard/checklists/actions'
 import { CheckCircle2, Circle, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
-import { createProject } from '@/app/(dashboard)/projects/actions'
+import { createProject } from '@/app/(dashboard)/dashboard/projects/actions'
 import { Plus, X } from 'lucide-react'
 
 export function CreateProjectModal() {

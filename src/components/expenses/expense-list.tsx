@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Plus, Trash2, Receipt } from 'lucide-react'
-import { createExpense, deleteExpense } from '@/app/(dashboard)/projects/[id]/actions'
+import { createExpense, deleteExpense } from '@/app/(dashboard)/dashboard/projects/[id]/actions'
 
 export function ExpenseList({ projectId, expenses, stages }: { 
   projectId: string, 

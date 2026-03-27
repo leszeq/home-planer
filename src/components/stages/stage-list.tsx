@@ -21,7 +21,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CheckCircle2, Circle, Clock, GripVertical, Plus, Trash2 } from 'lucide-react'
-import { createStage, updateStageStatus, deleteStage, updateStagesOrder } from '@/app/(dashboard)/projects/[id]/actions'
+import { createStage, updateStageStatus, deleteStage, updateStagesOrder } from '@/app/(dashboard)/dashboard/projects/[id]/actions'
 import { cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 

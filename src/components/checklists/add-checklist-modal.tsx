@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { CHECKLIST_TEMPLATES } from '@/lib/checklist-templates'
-import { createChecklistFromTemplate } from '@/app/(dashboard)/checklists/actions'
+import { createChecklistFromTemplate } from '@/app/(dashboard)/dashboard/checklists/actions'
 import { Plus, X, ListChecks } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 
