@@ -194,7 +194,7 @@ export function ChecklistView({ checklist, projectId }: { checklist: Checklist; 
       {/* Items */}
       {isOpen && (
         <div className="border-t max-h-[500px] overflow-y-auto">
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <DndContext id={`checklist-items-${checklist.id}`} sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
               {items.map(item => (
                 <SortableItem key={item.id} item={item} checklistId={checklist.id} />

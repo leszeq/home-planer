@@ -239,7 +239,7 @@ export function ChecklistsClientView({
         </div>
       ) : (
         // Flat sortable view
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <DndContext id="checklists-dnd" sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={filtered.map(cl => cl.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-3">
               {filtered.map(cl => (
