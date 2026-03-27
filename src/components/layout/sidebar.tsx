@@ -11,6 +11,7 @@ import {
   LogOut,
   HardHat,
   ChevronRight,
+  FileText,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { signOut } from '@/app/(auth)/login/actions'
@@ -20,6 +21,7 @@ const navItems = [
   { label: 'Projekty', icon: FolderKanban, href: '/dashboard/projects' },
   { label: 'Wydatki', icon: Receipt, href: '/dashboard/expenses' },
   { label: 'Checklisty', icon: ClipboardList, href: '/dashboard/checklists' },
+  { label: 'Dokumenty', icon: FileText, href: '/dashboard/documents' },
   { label: 'Ustawienia', icon: Settings, href: '/dashboard/settings' },
 ]
 
