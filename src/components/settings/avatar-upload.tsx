@@ -38,9 +38,9 @@ export function AvatarUpload({ uid, url, onUpload }: AvatarUploadProps) {
 
       const { data } = supabase.storage.from('avatars').getPublicUrl(filePath)
       onUpload(data.publicUrl)
-    } catch (error) {
-      alert('Error uploading avatar!')
-      console.log(error)
+    } catch (error: any) {
+      alert(`Error uploading avatar: ${error?.message || JSON.stringify(error)}`)
+      console.error('Upload Error:', error)
     } finally {
       setUploading(false)
     }
