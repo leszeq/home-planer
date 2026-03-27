@@ -1,11 +1,12 @@
 import { createClient } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-// import { Progress } from "@/components/ui/progress" 
 import { StageList } from "@/components/stages/stage-list"
+import { ProjectTimeline } from "@/components/stages/project-timeline"
 import { ExpenseList } from "@/components/expenses/expense-list"
 import { FileList } from "@/components/files/file-list"
 import { Button } from "@/components/ui/button"
+import { PrintButton } from "@/components/ui/print-button"
 import Link from "next/link"
 import { ChevronLeft, AlertTriangle } from "lucide-react"
 
@@ -38,7 +39,10 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         </Link>
         <div>
           <h2 className="text-3xl font-bold tracking-tight">{project.name}</h2>
-          <p className="text-muted-foreground italic">Project Summary & Controls</p>
+          <p className="text-muted-foreground italic print:hidden">Project Summary & Controls</p>
+        </div>
+        <div className="ml-auto">
+          <PrintButton />
         </div>
       </div>
 
@@ -103,6 +107,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="space-y-8">
+          <ProjectTimeline stages={stages || []} />
           <StageList projectId={project.id} stages={stages || []} checklists={checklists || []} />
           <FileList projectId={project.id} userId={project.user_id} files={files || []} />
         </div>

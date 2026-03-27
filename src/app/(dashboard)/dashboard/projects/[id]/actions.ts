@@ -23,6 +23,16 @@ export async function updateStageStatus(projectId: string, stageId: string, stat
   revalidatePath(`/dashboard/projects/${projectId}`)
 }
 
+export async function updateStageDates(projectId: string, stageId: string, startDate: string | null, endDate: string | null) {
+  const supabase = await createClient()
+  const { error } = await supabase.from('stages').update({ 
+    start_date: startDate, 
+    end_date: endDate 
+  }).match({ id: stageId })
+  if (error) throw error
+  revalidatePath(`/dashboard/projects/${projectId}`)
+}
+
 export async function deleteStage(projectId: string, stageId: string) {
   const supabase = await createClient()
   const { error } = await supabase.from('stages').delete().match({ id: stageId })

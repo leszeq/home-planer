@@ -20,8 +20,8 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { CheckCircle2, Circle, Clock, GripVertical, Plus, Trash2 } from 'lucide-react'
-import { createStage, updateStageStatus, deleteStage, updateStagesOrder } from '@/app/(dashboard)/dashboard/projects/[id]/actions'
+import { CheckCircle2, Circle, Clock, GripVertical, Plus, Trash2, Calendar } from 'lucide-react'
+import { createStage, updateStageStatus, deleteStage, updateStagesOrder, updateStageDates } from '@/app/(dashboard)/dashboard/projects/[id]/actions'
 import { cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 import { ChecklistView } from '@/components/checklists/checklist-view'
@@ -31,6 +31,8 @@ interface Stage {
   name: string
   status: string
   order: number
+  start_date?: string | null
+  end_date?: string | null
 }
 
 interface ChecklistItem { id: string; content: string; is_done: boolean }
@@ -46,6 +48,10 @@ function SortableStage({
   checklists: Checklist[]
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: stage.id })
+  const [isEditingDates, setIsEditingDates] = useState(false)
+  const [startDate, setStartDate] = useState(stage.start_date || '')
+  const [endDate, setEndDate] = useState(stage.end_date || '')
+  const [isSavingDates, setIsSavingDates] = useState(false)
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -54,6 +60,13 @@ function SortableStage({
   }
 
   const nextStatus = stage.status === 'done' ? 'todo' : stage.status === 'in_progress' ? 'done' : 'in_progress'
+
+  const handleSaveDates = async () => {
+    setIsSavingDates(true)
+    await updateStageDates(projectId, stage.id, startDate || null, endDate || null)
+    setIsSavingDates(false)
+    setIsEditingDates(false)
+  }
 
   return (
     <div
@@ -93,9 +106,17 @@ function SortableStage({
           <p className={cn('font-medium text-sm truncate', stage.status === 'done' && 'line-through text-muted-foreground')}>
             {stage.name}
           </p>
-          <p className="text-xs text-muted-foreground capitalize mt-0.5">
-            {stage.status === 'todo' ? 'Do zrobienia' : stage.status === 'in_progress' ? 'W trakcie' : 'Zakończony'}
-          </p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <p className="text-xs text-muted-foreground capitalize">
+              {stage.status === 'todo' ? 'Do zrobienia' : stage.status === 'in_progress' ? 'W trakcie' : 'Zakończony'}
+            </p>
+            {(stage.start_date || stage.end_date) && (
+              <span className="text-[10px] text-muted-foreground bg-secondary px-1.5 py-0.5 rounded border border-border/50 flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                {stage.start_date ? new Date(stage.start_date).toLocaleDateString('pl-PL') : '...'} - {stage.end_date ? new Date(stage.end_date).toLocaleDateString('pl-PL') : '...'}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Status Badge */}
@@ -105,6 +126,16 @@ function SortableStage({
         )}>
           {stage.status === 'done' ? 'Gotowe' : stage.status === 'in_progress' ? 'W trakcie' : 'Todo'}
         </span>
+
+        {/* Calendar Edit */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn("hover:text-primary shrink-0 transition-colors", isEditingDates ? "text-primary bg-primary/10" : "text-muted-foreground")}
+          onClick={() => setIsEditingDates(!isEditingDates)}
+        >
+          <Calendar className="w-4 h-4" />
+        </Button>
 
         {/* Delete */}
         <Button
@@ -116,6 +147,25 @@ function SortableStage({
           <Trash2 className="w-4 h-4" />
         </Button>
       </div>
+
+      {isEditingDates && (
+        <div className="px-4 py-3 bg-secondary/30 rounded-lg mx-2 mt-1 mb-2 text-sm border border-border/50 animate-fade-in">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Data Rozpoczęcia</label>
+              <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="h-9 text-xs" />
+            </div>
+            <div className="flex-1 space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Data Zakończenia</label>
+              <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="h-9 text-xs" />
+            </div>
+          </div>
+          <div className="flex justify-end mt-4 gap-2">
+            <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setIsEditingDates(false)}>Anuluj</Button>
+            <Button size="sm" className="h-8 text-xs" disabled={isSavingDates} onClick={handleSaveDates}>Zapisz Daty</Button>
+          </div>
+        </div>
+      )}
 
       {/* Checklists for this stage */}
       {checklists.length > 0 && (
