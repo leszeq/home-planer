@@ -27,6 +27,16 @@ export async function signup(formData: FormData) {
   const password = formData.get('password') as string
   const origin = (await headers()).get('origin')
 
+  if (password.length < 8) {
+    return redirect(`/login?error=${encodeURIComponent('Hasło musi mieć co najmniej 8 znaków.')}&mode=register`)
+  }
+  if (!/\d/.test(password)) {
+    return redirect(`/login?error=${encodeURIComponent('Hasło musi zawierać co najmniej jedną cyfrę.')}&mode=register`)
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    return redirect(`/login?error=${encodeURIComponent('Hasło musi zawierać co najmniej jeden znak specjalny.')}&mode=register`)
+  }
+
   const { error } = await supabase.auth.signUp({
     email,
     password,

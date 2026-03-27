@@ -33,8 +33,8 @@ export function SecurityForm() {
     <div className="max-w-md space-y-6 animate-fade-in">
       <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/5 border border-primary/10">
         <ShieldCheck className="w-5 h-5 text-primary" />
-        <p className="text-sm text-muted-foreground">
-          Zalecamy używanie silnego hasła (min. 8 znaków, cyfry i znaki specjalne).
+        <p className="text-sm text-foreground font-medium">
+          Uwaga: Hasło musi zawierać minimum 8 znaków, w tym cyfrę i znak specjalny.
         </p>
       </div>
 
@@ -79,12 +79,21 @@ export function SecurityForm() {
 
         <div className="space-y-2">
           <label className="text-sm font-medium">Potwierdź Nowe Hasło</label>
-          <Input 
-            name="confirmPassword" 
-            type={showPass ? "text" : "password"} 
-            required 
-            className="h-11"
-          />
+          <div className="relative">
+            <Input 
+              name="confirmPassword" 
+              type={showPass ? "text" : "password"} 
+              required 
+              className="h-11 pr-10"
+            />
+            <button 
+              type="button" 
+              onClick={() => setShowPass(!showPass)} 
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
 
         {error && (

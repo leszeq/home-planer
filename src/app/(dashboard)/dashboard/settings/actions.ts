@@ -49,8 +49,14 @@ export async function updatePassword(formData: FormData) {
     return { error: 'Hasła nie są identyczne' }
   }
 
-  if (password.length < 6) {
-    return { error: 'Hasło musi mieć co najmniej 6 znaków' }
+  if (password.length < 8) {
+    return { error: 'Hasło musi mieć co najmniej 8 znaków' }
+  }
+  if (!/\d/.test(password)) {
+    return { error: 'Hasło musi zawierać co najmniej jedną cyfrę' }
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    return { error: 'Hasło musi zawierać co najmniej jeden znak specjalny' }
   }
 
   // Verify old password
