@@ -66,7 +66,8 @@ export function ChecklistsClientView({
           {firstProject && (
             <AddChecklistModal
               projectId={firstProject.id}
-              stages={stages?.filter(s => s.project_id === firstProject.id) ?? []}
+              stages={stages}
+              projects={projects}
             />
           )}
         </div>

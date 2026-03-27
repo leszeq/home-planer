@@ -7,19 +7,31 @@ import { createChecklistFromTemplate } from '@/app/(dashboard)/dashboard/checkli
 import { Plus, X, ListChecks } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 
-export function AddChecklistModal({ projectId, stages }: { projectId: string, stages: { id: string; name: string }[] }) {
+export function AddChecklistModal({
+  projectId: defaultProjectId,
+  stages: allStages,
+  projects = [],
+}: {
+  projectId: string
+  stages: { id: string; name: string; project_id: string }[]
+  projects?: { id: string; name: string }[]
+}) {
   const [isOpen, setIsOpen] = useState(false)
   const [selected, setSelected] = useState<string | null>(null)
+  const [selectedProjectId, setSelectedProjectId] = useState(defaultProjectId)
   const [stageId, setStageId] = useState('')
   const [pending, setPending] = useState(false)
+
+  const filteredStages = allStages.filter(s => s.project_id === selectedProjectId)
 
   const handleAdd = async () => {
     if (!selected) return
     setPending(true)
-    await createChecklistFromTemplate(projectId, stageId || null, selected)
+    await createChecklistFromTemplate(selectedProjectId, stageId || null, selected)
     setPending(false)
     setIsOpen(false)
     setSelected(null)
+    setStageId('')
   }
 
   if (!isOpen) return (
@@ -37,7 +49,19 @@ export function AddChecklistModal({ projectId, stages }: { projectId: string, st
           <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}><X className="w-4 h-4" /></Button>
         </CardHeader>
         <CardContent className="space-y-4">
-          {stages.length > 0 && (
+          {projects.length > 1 && (
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Projekt</label>
+              <select
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                value={selectedProjectId}
+                onChange={e => { setSelectedProjectId(e.target.value); setStageId('') }}
+              >
+                {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+            </div>
+          )}
+          {filteredStages.length > 0 && (
             <div className="space-y-1.5">
               <label className="text-sm font-medium">Przypisz do etapu (opcjonalnie)</label>
               <select
@@ -46,7 +70,7 @@ export function AddChecklistModal({ projectId, stages }: { projectId: string, st
                 onChange={e => setStageId(e.target.value)}
               >
                 <option value="">Bez etapu</option>
-                {stages.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                {filteredStages.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
             </div>
           )}
