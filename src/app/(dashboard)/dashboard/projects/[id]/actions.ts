@@ -109,3 +109,19 @@ export async function updateMemberRole(projectId: string, memberId: string, role
   if (error) throw error
   revalidatePath(`/dashboard/projects/${projectId}`)
 }
+
+// Project Actions
+export async function deleteProject(projectId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data: project } = await supabase.from('projects').select('user_id').match({ id: projectId }).single()
+  
+  if (project?.user_id !== user?.id) {
+    return { error: 'Tylko główny właściciel może usunąć ten projekt.' }
+  }
+  
+  const { error } = await supabase.from('projects').delete().match({ id: projectId })
+  if (error) return { error: error.message }
+  
+  return { success: true }
+}

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { CreateProjectModal } from "@/components/projects/create-project-modal"
+import { DeleteProjectButton } from "@/components/projects/delete-project-button"
 import { FolderKanban } from "lucide-react"
 
 export default async function ProjectsPage() {
@@ -39,11 +40,14 @@ export default async function ProjectsPage() {
                     Udostępniony
                   </div>
                 )}
-                <CardHeader>
-                  <CardTitle className="pr-16 truncate">{project.name}</CardTitle>
+                <CardHeader className="relative pr-14 pb-4">
+                  <div className="absolute right-2 top-2 z-30 flex items-center gap-2">
+                     <DeleteProjectButton projectId={project.id} isShared={isShared} />
+                  </div>
+                  <CardTitle className="truncate leading-tight text-lg">{project.name}</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-sm space-y-1">
+                <CardContent className="pt-4 border-t border-border/50">
+                  <div className="text-sm space-y-2">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Budżet:</span>
                       <span className="font-medium">{Number(project.budget).toLocaleString()} zł</span>

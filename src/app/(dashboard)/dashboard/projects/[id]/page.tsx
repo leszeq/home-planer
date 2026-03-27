@@ -8,6 +8,7 @@ import { ExpenseList } from "@/components/expenses/expense-list"
 import { FileList } from "@/components/files/file-list"
 import { Button } from "@/components/ui/button"
 import { PrintButton } from "@/components/ui/print-button"
+import { DeleteProjectButton } from "@/components/projects/delete-project-button"
 import Link from "next/link"
 import { ChevronLeft, AlertTriangle } from "lucide-react"
 
@@ -44,8 +45,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <h2 className="text-3xl font-bold tracking-tight">{project.name}</h2>
           <p className="text-muted-foreground italic print:hidden">Project Summary & Controls</p>
         </div>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
           <PrintButton />
+          <DeleteProjectButton projectId={project.id} isShared={project.user_id !== user?.id} />
         </div>
       </div>
 
