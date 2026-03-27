@@ -2,11 +2,12 @@ import { AuthForm } from '@/components/auth/auth-form'
 import { HardHat } from 'lucide-react'
 import Link from 'next/link'
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { message?: string, error?: string, mode?: 'login' | 'register' | 'magiclink' }
+  searchParams: Promise<{ message?: string, error?: string, mode?: 'login' | 'register' | 'magiclink' }>
 }) {
+  const awaitedParams = await searchParams;
   return (
     <div className="flex min-h-screen bg-background relative overflow-hidden">
       
@@ -75,9 +76,9 @@ export default function LoginPage({
 
         <div className="w-full max-w-sm animate-fade-in-up">
           <AuthForm 
-            initialMode={searchParams?.mode || 'register'} 
-            error={searchParams?.error} 
-            message={searchParams?.message} 
+            initialMode={awaitedParams.mode || 'register'} 
+            error={awaitedParams.error} 
+            message={awaitedParams.message} 
           />
         </div>
       </div>

@@ -9,16 +9,17 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ChevronLeft, AlertTriangle } from "lucide-react"
 
-export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
+export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const awaitedParams = await params;
   const supabase = await createClient()
   
-  const { data: project } = await supabase.from('projects').select('*').match({ id: params.id }).single()
+  const { data: project } = await supabase.from('projects').select('*').match({ id: awaitedParams.id }).single()
   if (!project) notFound()
 
-  const { data: stages } = await supabase.from('stages').select('*').match({ project_id: params.id }).order('order', { ascending: true })
-  const { data: expenses } = await supabase.from('expenses').select('*').match({ project_id: params.id }).order('date', { ascending: false })
-  const { data: checklists } = await supabase.from('checklists').select('*, checklist_items(*)').match({ project_id: params.id })
-  const { data: files } = await supabase.from('project_files').select('*').match({ project_id: params.id }).order('created_at', { ascending: false })
+  const { data: stages } = await supabase.from('stages').select('*').match({ project_id: awaitedParams.id }).order('order', { ascending: true })
+  const { data: expenses } = await supabase.from('expenses').select('*').match({ project_id: awaitedParams.id }).order('date', { ascending: false })
+  const { data: checklists } = await supabase.from('checklists').select('*, checklist_items(*)').match({ project_id: awaitedParams.id })
+  const { data: files } = await supabase.from('project_files').select('*').match({ project_id: awaitedParams.id }).order('created_at', { ascending: false })
 
   const totalBudget = Number(project.budget) || 0
   const totalExpenses = expenses?.reduce((acc, e) => acc + Number(e.amount), 0) || 0
