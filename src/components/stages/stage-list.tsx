@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -130,6 +130,11 @@ export function StageList({ projectId, stages: initialStages }: { projectId: str
   const [stages, setStages] = useState(initialStages)
   const [isAdding, setIsAdding] = useState(false)
   const [newName, setNewName] = useState('')
+
+  // Sync local state when server data changes (e.g. after adding/deleting)
+  useEffect(() => {
+    setStages(initialStages)
+  }, [initialStages])
 
   const sensors = useSensors(
     useSensor(PointerSensor),
