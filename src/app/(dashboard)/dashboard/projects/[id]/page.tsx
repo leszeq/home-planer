@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 // import { Progress } from "@/components/ui/progress" 
 import { StageList } from "@/components/stages/stage-list"
 import { ExpenseList } from "@/components/expenses/expense-list"
+import { FileList } from "@/components/files/file-list"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ChevronLeft, AlertTriangle } from "lucide-react"
@@ -17,6 +18,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
   const { data: stages } = await supabase.from('stages').select('*').match({ project_id: params.id }).order('order', { ascending: true })
   const { data: expenses } = await supabase.from('expenses').select('*').match({ project_id: params.id }).order('date', { ascending: false })
   const { data: checklists } = await supabase.from('checklists').select('*, checklist_items(*)').match({ project_id: params.id })
+  const { data: files } = await supabase.from('project_files').select('*').match({ project_id: params.id }).order('created_at', { ascending: false })
 
   const totalBudget = Number(project.budget) || 0
   const totalExpenses = expenses?.reduce((acc, e) => acc + Number(e.amount), 0) || 0
@@ -99,7 +101,10 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
-        <StageList projectId={project.id} stages={stages || []} checklists={checklists || []} />
+        <div className="space-y-8">
+          <StageList projectId={project.id} stages={stages || []} checklists={checklists || []} />
+          <FileList projectId={project.id} userId={project.user_id} files={files || []} />
+        </div>
         <ExpenseList projectId={project.id} expenses={expenses || []} stages={stages || []} />
       </div>
 
