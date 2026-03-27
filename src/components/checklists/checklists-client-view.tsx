@@ -91,9 +91,8 @@ export function ChecklistsClientView({
         {/* Project filter pills */}
         <button
           onClick={() => setSelectedProjectId(null)}
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-            !selectedProjectId ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-          }`}
+          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${!selectedProjectId ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+            }`}
         >
           Wszystkie ({checklists.length})
         </button>
@@ -104,9 +103,8 @@ export function ChecklistsClientView({
             <button
               key={p.id}
               onClick={() => setSelectedProjectId(prev => prev === p.id ? null : p.id)}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                selectedProjectId === p.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/80 border border-border/50'
-              }`}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${selectedProjectId === p.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/80 border border-border/50'
+                }`}
             >
               {p.name} ({count})
             </button>
@@ -118,7 +116,7 @@ export function ChecklistsClientView({
       <div className="flex items-start gap-3 p-4 bg-[var(--primary-glow)] border border-primary/20 rounded-xl text-sm">
         <ClipboardList className="w-5 h-5 text-primary shrink-0 mt-0.5" />
         <div>
-          <p className="font-semibold text-primary">7 profesjonalnych szablonów checklisty</p>
+          <p className="font-semibold text-primary">10 profesjonalnych szablonów checklisty</p>
           <p className="text-muted-foreground mt-0.5">
             Gotowe listy kontrolne: fundamenty (54 pkt), płyta (30 pkt), stan surowy (92 pkt), okna (13 pkt), instalacje (78 pkt), termoizolacja (13 pkt), elewacja (18 pkt).
           </p>

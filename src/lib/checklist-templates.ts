@@ -28,7 +28,7 @@ export const CHECKLIST_TEMPLATES: ChecklistTemplate[] = [
   },
   {
     id: 'administracja-formalnosci',
-    name: '1. Administracja i formalności',
+    name: 'Administracja i formalności',
     description: 'Etap papierologii od zakupu działki do pozwolenia na budowę',
     items: [
       'Złożenie wniosku o Warunki Zabudowy (WZ) – w przypadku braku MPZP',
@@ -50,7 +50,7 @@ export const CHECKLIST_TEMPLATES: ChecklistTemplate[] = [
   },
   {
     id: 'przygotowanie-budowy',
-    name: '2. Przygotowanie działki pod budowę',
+    name: 'Przygotowanie działki pod budowę',
     description: 'Fizyczne prace przygotowawcze przed wkopaniem pierwszej łopaty',
     items: [
       'Wyznaczenie stref niebezpiecznych i organizacji ruchu na budowie',

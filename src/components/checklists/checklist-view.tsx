@@ -92,6 +92,7 @@ export function ChecklistView({ checklist, projectId }: { checklist: Checklist; 
   const [isOpen, setIsOpen] = useState(true)
   const [isAddingItem, setIsAddingItem] = useState(false)
   const [newItem, setNewItem] = useState('')
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
   const [items, setItems] = useState(
     [...(checklist.checklist_items ?? [])].sort((a, b) => a.order - b.order)
   )
@@ -156,11 +157,36 @@ export function ChecklistView({ checklist, projectId }: { checklist: Checklist; 
           >
             <Plus className="w-4 h-4" />
           </Button>
-          <form action={async () => { await deleteChecklist(checklist.id) }}>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
+          {isConfirmingDelete ? (
+            <div className="flex items-center gap-1 bg-destructive/10 border border-destructive/30 rounded-lg px-2 py-1 animate-fade-in">
+              <span className="text-xs text-destructive font-medium whitespace-nowrap">Usunąć?</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-destructive hover:bg-destructive/20"
+                onClick={() => deleteChecklist(checklist.id)}
+              >
+                <Trash2 className="w-3 h-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-muted-foreground"
+                onClick={() => setIsConfirmingDelete(false)}
+              >
+                <X className="w-3 h-3" />
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+              onClick={() => setIsConfirmingDelete(true)}
+            >
               <Trash2 className="w-4 h-4" />
             </Button>
-          </form>
+          )}
         </div>
         {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />}
       </div>
