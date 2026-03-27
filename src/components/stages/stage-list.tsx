@@ -112,6 +112,20 @@ function SortableStage({
   )
 }
 
+const SUGGESTED_STAGES = [
+  'Działka i formalności',
+  'Stan zero (Fundamenty, Płyta)',
+  'Stan surowy otwarty',
+  'Stan surowy zamknięty (Okna, Dach)',
+  'Instalacje wewnętrzne',
+  'Tynki i wylewki',
+  'Termoizolacja poddasza',
+  'Ocieplenie i elewacja',
+  'Prace wykończeniowe',
+  'Urządzanie i meble',
+  'Odbiór i przeprowadzka'
+]
+
 export function StageList({ projectId, stages: initialStages }: { projectId: string; stages: Stage[] }) {
   const [stages, setStages] = useState(initialStages)
   const [isAdding, setIsAdding] = useState(false)
@@ -154,15 +168,29 @@ export function StageList({ projectId, stages: initialStages }: { projectId: str
       {isAdding && (
         <Card>
           <CardContent className="pt-4 pb-4">
-            <form onSubmit={handleAdd} className="flex gap-2">
-              <Input
-                value={newName}
-                onChange={e => setNewName(e.target.value)}
-                placeholder="Nazwa etapu (np. Fundamenty)"
-                autoFocus
-              />
-              <Button type="submit">Zapisz</Button>
-              <Button variant="ghost" type="button" onClick={() => setIsAdding(false)}>Anuluj</Button>
+            <form onSubmit={handleAdd} className="flex flex-col gap-3">
+              <div className="flex gap-2">
+                <Input
+                  value={newName}
+                  onChange={e => setNewName(e.target.value)}
+                  placeholder="Wpisz własną nazwę lub wybierz poniżej..."
+                  autoFocus
+                />
+                <Button type="submit" disabled={!newName.trim()}>Zapisz</Button>
+                <Button variant="ghost" type="button" onClick={() => setIsAdding(false)}>Anuluj</Button>
+              </div>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {SUGGESTED_STAGES.map(suggestion => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => setNewName(suggestion)}
+                    className="text-[10px] font-medium bg-secondary text-secondary-foreground px-2 py-1 rounded-full hover:bg-[var(--primary-glow)] hover:text-primary transition-colors border border-transparent hover:border-primary/20"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
             </form>
           </CardContent>
         </Card>
