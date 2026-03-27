@@ -39,7 +39,7 @@ export async function signup(formData: FormData) {
     return redirect(`/login?error=${encodeURIComponent(error.message)}&mode=register`)
   }
 
-  return redirect('/login?message=Potwierdź swój adres email, aby się zalogować.&mode=login')
+  return redirect(`/login?message=${encodeURIComponent('Potwierdź swój adres email, aby się zalogować.')}&mode=login`)
 }
 
 export async function loginWithMagicLink(formData: FormData) {
@@ -58,7 +58,7 @@ export async function loginWithMagicLink(formData: FormData) {
     return redirect(`/login?error=${encodeURIComponent(error.message)}&mode=magiclink`)
   }
 
-  return redirect('/login?message=Link logowania został wysłany na Twój email.&mode=magiclink')
+  return redirect(`/login?message=${encodeURIComponent('Link logowania został wysłany na Twój email.')}&mode=magiclink`)
 }
 
 export async function signOut() {
