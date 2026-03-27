@@ -16,6 +16,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
 
   const { data: stages } = await supabase.from('stages').select('*').match({ project_id: params.id }).order('order', { ascending: true })
   const { data: expenses } = await supabase.from('expenses').select('*').match({ project_id: params.id }).order('date', { ascending: false })
+  const { data: checklists } = await supabase.from('checklists').select('*, checklist_items(*)').match({ project_id: params.id })
 
   const totalBudget = Number(project.budget) || 0
   const totalExpenses = expenses?.reduce((acc, e) => acc + Number(e.amount), 0) || 0
@@ -98,9 +99,10 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
-        <StageList projectId={project.id} stages={stages || []} />
+        <StageList projectId={project.id} stages={stages || []} checklists={checklists || []} />
         <ExpenseList projectId={project.id} expenses={expenses || []} stages={stages || []} />
       </div>
+
     </div>
   )
 }

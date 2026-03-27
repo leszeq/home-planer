@@ -24,6 +24,7 @@ import { CheckCircle2, Circle, Clock, GripVertical, Plus, Trash2 } from 'lucide-
 import { createStage, updateStageStatus, deleteStage, updateStagesOrder } from '@/app/(dashboard)/dashboard/projects/[id]/actions'
 import { cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
+import { ChecklistView } from '@/components/checklists/checklist-view'
 
 interface Stage {
   id: string
@@ -32,12 +33,17 @@ interface Stage {
   order: number
 }
 
+interface ChecklistItem { id: string; content: string; is_done: boolean }
+interface Checklist { id: string; name: string; checklist_items: ChecklistItem[], stage_id: string | null }
+
 function SortableStage({
   stage,
   projectId,
+  checklists
 }: {
   stage: Stage
   projectId: string
+  checklists: Checklist[]
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: stage.id })
 
@@ -53,61 +59,72 @@ function SortableStage({
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-3 p-4 bg-card border rounded-xl shadow-sm hover:shadow-md transition-shadow"
+      className="flex flex-col gap-3 p-4 bg-card border rounded-xl shadow-sm hover:shadow-md transition-shadow"
     >
-      {/* Drag Handle */}
-      <button
-        {...attributes}
-        {...listeners}
-        className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing p-0.5 rounded"
-        aria-label="Drag to reorder"
-      >
-        <GripVertical className="w-4 h-4" />
-      </button>
+      <div className="flex items-center gap-3">
+        {/* Drag Handle */}
+        <button
+          {...attributes}
+          {...listeners}
+          className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing p-0.5 rounded"
+          aria-label="Drag to reorder"
+        >
+          <GripVertical className="w-4 h-4" />
+        </button>
 
-      {/* Status Toggle */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => updateStageStatus(projectId, stage.id, nextStatus)}
-        className="shrink-0"
-      >
-        {stage.status === 'done' ? (
-          <CheckCircle2 className="w-5 h-5 text-[var(--accent-green)]" />
-        ) : stage.status === 'in_progress' ? (
-          <Clock className="w-5 h-5 text-primary" />
-        ) : (
-          <Circle className="w-5 h-5 text-muted-foreground" />
-        )}
-      </Button>
+        {/* Status Toggle */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => updateStageStatus(projectId, stage.id, nextStatus)}
+          className="shrink-0"
+        >
+          {stage.status === 'done' ? (
+            <CheckCircle2 className="w-5 h-5 text-[var(--accent-green)]" />
+          ) : stage.status === 'in_progress' ? (
+            <Clock className="w-5 h-5 text-primary" />
+          ) : (
+            <Circle className="w-5 h-5 text-muted-foreground" />
+          )}
+        </Button>
 
-      {/* Stage Name */}
-      <div className="flex-1 min-w-0">
-        <p className={cn('font-medium text-sm truncate', stage.status === 'done' && 'line-through text-muted-foreground')}>
-          {stage.name}
-        </p>
-        <p className="text-xs text-muted-foreground capitalize mt-0.5">
-          {stage.status === 'todo' ? 'Do zrobienia' : stage.status === 'in_progress' ? 'W trakcie' : 'Zakończony'}
-        </p>
+        {/* Stage Name */}
+        <div className="flex-1 min-w-0">
+          <p className={cn('font-medium text-sm truncate', stage.status === 'done' && 'line-through text-muted-foreground')}>
+            {stage.name}
+          </p>
+          <p className="text-xs text-muted-foreground capitalize mt-0.5">
+            {stage.status === 'todo' ? 'Do zrobienia' : stage.status === 'in_progress' ? 'W trakcie' : 'Zakończony'}
+          </p>
+        </div>
+
+        {/* Status Badge */}
+        <span className={cn(
+          'hidden sm:inline-flex text-xs font-medium px-2.5 py-1 rounded-full',
+          stage.status === 'done' ? 'badge-done' : stage.status === 'in_progress' ? 'badge-progress' : 'badge-todo'
+        )}>
+          {stage.status === 'done' ? 'Gotowe' : stage.status === 'in_progress' ? 'W trakcie' : 'Todo'}
+        </span>
+
+        {/* Delete */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-muted-foreground hover:text-destructive shrink-0"
+          onClick={() => deleteStage(projectId, stage.id)}
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
       </div>
 
-      {/* Status Badge */}
-      <span className={cn(
-        'hidden sm:inline-flex text-xs font-medium px-2.5 py-1 rounded-full',
-        stage.status === 'done' ? 'badge-done' : stage.status === 'in_progress' ? 'badge-progress' : 'badge-todo'
-      )}>
-        {stage.status === 'done' ? 'Gotowe' : stage.status === 'in_progress' ? 'W trakcie' : 'Todo'}
-      </span>
-
-      {/* Delete */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="text-muted-foreground hover:text-destructive shrink-0"
-        onClick={() => deleteStage(projectId, stage.id)}
-      >
-        <Trash2 className="w-4 h-4" />
-      </Button>
+      {/* Checklists for this stage */}
+      {checklists.length > 0 && (
+        <div className="pl-9 pr-2 space-y-2 mt-2">
+          {checklists.map(cl => (
+            <ChecklistView key={cl.id} checklist={{...cl, checklist_items: cl.checklist_items || []}} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -126,7 +143,7 @@ const SUGGESTED_STAGES = [
   'Odbiór i przeprowadzka'
 ]
 
-export function StageList({ projectId, stages: initialStages }: { projectId: string; stages: Stage[] }) {
+export function StageList({ projectId, stages: initialStages, checklists = [] }: { projectId: string; stages: Stage[]; checklists?: Checklist[] }) {
   const [stages, setStages] = useState(initialStages)
   const [isAdding, setIsAdding] = useState(false)
   const [newName, setNewName] = useState('')
@@ -211,7 +228,12 @@ export function StageList({ projectId, stages: initialStages }: { projectId: str
         <SortableContext items={stages.map(s => s.id)} strategy={verticalListSortingStrategy}>
           <div className="space-y-2">
             {stages.map(stage => (
-              <SortableStage key={stage.id} stage={stage} projectId={projectId} />
+              <SortableStage 
+                key={stage.id} 
+                stage={stage} 
+                projectId={projectId} 
+                checklists={checklists.filter(cl => cl.stage_id === stage.id)} 
+              />
             ))}
           </div>
         </SortableContext>
