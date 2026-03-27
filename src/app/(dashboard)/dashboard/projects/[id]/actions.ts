@@ -74,3 +74,38 @@ export async function deleteExpense(projectId: string, expenseId: string) {
   if (error) throw error
   revalidatePath(`/dashboard/projects/${projectId}`)
 }
+
+// Team Actions
+export async function inviteMember(projectId: string, email: string, role: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase.from('project_members').insert({
+    project_id: projectId,
+    email: email.toLowerCase(),
+    role
+  })
+
+  if (error) {
+    if (error.code === '23505') {
+      return { error: 'Ten użytkownik został już zaproszony.' }
+    }
+    return { error: error.message }
+  }
+
+  revalidatePath(`/dashboard/projects/${projectId}`)
+  return { success: true }
+}
+
+export async function removeMember(projectId: string, memberId: string) {
+  const supabase = await createClient()
+  const { error } = await supabase.from('project_members').delete().match({ id: memberId, project_id: projectId })
+  if (error) throw error
+  revalidatePath(`/dashboard/projects/${projectId}`)
+}
+
+export async function updateMemberRole(projectId: string, memberId: string, role: string) {
+  const supabase = await createClient()
+  const { error } = await supabase.from('project_members').update({ role }).match({ id: memberId, project_id: projectId })
+  if (error) throw error
+  revalidatePath(`/dashboard/projects/${projectId}`)
+}

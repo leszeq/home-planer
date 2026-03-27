@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StageList } from "@/components/stages/stage-list"
 import { ProjectTimeline } from "@/components/stages/project-timeline"
+import { TeamManagement } from "@/components/team/team-management"
 import { ExpenseList } from "@/components/expenses/expense-list"
 import { FileList } from "@/components/files/file-list"
 import { Button } from "@/components/ui/button"
@@ -13,6 +14,7 @@ import { ChevronLeft, AlertTriangle } from "lucide-react"
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const awaitedParams = await params;
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   
   const { data: project } = await supabase.from('projects').select('*').match({ id: awaitedParams.id }).single()
   if (!project) notFound()
@@ -21,6 +23,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const { data: expenses } = await supabase.from('expenses').select('*').match({ project_id: awaitedParams.id }).order('date', { ascending: false })
   const { data: checklists } = await supabase.from('checklists').select('*, checklist_items(*)').match({ project_id: awaitedParams.id })
   const { data: files } = await supabase.from('project_files').select('*').match({ project_id: awaitedParams.id }).order('created_at', { ascending: false })
+  const { data: members } = await supabase.from('project_members').select('*').match({ project_id: awaitedParams.id })
 
   const totalBudget = Number(project.budget) || 0
   const totalExpenses = expenses?.reduce((acc, e) => acc + Number(e.amount), 0) || 0
@@ -111,7 +114,15 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <StageList projectId={project.id} stages={stages || []} checklists={checklists || []} />
           <FileList projectId={project.id} userId={project.user_id} files={files || []} />
         </div>
-        <ExpenseList projectId={project.id} expenses={expenses || []} stages={stages || []} />
+        <div className="space-y-8">
+          <TeamManagement 
+            projectId={project.id} 
+            ownerId={project.user_id} 
+            currentUserId={user?.id || ''} 
+            members={members || []} 
+          />
+          <ExpenseList projectId={project.id} expenses={expenses || []} stages={stages || []} />
+        </div>
       </div>
 
     </div>
