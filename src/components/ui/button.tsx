@@ -1,13 +1,16 @@
 import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
 import { cn } from "@/lib/utils"
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'glow'
   size?: 'sm' | 'md' | 'lg' | 'icon'
+  asChild?: boolean
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', ...props }, ref) => {
+  ({ className, variant = 'primary', size = 'md', asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button"
     const variants = {
       primary: 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm active:scale-[0.98]',
       secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
@@ -23,7 +26,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       icon: 'h-9 w-9 rounded-lg',
     }
     return (
-      <button
+      <Comp
         ref={ref}
         className={cn(
           "inline-flex items-center justify-center font-medium transition-all duration-150",
