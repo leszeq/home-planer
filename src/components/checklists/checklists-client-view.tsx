@@ -4,8 +4,26 @@ import { useState, useMemo } from 'react'
 import { ChecklistView } from '@/components/checklists/checklist-view'
 import { CreateChecklistForm } from '@/components/checklists/create-checklist-form'
 import { AddChecklistModal } from '@/components/checklists/add-checklist-modal'
-import { ClipboardList, LayoutList, Layers, FolderKanban } from 'lucide-react'
+import { ClipboardList, Layers, FolderKanban, GripVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { updateChecklistsOrder } from '@/app/(dashboard)/dashboard/checklists/actions'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 interface ChecklistItem { id: string; content: string; is_done: boolean; order: number }
 interface Checklist {
@@ -14,12 +32,60 @@ interface Checklist {
   project_id: string
   stage_id: string | null
   checklist_items: ChecklistItem[]
+  order?: number
 }
 interface Project { id: string; name: string }
 interface Stage { id: string; name: string; project_id: string }
 
+function SortableChecklist({
+  checklist,
+  projectName,
+  showBadge,
+}: {
+  checklist: Checklist
+  projectName: string
+  showBadge: boolean
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: checklist.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  }
+
+  return (
+    <div ref={setNodeRef} style={style} className="space-y-1.5">
+      {showBadge && projectName && (
+        <div className="flex items-center gap-1.5 ml-1">
+          <FolderKanban className="w-3 h-3 text-muted-foreground" />
+          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{projectName}</span>
+        </div>
+      )}
+      <div className="flex items-start gap-1.5">
+        {/* Drag handle */}
+        <button
+          {...attributes}
+          {...listeners}
+          className="mt-4 text-muted-foreground/30 hover:text-muted-foreground cursor-grab active:cursor-grabbing touch-none shrink-0"
+          title="Przeciągnij, by zmienić kolejność"
+        >
+          <GripVertical className="w-4 h-4" />
+        </button>
+        <div className="flex-1 min-w-0">
+          <ChecklistView
+            checklist={{ ...checklist, checklist_items: checklist.checklist_items ?? [] }}
+            projectId={checklist.project_id}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function ChecklistsClientView({
-  checklists,
+  checklists: initialChecklists,
   projects,
   stages,
 }: {
@@ -27,21 +93,27 @@ export function ChecklistsClientView({
   projects: Project[]
   stages: Stage[]
 }) {
+  const [checklists, setChecklists] = useState(
+    [...initialChecklists].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+  )
   const [groupByProject, setGroupByProject] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
 
   const projectMap = useMemo(() =>
     Object.fromEntries(projects.map(p => [p.id, p.name])),
     [projects]
   )
 
-  // Filter by project if one is selected
   const filtered = useMemo(() =>
     selectedProjectId ? checklists.filter(cl => cl.project_id === selectedProjectId) : checklists,
     [checklists, selectedProjectId]
   )
 
-  // Group by project
   const grouped = useMemo(() => {
     if (!groupByProject) return null
     const groups: Record<string, Checklist[]> = {}
@@ -51,6 +123,16 @@ export function ChecklistsClientView({
     }
     return groups
   }, [filtered, groupByProject])
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = checklists.findIndex(cl => cl.id === active.id)
+    const newIndex = checklists.findIndex(cl => cl.id === over.id)
+    const reordered = arrayMove(checklists, oldIndex, newIndex)
+    setChecklists(reordered)
+    await updateChecklistsOrder(reordered[0]?.project_id ?? '', reordered.map(cl => cl.id))
+  }
 
   const firstProject = projects[0]
 
@@ -75,7 +157,6 @@ export function ChecklistsClientView({
 
       {/* Filter & Group Bar */}
       <div className="flex flex-wrap items-center gap-3">
-        {/* Group toggle */}
         <Button
           variant={groupByProject ? 'secondary' : 'outline'}
           size="sm"
@@ -88,11 +169,9 @@ export function ChecklistsClientView({
 
         <div className="h-5 w-px bg-border" />
 
-        {/* Project filter pills */}
         <button
           onClick={() => setSelectedProjectId(null)}
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${!selectedProjectId ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-            }`}
+          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${!selectedProjectId ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'}`}
         >
           Wszystkie ({checklists.length})
         </button>
@@ -103,8 +182,7 @@ export function ChecklistsClientView({
             <button
               key={p.id}
               onClick={() => setSelectedProjectId(prev => prev === p.id ? null : p.id)}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${selectedProjectId === p.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/80 border border-border/50'
-                }`}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${selectedProjectId === p.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/80 border border-border/50'}`}
             >
               {p.name} ({count})
             </button>
@@ -134,7 +212,7 @@ export function ChecklistsClientView({
 
       {/* Checklists */}
       {grouped ? (
-        // Grouped view
+        // Grouped view (no DnD — groups are ordered separately)
         <div className="space-y-8">
           {Object.entries(grouped).map(([projectId, cls]) => (
             <div key={projectId}>
@@ -145,10 +223,14 @@ export function ChecklistsClientView({
               </div>
               <div className="space-y-3 pl-2 border-l-2 border-primary/20">
                 {cls.map(cl => (
-                  <ChecklistWithProjectBadge key={cl.id} checklist={cl} projectName={projectMap[cl.project_id]} showBadge={false} />
+                  <div key={cl.id} className="space-y-1.5">
+                    <ChecklistView
+                      checklist={{ ...cl, checklist_items: cl.checklist_items ?? [] }}
+                      projectId={cl.project_id}
+                    />
+                  </div>
                 ))}
               </div>
-              {/* Add custom checklist to this project */}
               <div className="pl-2 mt-3">
                 <CreateChecklistForm projectId={projectId} label="+ Nowa checklista" />
               </div>
@@ -156,38 +238,22 @@ export function ChecklistsClientView({
           ))}
         </div>
       ) : (
-        // Flat view
-        <div className="space-y-3">
-          {filtered.map(cl => (
-            <ChecklistWithProjectBadge key={cl.id} checklist={cl} projectName={projectMap[cl.project_id]} showBadge />
-          ))}
-        </div>
+        // Flat sortable view
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={filtered.map(cl => cl.id)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-3">
+              {filtered.map(cl => (
+                <SortableChecklist
+                  key={cl.id}
+                  checklist={cl}
+                  projectName={projectMap[cl.project_id]}
+                  showBadge={!selectedProjectId || projects.length > 1}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
-    </div>
-  )
-}
-
-function ChecklistWithProjectBadge({
-  checklist,
-  projectName,
-  showBadge,
-}: {
-  checklist: Checklist
-  projectName: string
-  showBadge: boolean
-}) {
-  return (
-    <div className="space-y-1.5">
-      {showBadge && projectName && (
-        <div className="flex items-center gap-1.5 ml-1">
-          <FolderKanban className="w-3 h-3 text-muted-foreground" />
-          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{projectName}</span>
-        </div>
-      )}
-      <ChecklistView
-        checklist={{ ...checklist, checklist_items: checklist.checklist_items ?? [] }}
-        projectId={checklist.project_id}
-      />
     </div>
   )
 }
