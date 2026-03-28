@@ -12,9 +12,10 @@ interface Props {
   stageId?: string | null
   /** Text for the trigger button */
   label?: string
+  onSuccess?: (checklist: any) => void
 }
 
-export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa Checklista' }: Props) {
+export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa Checklista', onSuccess }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const [name, setName] = useState('')
   const [items, setItems] = useState<string[]>([''])
@@ -42,7 +43,14 @@ export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa C
     e.preventDefault()
     if (!name.trim()) return
     setLoading(true)
-    await createCustomChecklist(projectId, stageId, name.trim(), items)
+    try {
+      const newChecklist = await createCustomChecklist(projectId, stageId, name.trim(), items)
+      if (newChecklist && onSuccess) {
+        onSuccess(newChecklist)
+      }
+    } catch (err) {
+      console.error(err)
+    }
     setName('')
     setItems([''])
     setIsOpen(false)

@@ -153,6 +153,7 @@ export function ChecklistsClientView({
               projectId={firstProject.id}
               stages={stages}
               projects={projects}
+              onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
             />
           )}
         </div>
@@ -235,7 +236,11 @@ export function ChecklistsClientView({
                 ))}
               </div>
               <div className="pl-2 mt-3">
-                <CreateChecklistForm projectId={projectId} label="+ Nowa checklista" />
+                <CreateChecklistForm 
+                  projectId={projectId} 
+                  label="+ Nowa checklista" 
+                  onSuccess={(cl) => setChecklists(prev => [cl, ...prev])}
+                />
               </div>
             </div>
           ))}

@@ -11,10 +11,12 @@ export function AddChecklistModal({
   projectId: defaultProjectId,
   stages: allStages,
   projects = [],
+  onSuccess,
 }: {
   projectId: string
   stages: { id: string; name: string; project_id: string }[]
   projects?: { id: string; name: string }[]
+  onSuccess?: (checklist: any) => void
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const [selected, setSelected] = useState<string | null>(null)
@@ -27,7 +29,14 @@ export function AddChecklistModal({
   const handleAdd = async () => {
     if (!selected) return
     setPending(true)
-    await createChecklistFromTemplate(selectedProjectId, stageId || null, selected)
+    try {
+      const newChecklist = await createChecklistFromTemplate(selectedProjectId, stageId || null, selected)
+      if (newChecklist && onSuccess) {
+        onSuccess(newChecklist)
+      }
+    } catch (err) {
+      console.error(err)
+    }
     setPending(false)
     setIsOpen(false)
     setSelected(null)

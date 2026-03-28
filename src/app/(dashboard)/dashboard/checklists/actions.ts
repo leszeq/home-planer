@@ -32,6 +32,15 @@ export async function createChecklistFromTemplate(
   if (itemsError) throw itemsError
 
   revalidatePath('/dashboard/checklists')
+
+  // Return the new checklist with items
+  const { data: fullChecklist } = await supabase
+    .from('checklists')
+    .select('*, checklist_items(*)')
+    .eq('id', checklist.id)
+    .single()
+    
+  return fullChecklist
 }
 
 export async function toggleChecklistItem(itemId: string, isDone: boolean, projectId: string) {
@@ -84,6 +93,15 @@ export async function createCustomChecklist(
   }
 
   revalidatePath('/dashboard/checklists')
+
+  // Return the new checklist with items for optimistic UI
+  const { data: fullChecklist } = await supabase
+    .from('checklists')
+    .select('*, checklist_items(*)')
+    .eq('id', checklist.id)
+    .single()
+    
+  return fullChecklist
 }
 
 export async function addChecklistItem(checklistId: string, content: string, projectId: string) {
