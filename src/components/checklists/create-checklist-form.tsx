@@ -79,56 +79,61 @@ export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa C
   }
 
   return (
-    <Card className="border-primary/20 shadow-md animate-fade-in w-full max-w-2xl mx-auto">
-      <CardHeader className="pb-2 pt-4 px-4">
+    <Card className="border-primary/20 shadow-md animate-fade-in w-full max-w-6xl mx-auto">
+      <CardHeader className="pb-2 pt-6 px-8">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-semibold">Nowa checklista</CardTitle>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleClose}>
-            <X className="w-4 h-4" />
+          <CardTitle className="text-lg font-bold">Nowa checklista</CardTitle>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleClose}>
+            <X className="w-5 h-5" />
           </Button>
         </div>
       </CardHeader>
       <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-3 px-4 pb-2">
-          <Input
-            autoFocus
-            required
-            placeholder="Nazwa checklisty (np. 'Odbiór instalacji')"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            className="h-9 text-sm"
-          />
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground font-medium">Zadania (opcjonalnie):</p>
-            {items.map((item, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <GripVertical className="w-4 h-4 text-muted-foreground/30 shrink-0" />
-                <Input
-                  data-item-input
-                  placeholder={`Zadanie ${index + 1}...`}
-                  value={item}
-                  onChange={e => updateItem(index, e.target.value)}
-                  onKeyDown={e => handleKeyDown(e, index)}
-                  className="h-8 text-xs flex-1"
-                />
-                {items.length > 1 && (
-                  <Button type="button" variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeItemField(index)}>
-                    <X className="w-3 h-3" />
-                  </Button>
-                )}
-              </div>
-            ))}
-            <Button type="button" variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={addItemField}>
-              <Plus className="w-3 h-3 mr-1" /> Dodaj zadanie
+        <CardContent className="space-y-6 px-8 pb-4">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-muted-foreground">Nazwa checklisty</label>
+            <Input
+              autoFocus
+              required
+              placeholder="np. 'Odbiór instalacji elektrycznej'"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              className="h-12 text-base"
+            />
+          </div>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground font-semibold">Pozycje na liście (zadania):</p>
+            <div className="space-y-3">
+              {items.map((item, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <GripVertical className="w-5 h-5 text-muted-foreground/30 shrink-0" />
+                  <Input
+                    data-item-input
+                    placeholder={`Zadanie ${index + 1}...`}
+                    value={item}
+                    onChange={e => updateItem(index, e.target.value)}
+                    onKeyDown={e => handleKeyDown(e, index)}
+                    className="h-11 text-sm flex-1"
+                  />
+                  {items.length > 1 && (
+                    <Button type="button" variant="ghost" size="icon" className="h-9 w-9 shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => removeItemField(index)}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+            <Button type="button" variant="outline" size="sm" className="h-9 text-xs mt-2" onClick={addItemField}>
+              <Plus className="w-4 h-4 mr-1.5" /> Dodaj kolejne zadanie
             </Button>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-end gap-2 px-4 pt-2 pb-4">
-          <Button type="button" variant="ghost" size="sm" className="h-8 text-xs" onClick={handleClose}>
+        <CardFooter className="flex justify-end gap-3 px-8 pt-4 pb-8 border-t bg-secondary/5">
+          <Button type="button" variant="ghost" className="h-10 px-6" onClick={handleClose}>
             Anuluj
           </Button>
-          <Button type="submit" size="sm" className="h-8 text-xs" disabled={loading || !name.trim()}>
-            Utwórz
+          <Button type="submit" className="h-10 px-10 font-semibold" disabled={loading || !name.trim()}>
+            {loading ? 'Tworzenie...' : 'Utwórz checklistę'}
           </Button>
         </CardFooter>
       </form>
