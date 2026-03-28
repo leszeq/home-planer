@@ -92,7 +92,7 @@ function SortableItem({
   )
 }
 
-export function ChecklistView({ checklist, projectId }: { checklist: Checklist; projectId: string }) {
+export function ChecklistView({ checklist, projectId, onDelete }: { checklist: Checklist; projectId: string; onDelete?: () => void }) {
   const [isOpen, setIsOpen] = useState(true)
   const [isAddingItem, setIsAddingItem] = useState(false)
   const [newItem, setNewItem] = useState('')
@@ -179,7 +179,10 @@ export function ChecklistView({ checklist, projectId }: { checklist: Checklist; 
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6 text-destructive hover:bg-destructive/20"
-                onClick={() => deleteChecklist(checklist.id)}
+                onClick={async () => {
+                  onDelete?.()  // Optimistic: remove from parent list immediately
+                  await deleteChecklist(checklist.id)
+                }}
               >
                 <Trash2 className="w-3 h-3" />
               </Button>

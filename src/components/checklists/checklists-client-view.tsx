@@ -41,10 +41,12 @@ function SortableChecklist({
   checklist,
   projectName,
   showBadge,
+  onDelete,
 }: {
   checklist: Checklist
   projectName: string
   showBadge: boolean
+  onDelete: () => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: checklist.id })
@@ -77,6 +79,7 @@ function SortableChecklist({
           <ChecklistView
             checklist={{ ...checklist, checklist_items: checklist.checklist_items ?? [] }}
             projectId={checklist.project_id}
+            onDelete={onDelete}
           />
         </div>
       </div>
@@ -248,6 +251,7 @@ export function ChecklistsClientView({
                   checklist={cl}
                   projectName={projectMap[cl.project_id]}
                   showBadge={!selectedProjectId || projects.length > 1}
+                  onDelete={() => setChecklists(prev => prev.filter(c => c.id !== cl.id))}
                 />
               ))}
             </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -42,11 +42,13 @@ interface Checklist { id: string; name: string; checklist_items: ChecklistItem[]
 function SortableStage({
   stage,
   projectId,
-  checklists
+  checklists,
+  onDeleteChecklist,
 }: {
   stage: Stage
   projectId: string
   checklists: Checklist[]
+  onDeleteChecklist: (checklistId: string) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: stage.id })
   const [isEditingDates, setIsEditingDates] = useState(false)
@@ -171,7 +173,12 @@ function SortableStage({
       {/* Checklists for this stage */}
       <div className="pl-9 pr-2 space-y-2 mt-2">
         {checklists.map(cl => (
-          <ChecklistView key={cl.id} checklist={{...cl, checklist_items: cl.checklist_items || []}} projectId={projectId} />
+          <ChecklistView 
+            key={cl.id} 
+            checklist={{...cl, checklist_items: cl.checklist_items || []}} 
+            projectId={projectId}
+            onDelete={() => onDeleteChecklist(cl.id)}
+          />
         ))}
         <CreateChecklistForm projectId={projectId} stageId={stage.id} label="+ Checklista" />
       </div>
@@ -193,15 +200,17 @@ const SUGGESTED_STAGES = [
   'Odbiór i przeprowadzka'
 ]
 
-export function StageList({ projectId, stages: initialStages, checklists = [] }: { projectId: string; stages: Stage[]; checklists?: Checklist[] }) {
+export function StageList({ projectId, stages: initialStages, checklists: initialChecklists = [] }: { projectId: string; stages: Stage[]; checklists?: Checklist[] }) {
   const [stages, setStages] = useState(initialStages)
+  const [checklists, setChecklists] = useState(initialChecklists)
   const [isAdding, setIsAdding] = useState(false)
   const [newName, setNewName] = useState('')
 
-  // Sync local state when server data changes (e.g. after adding/deleting)
+  // Sync local state when server data changes
   useEffect(() => {
     setStages(initialStages)
-  }, [initialStages])
+    setChecklists(initialChecklists)
+  }, [initialStages, initialChecklists])
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -283,6 +292,7 @@ export function StageList({ projectId, stages: initialStages, checklists = [] }:
                 stage={stage} 
                 projectId={projectId} 
                 checklists={checklists.filter(cl => cl.stage_id === stage.id)} 
+                onDeleteChecklist={(id) => setChecklists(prev => prev.filter(c => c.id !== id))}
               />
             ))}
           </div>
