@@ -2,8 +2,10 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { checkPermission } from '@/lib/permissions'
 
 export async function addFileRecord(projectId: string, name: string, storagePath: string, contentType: string, sizeBytes: number) {
+  await checkPermission(projectId)
   const supabase = await createClient()
 
   const { error } = await supabase.from('project_files').insert({
@@ -23,6 +25,7 @@ export async function addFileRecord(projectId: string, name: string, storagePath
 }
 
 export async function deleteFile(projectId: string, fileId: string, storagePath: string) {
+  await checkPermission(projectId)
   const supabase = await createClient()
 
   // Remove from Storage First

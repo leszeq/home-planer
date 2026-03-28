@@ -23,7 +23,17 @@ function getFileIcon(contentType: string) {
   return <File className="w-8 h-8 text-gray-500" />
 }
 
-export function FileList({ projectId, userId, files }: { projectId: string; userId: string; files: ProjectFile[] }) {
+export function FileList({ 
+  projectId, 
+  userId, 
+  files, 
+  canEdit = true 
+}: { 
+  projectId: string; 
+  userId: string; 
+  files: ProjectFile[];
+  canEdit?: boolean;
+}) {
   const [isUploading, setIsUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [dragActive, setDragActive] = useState(false)
@@ -114,44 +124,46 @@ export function FileList({ projectId, userId, files }: { projectId: string; user
       
       <CardContent className="flex flex-col gap-6 flex-1">
         {/* Dropzone */}
-        <div 
-          className={`flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-xl transition-all ${
-            dragActive ? 'border-primary bg-primary/10' : 'border-muted-foreground/30 hover:border-primary/50'
-          }`}
-          onDragOver={onDragOver}
-          onDragLeave={onDragLeave}
-          onDrop={onDrop}
-        >
-          <UploadCloud className={`w-10 h-10 mb-3 ${dragActive ? 'text-primary' : 'text-muted-foreground'}`} />
-          <p className="text-sm text-center font-medium mb-1">
-            Przeciągnij i upuść pliki tutaj
-          </p>
-          <p className="text-xs text-muted-foreground text-center mb-4">
-            lub kliknij aby wybrać z dysku (PDF, JPG, PNG)
-          </p>
-          
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={(e) => e.target.files && handleUpload(e.target.files)} 
-            className="hidden" 
-            multiple 
-            accept="image/*,.pdf,.doc,.docx" 
-          />
-          
-          <Button 
-            variant="secondary" 
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
+        {canEdit && (
+          <div 
+            className={`flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-xl transition-all ${
+              dragActive ? 'border-primary bg-primary/10' : 'border-muted-foreground/30 hover:border-primary/50'
+            }`}
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+            onDrop={onDrop}
           >
-            {isUploading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Wgrywanie... {uploadProgress}%
-              </>
-            ) : "Wybierz pliki"}
-          </Button>
-        </div>
+            <UploadCloud className={`w-10 h-10 mb-3 ${dragActive ? 'text-primary' : 'text-muted-foreground'}`} />
+            <p className="text-sm text-center font-medium mb-1">
+              Przeciągnij i upuść pliki tutaj
+            </p>
+            <p className="text-xs text-muted-foreground text-center mb-4">
+              lub kliknij aby wybrać z dysku (PDF, JPG, PNG)
+            </p>
+            
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={(e) => e.target.files && handleUpload(e.target.files)} 
+              className="hidden" 
+              multiple 
+              accept="image/*,.pdf,.doc,.docx" 
+            />
+            
+            <Button 
+              variant="secondary" 
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Wgrywanie... {uploadProgress}%
+                </>
+              ) : "Wybierz pliki"}
+            </Button>
+          </div>
+        )}
 
         {/* File List */}
         <div className="space-y-3 mt-2 flex-1 overflow-y-auto">
@@ -175,13 +187,15 @@ export function FileList({ projectId, userId, files }: { projectId: string; user
                   <Button variant="ghost" size="icon" onClick={() => handleDownload(file)} title="Pobierz">
                     <Download className="w-4 h-4 text-muted-foreground hover:text-primary" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => {
-                    if (confirm('Na pewno usunąć ten plik?')) {
-                      deleteFile(projectId, file.id, file.storage_path)
-                    }
-                  }} title="Usuń">
-                    <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
-                  </Button>
+                  {canEdit && (
+                    <Button variant="ghost" size="icon" onClick={() => {
+                      if (confirm('Na pewno usunąć ten plik?')) {
+                        deleteFile(projectId, file.id, file.storage_path)
+                      }
+                    }} title="Usuń">
+                      <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
+                    </Button>
+                  )}
                 </div>
               </div>
             ))

@@ -46,6 +46,7 @@ function SortableStage({
   onDeleteChecklist,
   onAddChecklist,
   onUpdateChecklist,
+  canEdit,
 }: {
   stage: Stage
   projectId: string
@@ -53,8 +54,12 @@ function SortableStage({
   onDeleteChecklist: (checklistId: string) => void
   onAddChecklist: (checklist: any) => void
   onUpdateChecklist: (checklistId: string, items: ChecklistItem[]) => void
+  canEdit?: boolean
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: stage.id })
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ 
+    id: stage.id,
+    disabled: !canEdit
+  })
   const [isEditingDates, setIsEditingDates] = useState(false)
   const [startDate, setStartDate] = useState(stage.start_date || '')
   const [endDate, setEndDate] = useState(stage.end_date || '')
@@ -98,6 +103,7 @@ function SortableStage({
           size="icon"
           onClick={() => updateStageStatus(projectId, stage.id, nextStatus)}
           className="shrink-0"
+          disabled={!canEdit}
         >
           {stage.status === 'done' ? (
             <CheckCircle2 className="w-5 h-5 text-[var(--accent-green)]" />
@@ -135,24 +141,27 @@ function SortableStage({
         </span>
 
         {/* Calendar Edit */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className={cn("hover:text-primary shrink-0 transition-colors", isEditingDates ? "text-primary bg-primary/10" : "text-muted-foreground")}
-          onClick={() => setIsEditingDates(!isEditingDates)}
-        >
-          <Calendar className="w-4 h-4" />
-        </Button>
+        {canEdit && (
+          <>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn("hover:text-primary shrink-0 transition-colors", isEditingDates ? "text-primary bg-primary/10" : "text-muted-foreground")}
+              onClick={() => setIsEditingDates(!isEditingDates)}
+            >
+              <Calendar className="w-4 h-4" />
+            </Button>
 
-        {/* Delete */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-muted-foreground hover:text-destructive shrink-0"
-          onClick={() => deleteStage(projectId, stage.id)}
-        >
-          <Trash2 className="w-4 h-4" />
-        </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-destructive shrink-0"
+              onClick={() => deleteStage(projectId, stage.id)}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </>
+        )}
       </div>
 
       {isEditingDates && (
@@ -184,14 +193,17 @@ function SortableStage({
             onDelete={() => onDeleteChecklist(cl.id)}
             onItemChange={(newItems) => onUpdateChecklist(cl.id, newItems)}
             onItemsOrderChange={(newItems) => onUpdateChecklist(cl.id, newItems)}
+            canEdit={canEdit}
           />
         ))}
-        <CreateChecklistForm 
-          projectId={projectId} 
-          stageId={stage.id} 
-          label="+ Checklista" 
-          onSuccess={onAddChecklist}
-        />
+        {canEdit && (
+          <CreateChecklistForm 
+            projectId={projectId} 
+            stageId={stage.id} 
+            label="+ Checklista" 
+            onSuccess={onAddChecklist}
+          />
+        )}
       </div>
     </div>
   )
@@ -211,7 +223,17 @@ const SUGGESTED_STAGES = [
   'Odbiór i przeprowadzka'
 ]
 
-export function StageList({ projectId, stages: initialStages, checklists: initialChecklists = [] }: { projectId: string; stages: Stage[]; checklists?: Checklist[] }) {
+export function StageList({ 
+  projectId, 
+  stages: initialStages, 
+  checklists: initialChecklists = [],
+  canEdit = true
+}: { 
+  projectId: string; 
+  stages: Stage[]; 
+  checklists?: Checklist[] 
+  canEdit?: boolean
+}) {
   const [stages, setStages] = useState(initialStages)
   const [checklists, setChecklists] = useState(initialChecklists)
   const [isAdding, setIsAdding] = useState(false)
@@ -229,6 +251,7 @@ export function StageList({ projectId, stages: initialStages, checklists: initia
   )
 
   const handleDragEnd = async (event: DragEndEvent) => {
+    if (!canEdit) return
     const { active, over } = event
     if (!over || active.id === over.id) return
 
@@ -251,10 +274,12 @@ export function StageList({ projectId, stages: initialStages, checklists: initia
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-bold">Etapy budowy</h3>
-        <Button variant="outline" size="sm" onClick={() => setIsAdding(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Dodaj etap
-        </Button>
+        {canEdit && (
+          <Button variant="outline" size="sm" onClick={() => setIsAdding(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Dodaj etap
+          </Button>
+        )}
       </div>
 
       {isAdding && (
@@ -306,6 +331,7 @@ export function StageList({ projectId, stages: initialStages, checklists: initia
                 onDeleteChecklist={(id) => setChecklists(prev => prev.filter(c => c.id !== id))}
                 onAddChecklist={(cl) => setChecklists(prev => [cl, ...prev])}
                 onUpdateChecklist={(id, newItems) => setChecklists(prev => prev.map(c => c.id === id ? { ...c, checklist_items: newItems } : c))}
+                canEdit={canEdit}
               />
             ))}
           </div>

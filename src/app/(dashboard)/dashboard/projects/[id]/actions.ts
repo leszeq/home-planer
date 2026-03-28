@@ -2,9 +2,11 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { checkPermission } from "@/lib/permissions"
 
 // Stages Actions
 export async function createStage(projectId: string, name: string, order: number) {
+  await checkPermission(projectId)
   const supabase = await createClient()
   const { error } = await supabase.from('stages').insert({
     project_id: projectId,
@@ -17,6 +19,7 @@ export async function createStage(projectId: string, name: string, order: number
 }
 
 export async function updateStageStatus(projectId: string, stageId: string, status: string) {
+  await checkPermission(projectId)
   const supabase = await createClient()
   const { error } = await supabase.from('stages').update({ status }).match({ id: stageId })
   if (error) throw error
@@ -24,6 +27,7 @@ export async function updateStageStatus(projectId: string, stageId: string, stat
 }
 
 export async function updateStageDates(projectId: string, stageId: string, startDate: string | null, endDate: string | null) {
+  await checkPermission(projectId)
   const supabase = await createClient()
   const { error } = await supabase.from('stages').update({ 
     start_date: startDate, 
@@ -34,6 +38,7 @@ export async function updateStageDates(projectId: string, stageId: string, start
 }
 
 export async function deleteStage(projectId: string, stageId: string) {
+  await checkPermission(projectId)
   const supabase = await createClient()
   const { error } = await supabase.from('stages').delete().match({ id: stageId })
   if (error) throw error
@@ -41,6 +46,7 @@ export async function deleteStage(projectId: string, stageId: string) {
 }
 
 export async function updateStagesOrder(projectId: string, orderedIds: string[]) {
+  await checkPermission(projectId)
   const supabase = await createClient()
   await Promise.all(
     orderedIds.map((id, index) =>
@@ -59,6 +65,7 @@ export async function createExpense(projectId: string, data: {
   stage_id: string | null,
   date: string
 }) {
+  await checkPermission(projectId)
   const supabase = await createClient()
   const { error } = await supabase.from('expenses').insert({
     project_id: projectId,
@@ -69,6 +76,7 @@ export async function createExpense(projectId: string, data: {
 }
 
 export async function deleteExpense(projectId: string, expenseId: string) {
+  await checkPermission(projectId)
   const supabase = await createClient()
   const { error } = await supabase.from('expenses').delete().match({ id: expenseId })
   if (error) throw error
@@ -77,6 +85,7 @@ export async function deleteExpense(projectId: string, expenseId: string) {
 
 // Team Actions
 export async function inviteMember(projectId: string, email: string, role: string) {
+  await checkPermission(projectId)
   const supabase = await createClient()
 
   const { error } = await supabase.from('project_members').insert({
@@ -97,6 +106,7 @@ export async function inviteMember(projectId: string, email: string, role: strin
 }
 
 export async function removeMember(projectId: string, memberId: string) {
+  await checkPermission(projectId)
   const supabase = await createClient()
   const { error } = await supabase.from('project_members').delete().match({ id: memberId, project_id: projectId })
   if (error) throw error
@@ -104,6 +114,7 @@ export async function removeMember(projectId: string, memberId: string) {
 }
 
 export async function updateMemberRole(projectId: string, memberId: string, role: string) {
+  await checkPermission(projectId)
   const supabase = await createClient()
   const { error } = await supabase.from('project_members').update({ role }).match({ id: memberId, project_id: projectId })
   if (error) throw error

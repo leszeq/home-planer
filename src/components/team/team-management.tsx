@@ -20,12 +20,14 @@ export function TeamManagement({
   projectId, 
   ownerId, 
   currentUserId,
-  members 
+  members,
+  userRole
 }: { 
   projectId: string
   ownerId: string
   currentUserId: string
-  members: ProjectMember[] 
+  members: ProjectMember[]
+  userRole?: string
 }) {
   const [isInviting, setIsInviting] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
@@ -33,10 +35,7 @@ export function TeamManagement({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Sprawdzamy, czy użytkownik ma prawo zarządzać zespołem
-  // Prawa ma Właściciel Główny lub ktoś kto ma rolę 'owner' / 'editor' w project_members
-  const currentUserRoleMember = members.find(m => m.user_id === currentUserId)
-  const canManage = currentUserId === ownerId || currentUserRoleMember?.role === 'owner' || currentUserRoleMember?.role === 'editor'
+  const canManage = currentUserId === ownerId || userRole === 'owner' || userRole === 'editor'
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault()

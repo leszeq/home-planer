@@ -44,6 +44,7 @@ function SortableChecklist({
   onDelete,
   onItemChange,
   onItemsOrderChange,
+  canEdit,
 }: {
   checklist: Checklist
   projectName: string
@@ -51,9 +52,10 @@ function SortableChecklist({
   onDelete: () => void
   onItemChange?: (items: ChecklistItem[]) => void
   onItemsOrderChange?: (items: ChecklistItem[]) => void
+  canEdit?: boolean
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: checklist.id })
+    useSortable({ id: checklist.id, disabled: !canEdit })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -71,14 +73,16 @@ function SortableChecklist({
       )}
       <div className="flex items-start gap-1.5">
         {/* Drag handle */}
-        <button
-          {...attributes}
-          {...listeners}
-          className="mt-4 text-muted-foreground/30 hover:text-muted-foreground cursor-grab active:cursor-grabbing touch-none shrink-0"
-          title="Przeciągnij, by zmienić kolejność"
-        >
-          <GripVertical className="w-4 h-4" />
-        </button>
+        {canEdit && (
+          <button
+            {...attributes}
+            {...listeners}
+            className="mt-4 text-muted-foreground/30 hover:text-muted-foreground cursor-grab active:cursor-grabbing touch-none shrink-0"
+            title="Przeciągnij, by zmienić kolejność"
+          >
+            <GripVertical className="w-4 h-4" />
+          </button>
+        )}
         <div className="flex-1 min-w-0">
           <ChecklistView
             checklist={{ ...checklist, checklist_items: checklist.checklist_items ?? [] }}
@@ -97,10 +101,12 @@ export function ChecklistsClientView({
   checklists: initialChecklists,
   projects,
   stages,
+  roles = {},
 }: {
   checklists: Checklist[]
   projects: Project[]
   stages: Stage[]
+  roles?: Record<string, string>
 }) {
   const [checklists, setChecklists] = useState(
     [...initialChecklists].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
@@ -155,11 +161,11 @@ export function ChecklistsClientView({
           <p className="text-muted-foreground mt-1">Narzędzia kontroli jakości dla każdego etapu budowy</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {firstProject && (
+          {firstProject && (roles[firstProject.id] === 'owner' || roles[firstProject.id] === 'editor') && (
             <AddChecklistModal
               projectId={firstProject.id}
               stages={stages}
-              projects={projects}
+              projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
               onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
             />
           )}
@@ -221,13 +227,13 @@ export function ChecklistsClientView({
             Nie masz jeszcze żadnych list kontrolnych dla wybranych projektów. Dodaj nową listę z gotowego szablonu lub stwórz własną od zera.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mt-8 items-center justify-center">
-            {firstProject && (
+            {firstProject && (roles[selectedProjectId || firstProject.id] === 'owner' || roles[selectedProjectId || firstProject.id] === 'editor') && (
               <>
                 {!isCustomCreating && (
                   <AddChecklistModal
                     projectId={selectedProjectId || firstProject.id}
                     stages={stages}
-                    projects={projects}
+                    projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
                     onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
                   />
                 )}
@@ -255,28 +261,34 @@ export function ChecklistsClientView({
                 <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">{cls.length}</span>
               </div>
               <div className="space-y-3 pl-2 border-l-2 border-primary/20">
-                {cls.map(cl => (
-                  <div key={cl.id} className="space-y-1.5">
-                    <ChecklistView
-                      checklist={{ ...cl, checklist_items: cl.checklist_items ?? [] }}
-                      projectId={cl.project_id}
-                      onDelete={() => setChecklists(prev => prev.filter(c => c.id !== cl.id))}
-                      onItemChange={(newItems) => {
-                        setChecklists(prev => prev.map(c => c.id === cl.id ? { ...c, checklist_items: newItems } : c))
-                      }}
-                      onItemsOrderChange={(newItems) => {
-                        setChecklists(prev => prev.map(c => c.id === cl.id ? { ...c, checklist_items: newItems } : c))
-                      }}
-                    />
-                  </div>
-                ))}
+                {cls.map(cl => {
+                  const canEdit = roles[cl.project_id] === 'owner' || roles[cl.project_id] === 'editor'
+                  return (
+                    <div key={cl.id} className="space-y-1.5">
+                      <ChecklistView
+                        checklist={{ ...cl, checklist_items: cl.checklist_items ?? [] }}
+                        projectId={cl.project_id}
+                        onDelete={() => setChecklists(prev => prev.filter(c => c.id !== cl.id))}
+                        onItemChange={(newItems) => {
+                          setChecklists(prev => prev.map(c => c.id === cl.id ? { ...c, checklist_items: newItems } : c))
+                        }}
+                        onItemsOrderChange={(newItems) => {
+                          setChecklists(prev => prev.map(c => c.id === cl.id ? { ...c, checklist_items: newItems } : c))
+                        }}
+                        canEdit={canEdit}
+                      />
+                    </div>
+                  )
+                })}
               </div>
               <div className="pl-2 mt-3">
-                <CreateChecklistForm 
-                  projectId={projectId} 
-                  label="+ Nowa checklista" 
-                  onSuccess={(cl) => setChecklists(prev => [cl, ...prev])}
-                />
+                {(roles[projectId] === 'owner' || roles[projectId] === 'editor') && (
+                  <CreateChecklistForm 
+                    projectId={projectId} 
+                    label="+ Nowa checklista" 
+                    onSuccess={(cl) => setChecklists(prev => [cl, ...prev])}
+                  />
+                )}
               </div>
             </div>
           ))}
@@ -286,21 +298,25 @@ export function ChecklistsClientView({
         <DndContext id="checklists-dnd" sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={filtered.map(cl => cl.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-3">
-              {filtered.map(cl => (
-                <SortableChecklist
-                  key={cl.id}
-                  checklist={cl}
-                  projectName={projectMap[cl.project_id]}
-                  showBadge={!selectedProjectId || projects.length > 1}
-                  onDelete={() => setChecklists(prev => prev.filter(c => c.id !== cl.id))}
-                  onItemChange={(newItems) => {
-                    setChecklists(prev => prev.map(c => c.id === cl.id ? { ...c, checklist_items: newItems } : c))
-                  }}
-                  onItemsOrderChange={(newItems) => {
-                    setChecklists(prev => prev.map(c => c.id === cl.id ? { ...c, checklist_items: newItems } : c))
-                  }}
-                />
-              ))}
+              {filtered.map(cl => {
+                const canEdit = roles[cl.project_id] === 'owner' || roles[cl.project_id] === 'editor'
+                return (
+                  <SortableChecklist
+                    key={cl.id}
+                    checklist={cl}
+                    projectName={projectMap[cl.project_id]}
+                    showBadge={!selectedProjectId || projects.length > 1}
+                    onDelete={() => setChecklists(prev => prev.filter(c => c.id !== cl.id))}
+                    onItemChange={(newItems) => {
+                      setChecklists(prev => prev.map(c => c.id === cl.id ? { ...c, checklist_items: newItems } : c))
+                    }}
+                    onItemsOrderChange={(newItems) => {
+                      setChecklists(prev => prev.map(c => c.id === cl.id ? { ...c, checklist_items: newItems } : c))
+                    }}
+                    canEdit={canEdit}
+                  />
+                )
+              })}
             </div>
           </SortableContext>
         </DndContext>
@@ -309,11 +325,13 @@ export function ChecklistsClientView({
       {/* Global Add Button (when not grouped or no checklists in flat view) */}
       {!grouped && filtered.length > 0 && (
         <div className="flex justify-center pt-4">
-          <CreateChecklistForm 
-            projectId={selectedProjectId || firstProject?.id || ''} 
-            label="+ Kolejna checklista" 
-            onSuccess={(cl) => setChecklists(prev => [cl, ...prev])}
-          />
+          {(roles[selectedProjectId || firstProject?.id || ''] === 'owner' || roles[selectedProjectId || firstProject?.id || ''] === 'editor') && (
+            <CreateChecklistForm 
+              projectId={selectedProjectId || firstProject?.id || ''} 
+              label="+ Kolejna checklista" 
+              onSuccess={(cl) => setChecklists(prev => [cl, ...prev])}
+            />
+          )}
         </div>
       )}
     </div>

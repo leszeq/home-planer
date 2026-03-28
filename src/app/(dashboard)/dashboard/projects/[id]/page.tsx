@@ -11,6 +11,7 @@ import { PrintButton } from "@/components/ui/print-button"
 import { DeleteProjectButton } from "@/components/projects/delete-project-button"
 import Link from "next/link"
 import { ChevronLeft, AlertTriangle } from "lucide-react"
+import { getProjectRole, canEdit as canEditRole } from "@/lib/permissions"
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const awaitedParams = await params;
@@ -33,6 +34,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const isOverBudget = totalExpenses > totalBudget
   const isNearLimit = totalExpenses > totalBudget * 0.8 && !isOverBudget
 
+  const projectRole = await getProjectRole(awaitedParams.id)
+  const canEditProject = canEditRole(projectRole)
+
   return (
     <div className="space-y-8 pb-12">
       <div className="flex items-center gap-4">
@@ -47,7 +51,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         </div>
         <div className="ml-auto flex items-center gap-2">
           <PrintButton />
-          <DeleteProjectButton projectId={project.id} isShared={project.user_id !== user?.id} />
+          {canEditProject && (
+            <DeleteProjectButton projectId={project.id} isShared={project.user_id !== user?.id} />
+          )}
         </div>
       </div>
 
@@ -113,8 +119,18 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="space-y-8">
           <ProjectTimeline stages={stages || []} />
-          <StageList projectId={project.id} stages={stages || []} checklists={checklists || []} />
-          <FileList projectId={project.id} userId={project.user_id} files={files || []} />
+          <StageList 
+            projectId={project.id} 
+            stages={stages || []} 
+            checklists={checklists || []} 
+            canEdit={canEditProject}
+          />
+          <FileList 
+            projectId={project.id} 
+            userId={project.user_id} 
+            files={files || []} 
+            canEdit={canEditProject}
+          />
         </div>
         <div className="space-y-8">
           <TeamManagement 
@@ -122,8 +138,14 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             ownerId={project.user_id} 
             currentUserId={user?.id || ''} 
             members={members || []} 
+            userRole={projectRole}
           />
-          <ExpenseList projectId={project.id} expenses={expenses || []} stages={stages || []} />
+          <ExpenseList 
+            projectId={project.id} 
+            expenses={expenses || []} 
+            stages={stages || []} 
+            canEdit={canEditProject}
+          />
         </div>
       </div>
 

@@ -3,12 +3,14 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { CHECKLIST_TEMPLATES } from "@/lib/checklist-templates"
+import { checkPermission } from "@/lib/permissions"
 
 export async function createChecklistFromTemplate(
   projectId: string,
   stageId: string | null,
   templateId: string
 ) {
+  await checkPermission(projectId)
   const supabase = await createClient()
   const template = CHECKLIST_TEMPLATES.find(t => t.id === templateId)
   if (!template) throw new Error("Template not found")
@@ -44,6 +46,7 @@ export async function createChecklistFromTemplate(
 }
 
 export async function toggleChecklistItem(itemId: string, isDone: boolean, projectId: string) {
+  await checkPermission(projectId)
   const supabase = await createClient()
   await supabase.from('checklist_items').update({ is_done: isDone }).match({ id: itemId })
   revalidatePath(`/dashboard/checklists`)
@@ -51,6 +54,11 @@ export async function toggleChecklistItem(itemId: string, isDone: boolean, proje
 
 export async function deleteChecklist(checklistId: string) {
   const supabase = await createClient()
+  
+  // Get projectId first
+  const { data: checklist } = await supabase.from('checklists').select('project_id').eq('id', checklistId).single()
+  if (checklist) await checkPermission(checklist.project_id)
+
   await supabase.from('checklists').delete().match({ id: checklistId })
   revalidatePath('/dashboard/checklists')
 }
@@ -61,6 +69,7 @@ export async function createCustomChecklist(
   name: string,
   items: string[]
 ) {
+  await checkPermission(projectId)
   const supabase = await createClient()
 
   // Get current max order
@@ -105,6 +114,7 @@ export async function createCustomChecklist(
 }
 
 export async function addChecklistItem(checklistId: string, content: string, projectId: string) {
+  await checkPermission(projectId)
   const supabase = await createClient()
 
   const { data: existing } = await supabase
@@ -128,6 +138,7 @@ export async function addChecklistItem(checklistId: string, content: string, pro
 }
 
 export async function updateChecklistsOrder(projectId: string, orderedIds: string[]) {
+  await checkPermission(projectId)
   const supabase = await createClient()
   await Promise.all(
     orderedIds.map((id, index) =>
@@ -139,6 +150,9 @@ export async function updateChecklistsOrder(projectId: string, orderedIds: strin
 
 export async function updateChecklistItemsOrder(checklistId: string, orderedIds: string[]) {
   const supabase = await createClient()
+  const { data: cl } = await supabase.from('checklists').select('project_id').eq('id', checklistId).single()
+  if (cl) await checkPermission(cl.project_id)
+
   await Promise.all(
     orderedIds.map((id, index) =>
       supabase.from('checklist_items').update({ order: index }).match({ id })
@@ -149,6 +163,11 @@ export async function updateChecklistItemsOrder(checklistId: string, orderedIds:
 
 export async function deleteChecklistItem(itemId: string) {
   const supabase = await createClient()
+  
+  const { data: item } = await supabase.from('checklist_items').select('checklists(project_id)').eq('id', itemId).single()
+  const projectId = (item?.checklists as any)?.project_id
+  if (projectId) await checkPermission(projectId)
+
   await supabase.from('checklist_items').delete().match({ id: itemId })
   revalidatePath('/dashboard/checklists')
 }

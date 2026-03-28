@@ -7,21 +7,29 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Plus, Trash2, Receipt } from 'lucide-react'
 import { createExpense, deleteExpense } from '@/app/(dashboard)/dashboard/projects/[id]/actions'
 
-export function ExpenseList({ projectId, expenses, stages }: { 
+export function ExpenseList({ 
+  projectId, 
+  expenses, 
+  stages,
+  canEdit = true
+}: { 
   projectId: string, 
   expenses: any[], 
-  stages: any[] 
+  stages: any[]
+  canEdit?: boolean
 }) {
   const [isAdding, setIsAdding] = useState(false)
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-xl font-bold">Expenses</h3>
-        <Button variant="outline" size="sm" onClick={() => setIsAdding(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Expense
-        </Button>
+        <h3 className="text-xl font-bold">Wydatki</h3>
+        {canEdit && (
+          <Button variant="outline" size="sm" onClick={() => setIsAdding(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Dodaj wydatek
+          </Button>
+        )}
       </div>
 
       {isAdding && (
@@ -108,9 +116,11 @@ export function ExpenseList({ projectId, expenses, stages }: {
                   {Number(expense.amount).toLocaleString()} zł
                 </td>
                 <td className="p-4 text-right">
-                  <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" onClick={() => deleteExpense(projectId, expense.id)}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  {canEdit && (
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" onClick={() => deleteExpense(projectId, expense.id)}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
                 </td>
               </tr>
             ))}
