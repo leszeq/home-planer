@@ -59,15 +59,15 @@ export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa C
 
   if (!isOpen) {
     return (
-      <Button variant="outline" size="sm" onClick={() => setIsOpen(true)} className="gap-2 text-xs h-8">
-        <ListChecks className="w-3.5 h-3.5" />
+      <Button onClick={() => setIsOpen(true)} className="gap-2">
+        <ListChecks className="w-4 h-4" />
         {label}
       </Button>
     )
   }
 
   return (
-    <Card className="border-primary/20 shadow-md animate-fade-in">
+    <Card className="border-primary/20 shadow-md animate-fade-in w-full max-w-2xl mx-auto">
       <CardHeader className="pb-2 pt-4 px-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-semibold">Nowa checklista</CardTitle>
