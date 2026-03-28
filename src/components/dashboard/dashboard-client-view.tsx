@@ -163,22 +163,34 @@ export function DashboardClientView({
 
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((s, i) => (
-          <Card key={s.label} className={`animate-fade-in-up delay-${i * 75} card-hover`}>
-            <CardContent className="pt-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{s.label}</p>
-                  <p className={`text-2xl font-bold mt-2 ${s.color}`}>{s.value}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{s.sub}</p>
+        {stats.map((s, i) => {
+          const CardContentComp = (
+            <Card key={s.label} className={`animate-fade-in-up delay-${i * 75} card-hover h-full`}>
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{s.label}</p>
+                    <p className={`text-2xl font-bold mt-2 ${s.color}`}>{s.value}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{s.sub}</p>
+                  </div>
+                  <div className={`p-2.5 rounded-lg ${s.bg}`}>
+                    <s.icon className={`w-5 h-5 ${s.color}`} />
+                  </div>
                 </div>
-                <div className={`p-2.5 rounded-lg ${s.bg}`}>
-                  <s.icon className={`w-5 h-5 ${s.color}`} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          )
+
+          if (s.label === 'Wydano') {
+            return (
+              <Link key={s.label} href="/dashboard/expenses" className="block h-full">
+                {CardContentComp}
+              </Link>
+            )
+          }
+
+          return CardContentComp
+        })}
       </div>
 
       {/* Charts & Projects Row */}
