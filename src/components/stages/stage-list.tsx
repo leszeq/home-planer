@@ -45,12 +45,14 @@ function SortableStage({
   checklists,
   onDeleteChecklist,
   onAddChecklist,
+  onUpdateChecklist,
 }: {
   stage: Stage
   projectId: string
   checklists: Checklist[]
   onDeleteChecklist: (checklistId: string) => void
   onAddChecklist: (checklist: any) => void
+  onUpdateChecklist: (checklistId: string, items: ChecklistItem[]) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: stage.id })
   const [isEditingDates, setIsEditingDates] = useState(false)
@@ -180,6 +182,8 @@ function SortableStage({
             checklist={{...cl, checklist_items: cl.checklist_items || []}} 
             projectId={projectId}
             onDelete={() => onDeleteChecklist(cl.id)}
+            onItemChange={(newItems) => onUpdateChecklist(cl.id, newItems)}
+            onItemsOrderChange={(newItems) => onUpdateChecklist(cl.id, newItems)}
           />
         ))}
         <CreateChecklistForm 
@@ -301,6 +305,7 @@ export function StageList({ projectId, stages: initialStages, checklists: initia
                 checklists={checklists.filter(cl => cl.stage_id === stage.id)} 
                 onDeleteChecklist={(id) => setChecklists(prev => prev.filter(c => c.id !== id))}
                 onAddChecklist={(cl) => setChecklists(prev => [cl, ...prev])}
+                onUpdateChecklist={(id, newItems) => setChecklists(prev => prev.map(c => c.id === id ? { ...c, checklist_items: newItems } : c))}
               />
             ))}
           </div>

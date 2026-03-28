@@ -42,11 +42,15 @@ function SortableChecklist({
   projectName,
   showBadge,
   onDelete,
+  onItemChange,
+  onItemsOrderChange,
 }: {
   checklist: Checklist
   projectName: string
   showBadge: boolean
   onDelete: () => void
+  onItemChange?: (items: ChecklistItem[]) => void
+  onItemsOrderChange?: (items: ChecklistItem[]) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: checklist.id })
@@ -80,6 +84,8 @@ function SortableChecklist({
             checklist={{ ...checklist, checklist_items: checklist.checklist_items ?? [] }}
             projectId={checklist.project_id}
             onDelete={onDelete}
+            onItemChange={onItemChange}
+            onItemsOrderChange={onItemsOrderChange}
           />
         </div>
       </div>
@@ -255,6 +261,12 @@ export function ChecklistsClientView({
                       checklist={{ ...cl, checklist_items: cl.checklist_items ?? [] }}
                       projectId={cl.project_id}
                       onDelete={() => setChecklists(prev => prev.filter(c => c.id !== cl.id))}
+                      onItemChange={(newItems) => {
+                        setChecklists(prev => prev.map(c => c.id === cl.id ? { ...c, checklist_items: newItems } : c))
+                      }}
+                      onItemsOrderChange={(newItems) => {
+                        setChecklists(prev => prev.map(c => c.id === cl.id ? { ...c, checklist_items: newItems } : c))
+                      }}
                     />
                   </div>
                 ))}
@@ -281,6 +293,12 @@ export function ChecklistsClientView({
                   projectName={projectMap[cl.project_id]}
                   showBadge={!selectedProjectId || projects.length > 1}
                   onDelete={() => setChecklists(prev => prev.filter(c => c.id !== cl.id))}
+                  onItemChange={(newItems) => {
+                    setChecklists(prev => prev.map(c => c.id === cl.id ? { ...c, checklist_items: newItems } : c))
+                  }}
+                  onItemsOrderChange={(newItems) => {
+                    setChecklists(prev => prev.map(c => c.id === cl.id ? { ...c, checklist_items: newItems } : c))
+                  }}
                 />
               ))}
             </div>

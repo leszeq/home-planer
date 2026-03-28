@@ -92,7 +92,19 @@ function SortableItem({
   )
 }
 
-export function ChecklistView({ checklist, projectId, onDelete }: { checklist: Checklist; projectId: string; onDelete?: () => void }) {
+export function ChecklistView({ 
+  checklist, 
+  projectId, 
+  onDelete,
+  onItemChange, // To notify parent about toggles/adds/removes
+  onItemsOrderChange, // To notify parent about reorders
+}: { 
+  checklist: Checklist; 
+  projectId: string; 
+  onDelete?: () => void 
+  onItemChange?: (items: Item[]) => void
+  onItemsOrderChange?: (items: Item[]) => void
+}) {
   const [isOpen, setIsOpen] = useState(true)
   const [isAddingItem, setIsAddingItem] = useState(false)
   const [newItem, setNewItem] = useState('')
@@ -108,13 +120,18 @@ export function ChecklistView({ checklist, projectId, onDelete }: { checklist: C
 
   const handleToggle = (itemId: string, newDone: boolean) => {
     // Optimistic update — instant UI response
-    setItems(prev => prev.map(i => i.id === itemId ? { ...i, is_done: newDone } : i))
+    const newItems = items.map(i => i.id === itemId ? { ...i, is_done: newDone } : i)
+    setItems(newItems)
+    onItemChange?.(newItems)
+    
     // Fire server action in the background
     toggleChecklistItem(itemId, newDone, checklist.id)
   }
 
   const handleDelete = (itemId: string) => {
-    setItems(prev => prev.filter(i => i.id !== itemId))
+    const newItems = items.filter(i => i.id !== itemId)
+    setItems(newItems)
+    onItemChange?.(newItems)
     deleteChecklistItem(itemId)
   }
   const doneCount = items.filter(i => i.is_done).length
@@ -128,6 +145,7 @@ export function ChecklistView({ checklist, projectId, onDelete }: { checklist: C
     const newIndex = items.findIndex(i => i.id === over.id)
     const reordered = arrayMove(items, oldIndex, newIndex)
     setItems(reordered)
+    onItemsOrderChange?.(reordered)
     await updateChecklistItemsOrder(checklist.id, reordered.map(i => i.id))
   }
 
@@ -136,7 +154,9 @@ export function ChecklistView({ checklist, projectId, onDelete }: { checklist: C
     if (!newItem.trim()) return
     setIsAddingItem(false)
     const optimisticItem = { id: `temp-${Date.now()}`, content: newItem.trim(), is_done: false, order: items.length }
-    setItems(prev => [...prev, optimisticItem])
+    const newItems = [...items, optimisticItem]
+    setItems(newItems)
+    onItemChange?.(newItems)
     setNewItem('')
     await addChecklistItem(checklist.id, newItem.trim(), projectId)
   }
