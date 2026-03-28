@@ -15,18 +15,20 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { signOut } from '@/app/(auth)/login/actions'
-
-const navItems = [
-  { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-  { label: 'Projekty', icon: FolderKanban, href: '/dashboard/projects' },
-  { label: 'Wydatki', icon: Receipt, href: '/dashboard/expenses' },
-  { label: 'Checklisty', icon: ClipboardList, href: '/dashboard/checklists' },
-  { label: 'Dokumenty', icon: FileText, href: '/dashboard/documents' },
-  { label: 'Ustawienia', icon: Settings, href: '/dashboard/settings' },
-]
+import { useTranslation } from '@/lib/i18n/LanguageContext'
 
 export function Sidebar() {
   const pathname = usePathname()
+  const { t, locale, setLocale } = useTranslation()
+
+  const navItems = [
+    { label: t('common.dashboard'), icon: LayoutDashboard, href: '/dashboard' },
+    { label: t('common.projects'), icon: FolderKanban, href: '/dashboard/projects' },
+    { label: t('common.expenses'), icon: Receipt, href: '/dashboard/expenses' },
+    { label: t('common.checklists'), icon: ClipboardList, href: '/dashboard/checklists' },
+    { label: t('common.documents'), icon: FileText, href: '/dashboard/documents' },
+    { label: t('common.settings'), icon: Settings, href: '/dashboard/settings' },
+  ]
 
   return (
     <aside className="flex flex-col h-screen w-64 sidebar-bg border-r border-[var(--sidebar-border)] flex-shrink-0">
@@ -67,15 +69,36 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Footer / Sign out */}
-      <div className="px-3 pb-5 pt-3 border-t border-[var(--sidebar-border)]">
+      {/* Footer / Sign out & Language */}
+      <div className="px-3 pb-5 pt-3 border-t border-[var(--sidebar-border)] space-y-2">
+        <div className="flex gap-1 p-1 bg-[var(--sidebar-accent)]/30 rounded-lg">
+          <button
+            onClick={() => setLocale('pl')}
+            className={cn(
+              "flex-1 text-[10px] py-1 px-2 rounded font-bold transition-all",
+              locale === 'pl' ? "bg-primary text-white" : "text-[var(--sidebar-muted)] hover:text-white"
+            )}
+          >
+            PL
+          </button>
+          <button
+            onClick={() => setLocale('en')}
+            className={cn(
+              "flex-1 text-[10px] py-1 px-2 rounded font-bold transition-all",
+              locale === 'en' ? "bg-primary text-white" : "text-[var(--sidebar-muted)] hover:text-white"
+            )}
+          >
+            EN
+          </button>
+        </div>
+        
         <form action={signOut}>
           <button
             type="submit"
             className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--sidebar-muted)] hover:text-white hover:bg-destructive/20 transition-all group"
           >
             <LogOut className="w-4.5 h-4.5 shrink-0 group-hover:text-destructive" />
-            Wyloguj się
+            {t('common.logout')}
           </button>
         </form>
       </div>

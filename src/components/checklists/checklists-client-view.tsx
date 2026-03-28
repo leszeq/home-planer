@@ -6,6 +6,7 @@ import { CreateChecklistForm } from '@/components/checklists/create-checklist-fo
 import { AddChecklistModal } from '@/components/checklists/add-checklist-modal'
 import { ClipboardList, Layers, FolderKanban, GripVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useTranslation } from '@/lib/i18n/LanguageContext'
 import { updateChecklistsOrder } from '@/app/(dashboard)/dashboard/checklists/actions'
 import {
   DndContext,
@@ -54,6 +55,7 @@ function SortableChecklist({
   onItemsOrderChange?: (items: ChecklistItem[]) => void
   canEdit?: boolean
 }) {
+  const { t } = useTranslation()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: checklist.id, disabled: !canEdit })
 
@@ -78,7 +80,7 @@ function SortableChecklist({
             {...attributes}
             {...listeners}
             className="mt-4 text-muted-foreground/30 hover:text-muted-foreground cursor-grab active:cursor-grabbing touch-none shrink-0"
-            title="Przeciągnij, by zmienić kolejność"
+            title={t('common.drag_to_reorder')}
           >
             <GripVertical className="w-4 h-4" />
           </button>
@@ -108,6 +110,7 @@ export function ChecklistsClientView({
   stages: Stage[]
   roles?: Record<string, string>
 }) {
+  const { t } = useTranslation()
   const [checklists, setChecklists] = useState(
     [...initialChecklists].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   )
@@ -157,8 +160,8 @@ export function ChecklistsClientView({
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Checklisty</h1>
-          <p className="text-muted-foreground mt-1">Narzędzia kontroli jakości dla każdego etapu budowy</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('checklists.page_title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('checklists.page_subtitle')}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {firstProject && (roles[firstProject.id] === 'owner' || roles[firstProject.id] === 'editor') && (
@@ -181,7 +184,7 @@ export function ChecklistsClientView({
           onClick={() => setGroupByProject(v => !v)}
         >
           <Layers className="w-3.5 h-3.5" />
-          Grupuj wg projektu
+          {t('checklists.group_by_project')}
         </Button>
 
         <div className="h-5 w-px bg-border" />
@@ -190,7 +193,7 @@ export function ChecklistsClientView({
           onClick={() => setSelectedProjectId(null)}
           className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${!selectedProjectId ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'}`}
         >
-          Wszystkie ({checklists.length})
+          {t('checklists.all_projects')} ({checklists.length})
         </button>
         {projects.map(p => {
           const count = checklists.filter(cl => cl.project_id === p.id).length
@@ -211,9 +214,9 @@ export function ChecklistsClientView({
       <div className="flex items-start gap-3 p-4 bg-[var(--primary-glow)] border border-primary/20 rounded-xl text-sm">
         <ClipboardList className="w-5 h-5 text-primary shrink-0 mt-0.5" />
         <div>
-          <p className="font-semibold text-primary">10 profesjonalnych szablonów checklisty</p>
+          <p className="font-semibold text-primary">{t('checklists.templates_banner_title')}</p>
           <p className="text-muted-foreground mt-0.5">
-            Gotowe listy kontrolne: fundamenty (54 pkt), płyta (30 pkt), stan surowy (92 pkt), okna (13 pkt), instalacje (78 pkt), termoizolacja (13 pkt), elewacja (18 pkt).
+            {t('checklists.templates_banner_desc')}
           </p>
         </div>
       </div>
@@ -222,9 +225,9 @@ export function ChecklistsClientView({
       {filtered.length === 0 && (
         <div className="flex flex-col items-center justify-center p-16 border-2 border-dashed rounded-2xl text-center bg-secondary/10">
           <ClipboardList className="w-16 h-16 text-muted-foreground/30 mb-4" />
-          <h3 className="text-xl font-bold">Brak checklisty</h3>
+          <h3 className="text-xl font-bold">{t('checklists.no_checklists_title')}</h3>
           <p className="text-muted-foreground mt-2 max-w-sm mx-auto">
-            Nie masz jeszcze żadnych list kontrolnych dla wybranych projektów. Dodaj nową listę z gotowego szablonu lub stwórz własną od zera.
+            {t('checklists.no_checklists_desc')}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mt-8 items-center justify-center">
             {firstProject && (roles[selectedProjectId || firstProject.id] === 'owner' || roles[selectedProjectId || firstProject.id] === 'editor') && (
@@ -239,7 +242,7 @@ export function ChecklistsClientView({
                 )}
                 <CreateChecklistForm 
                   projectId={selectedProjectId || firstProject.id} 
-                  label="Utwórz własną listę"
+                  label={t('checklists.create_custom')}
                   onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
                   onOpenChange={setIsCustomCreating}
                 />
@@ -257,7 +260,7 @@ export function ChecklistsClientView({
             <div key={projectId}>
               <div className="flex items-center gap-2 mb-4">
                 <FolderKanban className="w-4 h-4 text-primary" />
-                <h2 className="text-base font-bold">{projectMap[projectId] ?? 'Nieznany projekt'}</h2>
+                <h2 className="text-base font-bold">{projectMap[projectId] ?? t('checklists.unknown_project')}</h2>
                 <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">{cls.length}</span>
               </div>
               <div className="space-y-3 pl-2 border-l-2 border-primary/20">

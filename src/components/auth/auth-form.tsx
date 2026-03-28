@@ -6,10 +6,12 @@ import { Input } from '@/components/ui/input'
 import { login, signup, loginWithMagicLink } from '@/app/(auth)/login/actions'
 import { Mail, KeyRound, Loader2, ArrowRight, Eye, EyeOff } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useTranslation } from '@/lib/i18n/LanguageContext'
 
 type AuthMode = 'login' | 'register' | 'magiclink'
 
 export function AuthForm({ initialMode = 'login', error, message }: { initialMode?: AuthMode, error?: string, message?: string }) {
+  const { t } = useTranslation()
   const [mode, setMode] = useState<AuthMode>(initialMode)
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -31,7 +33,7 @@ export function AuthForm({ initialMode = 'login', error, message }: { initialMod
             mode === 'login' ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
           )}
         >
-          Zaloguj się
+          {t('auth.login_tab')}
         </button>
         <button
           onClick={() => setMode('register')}
@@ -40,21 +42,21 @@ export function AuthForm({ initialMode = 'login', error, message }: { initialMod
             mode === 'register' ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
           )}
         >
-          Zarejestruj się
+          {t('auth.register_tab')}
         </button>
       </div>
 
       <div className="space-y-6">
         <div className="text-center md:text-left">
           <h2 className="text-2xl font-bold tracking-tight">
-            {mode === 'login' && 'Witamy z powrotem'}
-            {mode === 'register' && 'Załóż darmowe konto'}
-            {mode === 'magiclink' && 'Zaloguj się bez hasła'}
+            {mode === 'login' && t('auth.welcome_back')}
+            {mode === 'register' && t('auth.create_account')}
+            {mode === 'magiclink' && t('auth.magiclink_title')}
           </h2>
           <p className="text-sm text-muted-foreground mt-2">
-            {mode === 'login' && 'Wprowadź swoje dane, aby uzyskać dostęp do panelu.'}
-            {mode === 'register' && 'Dołącz do setek inwestorów, którzy kontrolują swoje budowy.'}
-            {mode === 'magiclink' && 'Wpisz email, a otrzymasz bezpieczny link do jednorazowego logowania.'}
+            {mode === 'login' && t('auth.login_desc')}
+            {mode === 'register' && t('auth.register_desc')}
+            {mode === 'magiclink' && t('auth.magiclink_desc')}
           </p>
         </div>
 
@@ -74,11 +76,11 @@ export function AuthForm({ initialMode = 'login', error, message }: { initialMod
             <div className="space-y-4">
               <div className="relative">
                 <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input name="email" type="email" placeholder="Adres e-mail" required className="pl-10 h-11" />
+                <Input name="email" type="email" placeholder={t('auth.email_placeholder')} required className="pl-10 h-11" />
               </div>
               <div className="relative">
                 <KeyRound className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input name="password" type={showPassword ? "text" : "password"} placeholder="Hasło" required className="pl-10 pr-10 h-11" />
+                <Input name="password" type={showPassword ? "text" : "password"} placeholder={t('auth.password_placeholder')} required className="pl-10 pr-10 h-11" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -86,7 +88,7 @@ export function AuthForm({ initialMode = 'login', error, message }: { initialMod
             </div>
             <Button type="submit" variant="glow" className="w-full h-11 text-base group">
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
-                <>Zaloguj się <ArrowRight className="w-4 h-4 ml-2 opacity-70 group-hover:translate-x-1 transition-transform" /></>
+                <>{t('auth.login_button')} <ArrowRight className="w-4 h-4 ml-2 opacity-70 group-hover:translate-x-1 transition-transform" /></>
               )}
             </Button>
           </form>
@@ -97,11 +99,11 @@ export function AuthForm({ initialMode = 'login', error, message }: { initialMod
             <div className="space-y-4">
               <div className="relative">
                 <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input name="email" type="email" placeholder="Adres e-mail" required className="pl-10 h-11" />
+                <Input name="email" type="email" placeholder={t('auth.email_placeholder')} required className="pl-10 h-11" />
               </div>
               <div className="relative">
                 <KeyRound className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input name="password" type={showPassword ? "text" : "password"} placeholder="Hasło" required className="pl-10 pr-10 h-11" />
+                <Input name="password" type={showPassword ? "text" : "password"} placeholder={t('auth.password_placeholder')} required className="pl-10 pr-10 h-11" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -109,7 +111,7 @@ export function AuthForm({ initialMode = 'login', error, message }: { initialMod
             </div>
             <Button type="submit" variant="glow" className="w-full h-11 text-base group">
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
-                <>Utwórz konto <ArrowRight className="w-4 h-4 ml-2 opacity-70 group-hover:translate-x-1 transition-transform" /></>
+                <>{t('auth.register_button')} <ArrowRight className="w-4 h-4 ml-2 opacity-70 group-hover:translate-x-1 transition-transform" /></>
               )}
             </Button>
           </form>
@@ -120,12 +122,12 @@ export function AuthForm({ initialMode = 'login', error, message }: { initialMod
             <div className="space-y-4">
               <div className="relative">
                 <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input name="email" type="email" placeholder="Adres e-mail" required className="pl-10 h-11" />
+                <Input name="email" type="email" placeholder={t('auth.email_placeholder')} required className="pl-10 h-11" />
               </div>
             </div>
             <Button type="submit" variant="glow" className="w-full h-11 text-base group">
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
-                <>Wyślij link <ArrowRight className="w-4 h-4 ml-2 opacity-70 group-hover:translate-x-1 transition-transform" /></>
+                <>{t('auth.send_link_button')} <ArrowRight className="w-4 h-4 ml-2 opacity-70 group-hover:translate-x-1 transition-transform" /></>
               )}
             </Button>
           </form>
@@ -134,11 +136,11 @@ export function AuthForm({ initialMode = 'login', error, message }: { initialMod
         <div className="pt-4 text-center">
           {mode === 'magiclink' ? (
             <button onClick={() => setMode('login')} className="text-sm text-primary hover:underline">
-              Wróć do logowania z hasłem
+              {t('auth.back_to_login')}
             </button>
           ) : (
              <button onClick={() => setMode('magiclink')} className="text-sm text-muted-foreground hover:text-foreground">
-              Zapomniałeś hasła? Zaloguj się jednorazowym linkiem.
+              {t('auth.forgot_password')}
             </button>
           )}
         </div>

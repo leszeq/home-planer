@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { CategoryDonutChart } from "@/components/charts/category-donut-chart"
 import { BarChart3, TrendingDown, TrendingUp, Layers, AlertTriangle, Filter } from "lucide-react"
 import Link from "next/link"
+import { useTranslation } from "@/lib/i18n/LanguageContext"
 
 interface Project {
   id: string
@@ -25,6 +26,7 @@ export function DashboardClientView({
   initialProjects: Project[]
   allExpenses: Expense[] 
 }) {
+  const { t } = useTranslation()
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([])
 
   const toggleProject = (projectId: string) => {
@@ -72,34 +74,34 @@ export function DashboardClientView({
 
   const stats = [
     {
-      label: 'Projekty',
+      label: t('dashboard.stats.projects'),
       value: filteredProjects.length,
       icon: Layers,
-      sub: selectedProjectIds.length > 0 ? 'wybrane projekty' : 'aktywnych projektów',
+      sub: selectedProjectIds.length > 0 ? t('dashboard.stats.selected_projects') : t('dashboard.stats.active_projects'),
       color: 'text-primary',
       bg: 'bg-[var(--primary-glow)]',
     },
     {
-      label: 'Łączny budżet',
+      label: t('dashboard.stats.total_budget'),
       value: `${totalBudget.toLocaleString()} zł`,
       icon: TrendingUp,
-      sub: selectedProjectIds.length > 0 ? 'w wybranych projektach' : 'we wszystkich projektach',
+      sub: selectedProjectIds.length > 0 ? t('dashboard.stats.in_selected') : t('dashboard.stats.in_all'),
       color: 'text-primary',
       bg: 'bg-[var(--primary-glow)]',
     },
     {
-      label: 'Wydano',
+      label: t('dashboard.stats.spent'),
       value: `${totalExpenses.toLocaleString()} zł`,
       icon: TrendingDown,
-      sub: `${progress.toFixed(1)}% budżetu`,
+      sub: t('dashboard.stats.budget_usage', { progress: progress.toFixed(1) }),
       color: isOver ? 'text-destructive' : isNear ? 'text-[var(--accent-warm)]' : 'text-[var(--accent-green)]',
       bg: isOver ? 'bg-destructive/10' : isNear ? 'bg-[var(--accent-warm-glow)]' : 'bg-[var(--accent-green-glow)]',
     },
     {
-      label: 'Pozostało',
+      label: t('dashboard.stats.remaining'),
       value: `${remaining.toLocaleString()} zł`,
       icon: BarChart3,
-      sub: 'do wykorzystania',
+      sub: t('dashboard.stats.to_use'),
       color: remaining < 0 ? 'text-destructive' : 'text-foreground',
       bg: remaining < 0 ? 'bg-destructive/10' : 'bg-secondary',
     },
@@ -109,15 +111,15 @@ export function DashboardClientView({
     <div className="space-y-8 animate-fade-in">
       {/* Header & Filter Bar */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Przegląd Twoich inwestycji budowlanych</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t('common.dashboard')}</h1>
+        <p className="text-muted-foreground mt-1">{t('dashboard.investment_shortcut')}</p>
         
         {/* FILTERS */}
         {initialProjects.length > 0 && (
           <div className="mt-6 flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-2 mr-2 text-sm text-muted-foreground">
               <Filter className="w-4 h-4" />
-              <span>Filtruj:</span>
+              <span>{t('dashboard.filter')}</span>
             </div>
             
             <button
@@ -128,7 +130,7 @@ export function DashboardClientView({
                   : 'bg-secondary/50 hover:bg-secondary text-muted-foreground'
               }`}
             >
-              Wszystkie
+              {t('dashboard.stats.all')}
             </button>
             
             {initialProjects.map(project => {
@@ -156,8 +158,8 @@ export function DashboardClientView({
         <div className={`flex items-center gap-3 p-4 rounded-xl text-sm font-medium animate-fade-in-up ${isOver ? 'bg-destructive/10 text-destructive border border-destructive/30' : 'bg-[var(--accent-warm-glow)] text-[var(--accent-warm)] border border-[var(--accent-warm)]/30'}`}>
           <AlertTriangle className="w-5 h-5 shrink-0" />
           {isOver
-            ? `Przekroczono budżet ${selectedProjectIds.length > 0 ? 'wybranych projektów' : 'całkowity'} o ${Math.abs(remaining).toLocaleString()} zł!`
-            : `Uwaga: zużyto już ${progress.toFixed(1)}% ${selectedProjectIds.length > 0 ? 'budżetu wybranych projektów' : 'łącznego budżetu'}`}
+            ? t(selectedProjectIds.length > 0 ? 'dashboard.alerts.over_budget_plural' : 'dashboard.alerts.over_budget', { amount: Math.abs(remaining).toLocaleString() })
+            : t('dashboard.alerts.near_limit', { progress: progress.toFixed(1) })}
         </div>
       )}
 
@@ -198,9 +200,9 @@ export function DashboardClientView({
         {/* Category Chart */}
         <Card className="animate-fade-in-up delay-300 flex flex-col">
           <CardHeader>
-            <CardTitle className="text-base">Wydatki wg kategorii</CardTitle>
+            <CardTitle className="text-base">{t('dashboard.spending_by_category')}</CardTitle>
             <CardDescription>
-              {selectedProjectIds.length > 0 ? 'Podział kosztów dla wybranych projektów' : 'Podział wszystkich kosztów'}
+              {selectedProjectIds.length > 0 ? t('dashboard.stats.in_selected') : t('dashboard.stats.in_all')}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col justify-center">
@@ -209,7 +211,7 @@ export function DashboardClientView({
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground opacity-50 space-y-2 py-8">
                 <BarChart3 className="w-8 h-8" />
-                <p className="text-sm">Brak wydatków</p>
+                <p className="text-sm">{t('common.none')}</p>
               </div>
             )}
           </CardContent>
@@ -219,13 +221,13 @@ export function DashboardClientView({
         <Card className="animate-fade-in-up delay-300">
           <CardHeader>
             <CardTitle className="text-base">
-              {selectedProjectIds.length > 0 ? 'Wybrane projekty' : 'Twoje projekty'}
+              {selectedProjectIds.length > 0 ? t('dashboard.stats.selected_projects') : t('dashboard.recent_projects')}
             </CardTitle>
-            <CardDescription>Skrót inwestycji</CardDescription>
+            <CardDescription>{t('dashboard.investment_shortcut')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {filteredProjects.length === 0 && (
-              <p className="text-sm text-muted-foreground italic">Brak projektów spełniających kryteria.</p>
+              <p className="text-sm text-muted-foreground italic">{t('dashboard.no_projects_match')}</p>
             )}
             {filteredProjects.map((p) => {
               const budget = Number(p.budget) || 0
@@ -236,7 +238,7 @@ export function DashboardClientView({
                       <div className="w-2 h-8 rounded-full bg-primary/50 group-hover:bg-primary transition-colors" />
                       <div>
                         <p className="text-sm font-semibold">{p.name}</p>
-                        <p className="text-xs text-muted-foreground">{budget.toLocaleString()} zł budżet</p>
+                        <p className="text-xs text-muted-foreground">{budget.toLocaleString()} zł {t('dashboard.budget_label')}</p>
                       </div>
                     </div>
                   </div>

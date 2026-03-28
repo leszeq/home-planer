@@ -3,12 +3,13 @@ import { notFound } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StageList } from "@/components/stages/stage-list"
 import { ProjectTimeline } from "@/components/stages/project-timeline"
-import { TeamManagement } from "@/components/team/team-management"
+import { TeamManagementSheet } from "@/components/team/team-management-sheet"
 import { ExpenseList } from "@/components/expenses/expense-list"
 import { FileList } from "@/components/files/file-list"
 import { Button } from "@/components/ui/button"
 import { PrintButton } from "@/components/ui/print-button"
 import { DeleteProjectButton } from "@/components/projects/delete-project-button"
+import { ProjectHeaderClient, ProjectStatsClient } from "@/components/projects/project-detail-client"
 import Link from "next/link"
 import { ChevronLeft, AlertTriangle } from "lucide-react"
 import { getProjectRole, canEdit as canEditRole } from "@/lib/permissions"
@@ -26,6 +27,19 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const { data: checklists } = await supabase.from('checklists').select('*, checklist_items(*)').match({ project_id: awaitedParams.id })
   const { data: files } = await supabase.from('project_files').select('*').match({ project_id: awaitedParams.id }).order('created_at', { ascending: false })
   const { data: members } = await supabase.from('project_members').select('*').match({ project_id: awaitedParams.id })
+  
+  // Fetch owner data
+  const { data: ownerProfile } = await supabase
+    .from('profiles')
+    .select('full_name')
+    .match({ id: project.user_id })
+    .single()
+    
+  // Since we don't store email in profiles (usually in auth.users), and we can't easily join auth.users from client-side rpc without admin access, 
+  // we check if the owner is in project_members (they usually shouldn't be, but maybe they are).
+  // If not, we'll try to get it from the project metadata if available or just use full_name.
+  // Actually, project.user_id exists, we'll just pass ownerId and ownerProfile.
+  const ownerEmail = members?.find(m => m.user_id === project.user_id)?.email || ""
 
   const totalBudget = Number(project.budget) || 0
   const totalExpenses = expenses?.reduce((acc, e) => acc + Number(e.amount), 0) || 0
@@ -45,11 +59,17 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             <ChevronLeft className="w-5 h-5" />
           </Button>
         </Link>
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">{project.name}</h2>
-          <p className="text-muted-foreground italic print:hidden">Project Summary & Controls</p>
-        </div>
+        <ProjectHeaderClient name={project.name} />
         <div className="ml-auto flex items-center gap-2">
+          <TeamManagementSheet 
+            projectId={project.id} 
+            ownerId={project.user_id} 
+            ownerName={ownerProfile?.full_name || ""}
+            ownerEmail={ownerEmail}
+            currentUserId={user?.id || ''} 
+            members={members || []} 
+            userRole={projectRole}
+          />
           <PrintButton />
           {canEditProject && (
             <DeleteProjectButton projectId={project.id} isShared={project.user_id !== user?.id} />
@@ -57,68 +77,26 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card className={isOverBudget ? "border-destructive border-2" : ""}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Budget Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${isOverBudget ? "text-destructive" : isNearLimit ? "text-orange-500" : ""}`}>
-              {totalExpenses.toLocaleString()} / {totalBudget.toLocaleString()} zł
-            </div>
-            <div className="mt-4 space-y-1">
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>{progressPercent.toFixed(1)}% safe</span>
-                <span>{isOverBudget ? "Over Budget!" : isNearLimit ? "Near Limit" : "On Track"}</span>
-              </div>
-              <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                <div 
-                  className={`h-full transition-all ${isOverBudget ? "bg-destructive" : isNearLimit ? "bg-orange-500" : "bg-primary"}`} 
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
-            </div>
-            {(isOverBudget || isNearLimit) && (
-              <div className={`mt-4 p-3 rounded-lg flex items-center gap-2 text-xs font-medium ${isOverBudget ? "bg-destructive/10 text-destructive" : "bg-orange-500/10 text-orange-600"}`}>
-                <AlertTriangle className="w-4 h-4" />
-                {isOverBudget ? "Budget exceeded!" : "You've used 80% of your budget."}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        
-        {/* Placeholder for other stats */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Stage Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stages?.filter(s => s.status === 'done').length || 0} / {stages?.length || 0}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1 text-center">Completed Stages</p>
-          </CardContent>
-        </Card>
+      <ProjectStatsClient 
+        totalBudget={totalBudget}
+        totalExpenses={totalExpenses}
+        progressPercent={progressPercent}
+        isOverBudget={isOverBudget}
+        isNearLimit={isNearLimit}
+        doneStages={stages?.filter(s => s.status === 'done').length || 0}
+        totalStages={stages?.length || 0}
+        largestCategory={expenses && expenses.length > 0 ? (
+          [...new Set(expenses.map(e => e.category))].sort((a,b) => 
+            expenses.filter(e => e.category === b).reduce((sum, e) => sum + Number(e.amount), 0) -
+            expenses.filter(e => e.category === a).reduce((sum, e) => sum + Number(e.amount), 0)
+          )[0]
+        ) : "-"}
+      />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Largest Category</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold capitalize">
-              {expenses && expenses.length > 0 ? [...new Set(expenses.map(e => e.category))].sort((a,b) => 
-                expenses.filter(e => e.category === b).reduce((sum, e) => sum + Number(e.amount), 0) -
-                expenses.filter(e => e.category === a).reduce((sum, e) => sum + Number(e.amount), 0)
-              )[0] : "-"}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1 text-center">Highest spending category</p>
-          </CardContent>
-        </Card>
-      </div>
+      <ProjectTimeline stages={stages || []} />
 
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="space-y-8">
-          <ProjectTimeline stages={stages || []} />
           <StageList 
             projectId={project.id} 
             stages={stages || []} 
@@ -133,13 +111,6 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           />
         </div>
         <div className="space-y-8">
-          <TeamManagement 
-            projectId={project.id} 
-            ownerId={project.user_id} 
-            currentUserId={user?.id || ''} 
-            members={members || []} 
-            userRole={projectRole}
-          />
           <ExpenseList 
             projectId={project.id} 
             expenses={expenses || []} 

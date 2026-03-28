@@ -12,6 +12,7 @@ import {
 } from '@/app/(dashboard)/dashboard/checklists/actions'
 import { CheckCircle2, Circle, Trash2, ChevronDown, ChevronUp, GripVertical, Plus, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useTranslation } from '@/lib/i18n/LanguageContext'
 import {
   DndContext,
   closestCenter,
@@ -112,6 +113,7 @@ export function ChecklistView({
   onItemsOrderChange?: (items: Item[]) => void
   canEdit?: boolean
 }) {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(true)
   const [isAddingItem, setIsAddingItem] = useState(false)
   const [newItem, setNewItem] = useState('')
@@ -196,7 +198,7 @@ export function ChecklistView({
               size="icon"
               className="h-8 w-8 text-muted-foreground hover:text-primary"
               onClick={() => { setIsOpen(true); setIsAddingItem(true) }}
-              title="Dodaj zadanie"
+              title={t('checklists.add_item')}
             >
               <Plus className="w-4 h-4" />
             </Button>
@@ -204,7 +206,7 @@ export function ChecklistView({
           {canEdit && (
             isConfirmingDelete ? (
               <div className="flex items-center gap-1 bg-destructive/10 border border-destructive/30 rounded-lg px-2 py-1 animate-fade-in">
-                <span className="text-xs text-destructive font-medium whitespace-nowrap">Usunąć?</span>
+                <span className="text-xs text-destructive font-medium whitespace-nowrap">{t('checklists.delete_item_confirm')}</span>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -253,7 +255,7 @@ export function ChecklistView({
 
           {items.length === 0 && !isAddingItem && (
             <p className="text-xs text-muted-foreground italic text-center py-6">
-              Brak zadań. Kliknij + aby dodać pierwsze.
+              {t('checklists.no_items_details')}
             </p>
           )}
 
@@ -262,26 +264,26 @@ export function ChecklistView({
             isAddingItem ? (
               <form onSubmit={handleAddItem} className="flex items-center gap-2 px-3 py-2.5 border-t bg-secondary/20">
                 <Circle className="w-5 h-5 text-muted-foreground/40 shrink-0" />
-                <Input
+                 <Input
                   autoFocus
                   value={newItem}
                   onChange={e => setNewItem(e.target.value)}
-                  placeholder="Nowe zadanie..."
+                  placeholder={t('checklists.add_item_placeholder')}
                   className="h-8 text-sm border-0 bg-transparent focus-visible:ring-0 p-0 flex-1"
                   onKeyDown={e => e.key === 'Escape' && (setIsAddingItem(false), setNewItem(''))}
                 />
-                <Button size="sm" type="submit" className="h-7 text-xs">Dodaj</Button>
+                <Button size="sm" type="submit" className="h-7 text-xs">{t('common.add')}</Button>
                 <Button size="sm" variant="ghost" type="button" className="h-7 w-7 p-0" onClick={() => { setIsAddingItem(false); setNewItem('') }}>
                   <X className="w-4 h-4" />
                 </Button>
               </form>
             ) : (
-              <button
+               <button
                 onClick={() => setIsAddingItem(true)}
                 className="w-full text-xs text-muted-foreground/70 hover:text-muted-foreground hover:bg-secondary/20 flex items-center gap-2 px-4 py-3 transition-colors"
               >
                 <Plus className="w-4 h-4" />
-                Dodaj zadanie
+                {t('checklists.add_item')}
               </button>
             )
           )}

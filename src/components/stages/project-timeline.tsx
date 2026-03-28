@@ -3,8 +3,9 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { CalendarDays } from "lucide-react"
 import { differenceInDays, format, isValid, min, max, parseISO } from "date-fns"
-import { pl } from "date-fns/locale"
+import { pl, enUS } from "date-fns/locale"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/lib/i18n/LanguageContext"
 
 interface Stage {
   id: string
@@ -16,6 +17,9 @@ interface Stage {
 }
 
 export function ProjectTimeline({ stages }: { stages: Stage[] }) {
+  const { t, locale } = useTranslation()
+  const dateLocale = locale === 'pl' ? pl : enUS
+  
   // Filter stages with valid dates
   const stagesWithDates = stages.filter(
     (s) => s.start_date && s.end_date && isValid(parseISO(s.start_date)) && isValid(parseISO(s.end_date))
@@ -26,8 +30,8 @@ export function ProjectTimeline({ stages }: { stages: Stage[] }) {
       <Card className="border-dashed">
         <CardContent className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
           <CalendarDays className="w-10 h-10 mb-3 opacity-20" />
-          <p className="text-sm font-medium">Brak danych do harmonogramu</p>
-          <p className="text-xs mt-1">Dodaj datę rozpoczęcia i zakończenia do etapów budowy.</p>
+          <p className="text-sm font-medium">{t('stages.no_timeline_data')}</p>
+          <p className="text-xs mt-1">{t('stages.no_timeline_details')}</p>
         </CardContent>
       </Card>
     )
@@ -46,10 +50,14 @@ export function ProjectTimeline({ stages }: { stages: Stage[] }) {
           <div>
             <CardTitle className="flex items-center gap-2">
               <CalendarDays className="w-5 h-5 text-primary" />
-              Harmonogram Projektu
+              {t('stages.timeline_title')}
             </CardTitle>
             <CardDescription className="mt-1">
-              Czas trwania: {totalDays} dni (od {format(timelineStart, 'dd MMM yyyy', { locale: pl })} do {format(timelineEnd, 'dd MMM yyyy', { locale: pl })})
+              {t('stages.timeline_duration', {
+                days: totalDays,
+                start: format(timelineStart, 'dd MMM yyyy', { locale: dateLocale }),
+                end: format(timelineEnd, 'dd MMM yyyy', { locale: dateLocale })
+              })}
             </CardDescription>
           </div>
         </div>
@@ -81,7 +89,7 @@ export function ProjectTimeline({ stages }: { stages: Stage[] }) {
                       {stage.name}
                     </p>
                     <p className="text-[10px] text-muted-foreground mt-0.5">
-                      {format(start, 'd MMM')} - {format(end, 'd MMM')}
+                      {format(start, 'd MMM', { locale: dateLocale })} - {format(end, 'd MMM', { locale: dateLocale })}
                     </p>
                   </div>
                   <div className="w-[70%] relative h-8 rounded-md bg-secondary/30 flex items-center">

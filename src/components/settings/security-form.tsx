@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { updatePassword } from '@/app/(dashboard)/dashboard/settings/actions'
 import { ShieldCheck, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react'
+import { useTranslation } from '@/lib/i18n/LanguageContext'
 
 export function SecurityForm() {
+  const { t } = useTranslation()
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -34,13 +36,13 @@ export function SecurityForm() {
       <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/5 border border-primary/10">
         <ShieldCheck className="w-5 h-5 text-primary" />
         <p className="text-sm text-foreground font-medium">
-          Uwaga: Hasło musi zawierać minimum 8 znaków, w tym cyfrę i znak specjalny.
+          {t('settings.password_hint')}
         </p>
       </div>
 
       <form action={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium">Aktualne Hasło</label>
+          <label className="text-sm font-medium">{t('settings.current_password')}</label>
           <div className="relative">
             <Input 
               name="oldPassword" 
@@ -59,7 +61,7 @@ export function SecurityForm() {
         </div>
 
         <div className="space-y-2 border-t border-border/50 pt-4">
-          <label className="text-sm font-medium">Nowe Hasło</label>
+          <label className="text-sm font-medium">{t('settings.new_password')}</label>
           <div className="relative">
             <Input 
               name="password" 
@@ -78,7 +80,7 @@ export function SecurityForm() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Potwierdź Nowe Hasło</label>
+          <label className="text-sm font-medium">{t('settings.confirm_new_password')}</label>
           <div className="relative">
             <Input 
               name="confirmPassword" 
@@ -106,12 +108,12 @@ export function SecurityForm() {
         {success && (
           <div className="flex items-center gap-2 p-3 text-sm font-medium bg-[var(--accent-green)]/10 text-[var(--accent-green)] border border-[var(--accent-green)]/20 rounded-lg">
             <ShieldCheck className="w-4 h-4" />
-            Hasło zostało pomyślnie zaktualizowane!
+            {t('settings.password_success')}
           </div>
         )}
 
         <Button type="submit" variant="glow" disabled={isSaving} className="h-11 w-full">
-          {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Zaktualizuj hasło'}
+          {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : t('settings.update_password')}
         </Button>
       </form>
     </div>

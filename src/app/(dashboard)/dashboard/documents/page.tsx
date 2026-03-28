@@ -6,8 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { DOCUMENT_TEMPLATES, DocumentTemplate } from '@/lib/document-templates'
 import { cn } from '@/lib/utils'
+import { useTranslation } from '@/lib/i18n/LanguageContext'
 
 function DocumentCard({ template }: { template: DocumentTemplate }) {
+  const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
 
@@ -53,7 +55,7 @@ function DocumentCard({ template }: { template: DocumentTemplate }) {
         <CardContent className="pt-0 pb-6">
           <div className="mt-4 pt-4 border-t border-border/50">
             <div className="flex justify-between items-center mb-4">
-              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Treść wzoru</h4>
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t('documents.template_content_label')}</h4>
               <Button 
                 variant={isCopied ? "primary" : "outline"} 
                 size="sm" 
@@ -61,7 +63,7 @@ function DocumentCard({ template }: { template: DocumentTemplate }) {
                 className={cn("h-8 gap-2", isCopied && "bg-[var(--accent-green)] hover:bg-[var(--accent-green)]")}
               >
                 {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {isCopied ? 'Skopiowano' : 'Kopiuj treść'}
+                {isCopied ? t('documents.copied') : t('documents.copy_content')}
               </Button>
             </div>
             
@@ -76,12 +78,13 @@ function DocumentCard({ template }: { template: DocumentTemplate }) {
 }
 
 export default function DocumentsPage() {
+  const { t } = useTranslation()
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-12 animate-fade-in-up">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Wzory Umów 📝</h2>
+        <h2 className="text-3xl font-bold tracking-tight">{t('documents.page_title')}</h2>
         <p className="text-muted-foreground mt-2 text-lg">
-          Gotowe szablony dokumentów i umów budowlanych. Skopiuj treść, uzupełnij swoje dane i podpisz z wykonawcą.
+          {t('documents.page_subtitle')}
         </p>
       </div>
 

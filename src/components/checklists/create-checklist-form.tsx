@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Plus, X, ListChecks, GripVertical } from 'lucide-react'
 import { createCustomChecklist } from '@/app/(dashboard)/dashboard/checklists/actions'
+import { useTranslation } from '@/lib/i18n/LanguageContext'
 
 interface Props {
   projectId: string
@@ -16,7 +17,9 @@ interface Props {
   onOpenChange?: (open: boolean) => void
 }
 
-export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa Checklista', onSuccess, onOpenChange }: Props) {
+export function CreateChecklistForm({ projectId, stageId = null, label, onSuccess, onOpenChange }: Props) {
+  const { t } = useTranslation()
+  const displayLabel = label || t('checklists.create_new')
   const [isOpen, setIsOpen] = useState(false)
   const [name, setName] = useState('')
   const [items, setItems] = useState<string[]>([''])
@@ -73,7 +76,7 @@ export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa C
     return (
       <Button onClick={handleOpen} className="gap-2">
         <ListChecks className="w-4 h-4" />
-        {label}
+        {displayLabel}
       </Button>
     )
   }
@@ -82,7 +85,7 @@ export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa C
     <Card className="border-primary/20 shadow-md animate-fade-in w-full max-w-6xl mx-auto">
       <CardHeader className="pb-2 pt-6 px-8">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-bold">Nowa checklista</CardTitle>
+          <CardTitle className="text-lg font-bold">{t('checklists.create_new')}</CardTitle>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleClose}>
             <X className="w-5 h-5" />
           </Button>
@@ -91,7 +94,7 @@ export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa C
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-6 px-8 pb-4">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-muted-foreground">Nazwa checklisty</label>
+            <label className="text-sm font-medium text-muted-foreground">{t('checklists.checklist_name')}</label>
             <Input
               autoFocus
               required
@@ -109,7 +112,7 @@ export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa C
                   <GripVertical className="w-5 h-5 text-muted-foreground/30 shrink-0" />
                   <Input
                     data-item-input
-                    placeholder={`Zadanie ${index + 1}...`}
+                    placeholder={`${t('checklists.add_item')} ${index + 1}...`}
                     value={item}
                     onChange={e => updateItem(index, e.target.value)}
                     onKeyDown={e => handleKeyDown(e, index)}
@@ -124,16 +127,16 @@ export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa C
               ))}
             </div>
             <Button type="button" variant="outline" size="sm" className="h-9 text-xs mt-2" onClick={addItemField}>
-              <Plus className="w-4 h-4 mr-1.5" /> Dodaj kolejne zadanie
+              <Plus className="w-4 h-4 mr-1.5" /> {t('checklists.add_item')}
             </Button>
           </div>
         </CardContent>
         <CardFooter className="flex justify-end gap-3 px-8 pt-4 pb-8 border-t bg-secondary/5">
           <Button type="button" variant="ghost" className="h-10 px-6" onClick={handleClose}>
-            Anuluj
+            {t('common.cancel')}
           </Button>
           <Button type="submit" className="h-10 px-10 font-semibold" disabled={loading || !name.trim()}>
-            {loading ? 'Tworzenie...' : 'Utwórz checklistę'}
+            {loading ? t('common.creating') : t('checklists.save')}
           </Button>
         </CardFooter>
       </form>

@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 import { ChecklistView } from '@/components/checklists/checklist-view'
 import { CreateChecklistForm } from '@/components/checklists/create-checklist-form'
+import { useTranslation } from '@/lib/i18n/LanguageContext'
 
 interface Stage {
   id: string
@@ -56,6 +57,7 @@ function SortableStage({
   onUpdateChecklist: (checklistId: string, items: ChecklistItem[]) => void
   canEdit?: boolean
 }) {
+  const { t, locale } = useTranslation()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ 
     id: stage.id,
     disabled: !canEdit
@@ -121,12 +123,12 @@ function SortableStage({
           </p>
           <div className="flex items-center gap-2 mt-0.5">
             <p className="text-xs text-muted-foreground capitalize">
-              {stage.status === 'todo' ? 'Do zrobienia' : stage.status === 'in_progress' ? 'W trakcie' : 'Zakończony'}
+              {stage.status === 'todo' ? t('projects.status_todo') : stage.status === 'in_progress' ? t('projects.status_in_progress') : t('projects.status_done')}
             </p>
             {(stage.start_date || stage.end_date) && (
               <span className="text-[10px] text-muted-foreground bg-secondary px-1.5 py-0.5 rounded border border-border/50 flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                {stage.start_date ? new Date(stage.start_date).toLocaleDateString('pl-PL') : '...'} - {stage.end_date ? new Date(stage.end_date).toLocaleDateString('pl-PL') : '...'}
+                {stage.start_date ? new Date(stage.start_date).toLocaleDateString(locale === 'pl' ? 'pl-PL' : 'en-US') : '...'} - {stage.end_date ? new Date(stage.end_date).toLocaleDateString(locale === 'pl' ? 'pl-PL' : 'en-US') : '...'}
               </span>
             )}
           </div>
@@ -137,7 +139,7 @@ function SortableStage({
           'hidden sm:inline-flex text-xs font-medium px-2.5 py-1 rounded-full',
           stage.status === 'done' ? 'badge-done' : stage.status === 'in_progress' ? 'badge-progress' : 'badge-todo'
         )}>
-          {stage.status === 'done' ? 'Gotowe' : stage.status === 'in_progress' ? 'W trakcie' : 'Todo'}
+          {stage.status === 'done' ? t('projects.status_done') : stage.status === 'in_progress' ? t('projects.status_in_progress') : 'Todo'}
         </span>
 
         {/* Calendar Edit */}
@@ -168,17 +170,17 @@ function SortableStage({
         <div className="px-4 py-3 bg-secondary/30 rounded-lg mx-2 mt-1 mb-2 text-sm border border-border/50 animate-fade-in">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1 space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Data Rozpoczęcia</label>
+              <label className="text-xs font-medium text-muted-foreground">{t('stages.start_date')}</label>
               <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="h-9 text-xs" />
             </div>
             <div className="flex-1 space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Data Zakończenia</label>
+              <label className="text-xs font-medium text-muted-foreground">{t('stages.end_date')}</label>
               <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="h-9 text-xs" />
             </div>
           </div>
           <div className="flex justify-end mt-4 gap-2">
-            <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setIsEditingDates(false)}>Anuluj</Button>
-            <Button size="sm" className="h-8 text-xs" disabled={isSavingDates} onClick={handleSaveDates}>Zapisz Daty</Button>
+            <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setIsEditingDates(false)}>{t('common.cancel')}</Button>
+            <Button size="sm" className="h-8 text-xs" disabled={isSavingDates} onClick={handleSaveDates}>{t('stages.save_dates')}</Button>
           </div>
         </div>
       )}
@@ -234,10 +236,13 @@ export function StageList({
   checklists?: Checklist[] 
   canEdit?: boolean
 }) {
+  const { t } = useTranslation()
   const [stages, setStages] = useState(initialStages)
   const [checklists, setChecklists] = useState(initialChecklists)
   const [isAdding, setIsAdding] = useState(false)
   const [newName, setNewName] = useState('')
+
+  const suggestedStages = t('stages.suggested_list') as string[]
 
   // Sync local state when server data changes
   useEffect(() => {
@@ -273,11 +278,11 @@ export function StageList({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-xl font-bold">Etapy budowy</h3>
+        <h3 className="text-xl font-bold">{t('stages.title')}</h3>
         {canEdit && (
           <Button variant="outline" size="sm" onClick={() => setIsAdding(true)}>
             <Plus className="w-4 h-4 mr-2" />
-            Dodaj etap
+            {t('projects.add_stage')}
           </Button>
         )}
       </div>
@@ -290,14 +295,14 @@ export function StageList({
                 <Input
                   value={newName}
                   onChange={e => setNewName(e.target.value)}
-                  placeholder="Wpisz własną nazwę lub wybierz poniżej..."
+                  placeholder={t('stages.suggested_title')}
                   autoFocus
                 />
-                <Button type="submit" disabled={!newName.trim()}>Zapisz</Button>
-                <Button variant="ghost" type="button" onClick={() => setIsAdding(false)}>Anuluj</Button>
+                <Button type="submit" disabled={!newName.trim()}>{t('common.save')}</Button>
+                <Button variant="ghost" type="button" onClick={() => setIsAdding(false)}>{t('common.cancel')}</Button>
               </div>
               <div className="flex flex-wrap gap-1.5 mt-1">
-                {SUGGESTED_STAGES.map(suggestion => (
+                {suggestedStages.map(suggestion => (
                   <button
                     key={suggestion}
                     type="button"
@@ -315,7 +320,7 @@ export function StageList({
 
       {stages.length === 0 && !isAdding && (
         <p className="text-muted-foreground text-sm italic text-center py-8">
-          Brak etapów. Dodaj pierwszy etap budowy.
+          {t('stages.no_stages')}
         </p>
       )}
 

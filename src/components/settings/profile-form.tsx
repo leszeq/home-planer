@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { AvatarUpload } from './avatar-upload'
 import { updateProfile } from '@/app/(dashboard)/dashboard/settings/actions'
 import { Save, CheckCircle2, User, Phone, Mail } from 'lucide-react'
+import { useTranslation } from '@/lib/i18n/LanguageContext'
 
 interface ProfileFormProps {
   user: any
@@ -13,6 +14,7 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ user, profile }: ProfileFormProps) {
+  const { t } = useTranslation()
   const [isSaving, setIsSaving] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -43,12 +45,12 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
         <div className="space-y-2">
           <label className="text-sm font-medium flex items-center gap-2">
             <User className="w-4 h-4 opacity-70" />
-            Imię i Nazwisko
+            {t('settings.full_name')}
           </label>
           <Input 
             name="fullName" 
             defaultValue={profile?.full_name || ''} 
-            placeholder="Jan Kowalski"
+            placeholder={t('settings.full_name')}
             className="h-11 shadow-sm"
           />
         </div>
@@ -56,25 +58,25 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
         <div className="space-y-2">
           <label className="text-sm font-medium flex items-center gap-2">
             <Mail className="w-4 h-4 opacity-70" />
-            E-mail
+            {t('settings.email')}
           </label>
           <Input 
             value={user.email || ''} 
             disabled 
             className="h-11 bg-muted/50 cursor-not-allowed border-dashed opacity-70"
           />
-          <p className="text-[10px] text-muted-foreground italic">Email można zmienić tylko w ustawieniach głównych auth.</p>
+          <p className="text-[10px] text-muted-foreground italic">{t('settings.email_readonly_info')}</p>
         </div>
 
         <div className="space-y-2">
           <label className="text-sm font-medium flex items-center gap-2">
             <Phone className="w-4 h-4 opacity-70" />
-            Numer telefonu
+            {t('settings.phone_number')}
           </label>
           <Input 
             name="phoneNumber" 
             defaultValue={profile?.phone_number || ''} 
-            placeholder="+48 000 000 000"
+            placeholder={t('settings.phone_number')}
             className="h-11 shadow-sm"
           />
         </div>
@@ -87,16 +89,16 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
           )}
 
           <Button type="submit" variant="glow" disabled={isSaving} className="h-11 px-8 min-w-[160px]">
-            {isSaving ? 'Zapisywanie...' : (
+            {isSaving ? t('settings.saving') : (
               success ? (
                 <>
                   <CheckCircle2 className="w-4 h-4 mr-2" />
-                  Zapisano!
+                  {t('settings.saved')}
                 </>
               ) : (
                 <>
                   <Save className="w-4 h-4 mr-2" />
-                  Zapisz zmiany
+                  {t('settings.save_changes')}
                 </>
               )
             )}
