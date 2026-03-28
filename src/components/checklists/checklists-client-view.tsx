@@ -207,10 +207,29 @@ export function ChecklistsClientView({
 
       {/* Empty State */}
       {filtered.length === 0 && (
-        <div className="flex flex-col items-center justify-center p-16 border-2 border-dashed rounded-xl text-center">
-          <ClipboardList className="w-12 h-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold">Brak checklisty</h3>
-          <p className="text-muted-foreground mt-1">Dodaj pierwszą checklistę z gotowego szablonu budowlanego.</p>
+        <div className="flex flex-col items-center justify-center p-16 border-2 border-dashed rounded-2xl text-center bg-secondary/10">
+          <ClipboardList className="w-16 h-16 text-muted-foreground/30 mb-4" />
+          <h3 className="text-xl font-bold">Brak checklisty</h3>
+          <p className="text-muted-foreground mt-2 max-w-sm mx-auto">
+            Nie masz jeszcze żadnych list kontrolnych dla wybranych projektów. Dodaj nową listę z gotowego szablonu lub stwórz własną od zera.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 mt-8">
+            {firstProject && (
+              <>
+                <AddChecklistModal
+                  projectId={selectedProjectId || firstProject.id}
+                  stages={stages}
+                  projects={projects}
+                  onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
+                />
+                <CreateChecklistForm 
+                  projectId={selectedProjectId || firstProject.id} 
+                  label="Utwórz własną listę"
+                  onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
+                />
+              </>
+            )}
+          </div>
         </div>
       )}
 
@@ -231,6 +250,7 @@ export function ChecklistsClientView({
                     <ChecklistView
                       checklist={{ ...cl, checklist_items: cl.checklist_items ?? [] }}
                       projectId={cl.project_id}
+                      onDelete={() => setChecklists(prev => prev.filter(c => c.id !== cl.id))}
                     />
                   </div>
                 ))}
@@ -262,6 +282,17 @@ export function ChecklistsClientView({
             </div>
           </SortableContext>
         </DndContext>
+      )}
+
+      {/* Global Add Button (when not grouped or no checklists in flat view) */}
+      {!grouped && filtered.length > 0 && (
+        <div className="flex justify-center pt-4">
+          <CreateChecklistForm 
+            projectId={selectedProjectId || firstProject?.id || ''} 
+            label="+ Kolejna checklista" 
+            onSuccess={(cl) => setChecklists(prev => [cl, ...prev])}
+          />
+        </div>
       )}
     </div>
   )
