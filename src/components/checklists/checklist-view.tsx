@@ -134,7 +134,7 @@ export function ChecklistView({
     onItemChange?.(newItems)
     
     // Fire server action in the background
-    toggleChecklistItem(itemId, newDone, checklist.id)
+    toggleChecklistItem(itemId, newDone, projectId)
   }
 
   const handleDelete = (itemId: string) => {

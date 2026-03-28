@@ -99,7 +99,7 @@
       "active_projects": "active projects",
       "in_selected": "in selected projects",
       "in_all": "in all projects",
-      "budget_usage": "% of budget",
+      "budget_usage": "{progress}% of budget",
       "to_use": "to use",
       "all": "All"
     },

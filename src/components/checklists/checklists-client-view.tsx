@@ -92,6 +92,7 @@ function SortableChecklist({
             onDelete={onDelete}
             onItemChange={onItemChange}
             onItemsOrderChange={onItemsOrderChange}
+            canEdit={canEdit}
           />
         </div>
       </div>

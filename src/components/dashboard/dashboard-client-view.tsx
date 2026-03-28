@@ -56,7 +56,7 @@ export function DashboardClientView({
     const budget = fProjects.reduce((acc, p) => acc + (Number(p.budget) || 0), 0)
     const expenses = fExpenses.reduce((acc, e) => acc + (Number(e.amount) || 0), 0)
     const rem = budget - expenses
-    const prog = budget > 0 ? Math.min((expenses / budget) * 100, 100) : 0
+    const prog = budget > 0 ? (expenses / budget) * 100 : 0
     const near = prog >= 80 && prog < 100
     const over = expenses > budget
 

@@ -151,7 +151,7 @@
       "active_projects": "aktywnych projektów",
       "in_selected": "w wybranych projektach",
       "in_all": "we wszystkich projektach",
-      "budget_usage": "% budżetu",
+      "budget_usage": "{progress}% budżetu",
       "to_use": "do wykorzystania",
       "all": "Wszystkie"
     },
@@ -163,7 +163,7 @@
     "filter": "Filtruj:",
     "no_projects_match": "Brak projektów spełniających kryteria.",
     "recent_projects": "Twoje projekty",
-    "investment_shortcut": "Skrót inwestycji",
+    "investment_shortcut": "Panel główny",
     "budget_label": "budżet"
   },
   "projects": {
