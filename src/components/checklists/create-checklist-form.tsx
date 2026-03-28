@@ -13,9 +13,10 @@ interface Props {
   /** Text for the trigger button */
   label?: string
   onSuccess?: (checklist: any) => void
+  onOpenChange?: (open: boolean) => void
 }
 
-export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa Checklista', onSuccess }: Props) {
+export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa Checklista', onSuccess, onOpenChange }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const [name, setName] = useState('')
   const [items, setItems] = useState<string[]>([''])
@@ -54,12 +55,23 @@ export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa C
     setName('')
     setItems([''])
     setIsOpen(false)
+    onOpenChange?.(false)
     setLoading(false)
+  }
+
+  const handleOpen = () => {
+    setIsOpen(true)
+    onOpenChange?.(true)
+  }
+
+  const handleClose = () => {
+    setIsOpen(false)
+    onOpenChange?.(false)
   }
 
   if (!isOpen) {
     return (
-      <Button onClick={() => setIsOpen(true)} className="gap-2">
+      <Button onClick={handleOpen} className="gap-2">
         <ListChecks className="w-4 h-4" />
         {label}
       </Button>
@@ -71,7 +83,7 @@ export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa C
       <CardHeader className="pb-2 pt-4 px-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-semibold">Nowa checklista</CardTitle>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsOpen(false)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleClose}>
             <X className="w-4 h-4" />
           </Button>
         </div>
@@ -112,7 +124,7 @@ export function CreateChecklistForm({ projectId, stageId = null, label = 'Nowa C
           </div>
         </CardContent>
         <CardFooter className="flex justify-end gap-2 px-4 pt-2 pb-4">
-          <Button type="button" variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setIsOpen(false)}>
+          <Button type="button" variant="ghost" size="sm" className="h-8 text-xs" onClick={handleClose}>
             Anuluj
           </Button>
           <Button type="submit" size="sm" className="h-8 text-xs" disabled={loading || !name.trim()}>

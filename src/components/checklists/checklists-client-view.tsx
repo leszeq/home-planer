@@ -101,6 +101,7 @@ export function ChecklistsClientView({
   )
   const [groupByProject, setGroupByProject] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
+  const [isCustomCreating, setIsCustomCreating] = useState(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -213,19 +214,22 @@ export function ChecklistsClientView({
           <p className="text-muted-foreground mt-2 max-w-sm mx-auto">
             Nie masz jeszcze żadnych list kontrolnych dla wybranych projektów. Dodaj nową listę z gotowego szablonu lub stwórz własną od zera.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 mt-8">
+          <div className="flex flex-col sm:flex-row gap-3 mt-8 items-center justify-center">
             {firstProject && (
               <>
-                <AddChecklistModal
-                  projectId={selectedProjectId || firstProject.id}
-                  stages={stages}
-                  projects={projects}
-                  onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
-                />
+                {!isCustomCreating && (
+                  <AddChecklistModal
+                    projectId={selectedProjectId || firstProject.id}
+                    stages={stages}
+                    projects={projects}
+                    onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
+                  />
+                )}
                 <CreateChecklistForm 
                   projectId={selectedProjectId || firstProject.id} 
                   label="Utwórz własną listę"
                   onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
+                  onOpenChange={setIsCustomCreating}
                 />
               </>
             )}
