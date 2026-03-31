@@ -19,7 +19,15 @@
     "editor": "Edytor",
     "viewer": "Widz",
     "search": "Szukaj...",
-    "none": "Brak"
+    "none": "Brak",
+    "preview": "Podgląd",
+    "download": "Pobierz",
+    "confirm_delete": "Czy na pewno chcesz to usunąć?",
+    "cannot_be_undone": "Tej operacji nie można cofnąć.",
+    "deleting": "Usuwanie...",
+    "close": "Zamknij",
+    "brand_name_1": "Planer",
+    "brand_name_2": "Budowy"
   },
   "auth": {
     "login_tab": "Zaloguj się",
@@ -40,7 +48,12 @@
     "hero_title": "Platforma dla ambitnych",
     "hero_accent": "Inwestorów",
     "hero_desc": "Zrezygnuj z chaotycznych arkuszy kalkulacyjnych. Trzymaj koszty w ryzach, weryfikuj postępy z gotowymi checklistami i przechowuj wszystkie umowy i paragony w jednym miejscu.",
-    "social_proof": "Dołącz do pionierów cyfrowej budowy."
+    "social_proof": "Dołącz do pionierów cyfrowej budowy.",
+    "errors": {
+      "invalid_credentials": "Nieprawidłowe dane logowania.",
+      "user_exists": "Konto z tym adresem e-mail już istnieje. Spróbuj się zalogować.",
+      "email_not_confirmed": "Adres e-mail nie został potwierdzony. Sprawdź swoją skrzynkę."
+    }
   },
   "landing": {
     "nav": {
@@ -105,12 +118,51 @@
     "unknown_project": "Nieznany projekt"
   },
   "documents": {
-    "title": "Wzory Dokumentów",
-    "page_title": "Wzory Umów 📝",
+    "title": "Dokumenty i wzory umów",
+    "page_title": "Dokumenty i wzory umów",
     "page_subtitle": "Gotowe szablony dokumentów i umów budowlanych. Skopiuj treść, uzupełnij swoje dane i podpisz z wykonawcą.",
+    "tab_templates": "Wzory i szablony",
+    "tab_my_documents": "Moja teczka",
+    "filter_all_projects": "Wszystkie budowy",
+    "add_document": "Dodaj dokument",
+    "add_document_desc": "Wgraj skan papierowej umowy lub wyślij dokument do podpisu.",
+    "no_documents": "Brak przesłanych dokumentów",
+    "no_documents_msg": "Twoja teczka jest pusta. Dodaj pierwszy dokument, aby zacząć go śledzić.",
+    "mode_scan": "Skan / Plik",
+    "mode_esign": "E-Podpis",
+    "doc_name": "Nazwa dokumentu",
+    "doc_name_placeholder": "np. Umowa z elektrykiem",
+    "select_project": "Przypisz do projektu (opcjonalnie)",
+    "no_project": "Brak (Dokument ogólny)",
+    "click_to_upload": "Kliknij lub przeciągnij plik",
+    "file_types_desc": "PDF lub Zdjęcie (JPG, PNG)",
+    "esign_setup": "Konfiguracja Podpisu",
+    "signer_name": "Imię i nazwisko odbiorcy",
+    "signer_name_placeholder": "np. Jan Kowalski",
+    "signer_email": "Adres e-mail odbiorcy",
+    "esign_provider_info": "Dokument zostanie wysłany bezpiecznie via {provider}.",
+    "error_missing_signer": "Proszę podać dane odbiorcy podpisu.",
+    "upload_scan": "Wgraj skan",
+    "send_to_sign": "Wyślij do podpisu",
+    "uploading": "Wgrywanie...",
+    "status_signed": "Podpisano",
+    "status_pending": "Oczekuje",
+    "status_rejected": "Odrzucono",
+    "type_scan": "Skan",
+    "type_esign": "E-Podpis",
+    "open_provider": "Otwórz w BoldSign",
     "template_content_label": "Treść wzoru",
     "copy_content": "Kopiuj treść",
-    "copied": "Skopiowano"
+    "copied": "Skopiowano",
+    "delete_confirm_msg": "Czy na pewno chcesz usunąć dokument \"{name}\"? Plik zostanie trwale usunięty z serwera.",
+    "status_syncing": "Synchronizacja...",
+    "tooltip_preview": "Podgląd dokumentu",
+    "preview_error": "Nie udało się załadować podglądu.",
+    "preview_error_hint": "Plik może być niedostępny lub uszkodzony.",
+    "preview_not_supported": "Podgląd dla tego formatu nie jest wspierany.",
+    "esign_preview_title": "Podgląd E-Podpisu",
+    "esign_preview_desc": "Podgląd dokumentów BoldSign wymaga autoryzacji u dostawcy. Kliknij poniżej, aby otworzyć dokument.",
+    "open_in_boldsign": "Otwórz w BoldSign"
   },
   "settings": {
     "account_settings": "Ustawienia Konta",
@@ -129,7 +181,16 @@
     "new_password": "Nowe Hasło",
     "confirm_new_password": "Potwierdź Nowe Hasło",
     "password_success": "Hasło zostało pomyślnie zaktualizowane!",
-    "update_password": "Zaktualizuj hasło"
+    "update_password": "Zaktualizuj hasło",
+    "profile": {
+      "photo_title": "Twoje zdjęcie",
+      "photo_desc": "Zalecane 400x400px. JPG, PNG lub WebP.",
+      "change_photo": "Zmień zdjęcie",
+      "errors": {
+        "select_image": "Proszę wybrać plik obrazu.",
+        "upload_failed": "Błąd podczas wgrywania zdjęcia."
+      }
+    }
   },
   "dashboard": {
     "welcome": "Witaj z powrotem",
@@ -153,7 +214,8 @@
       "in_all": "we wszystkich projektach",
       "budget_usage": "{progress}% budżetu",
       "to_use": "do wykorzystania",
-      "all": "Wszystkie"
+      "all": "Wszystkie",
+      "currency": "zł"
     },
     "alerts": {
       "near_limit": "Uwaga: zużyto już {progress}% budżetu",
@@ -197,7 +259,15 @@
     "status_in_progress": "W trakcie",
     "status_done": "Gotowe",
     "summary_title": "Podsumowanie projektu",
-    "controls_title": "Zarządzanie"
+    "controls_title": "Zarządzanie",
+    "extra": {
+      "subtitle": "Zarządzaj swoimi i udostępnionymi projektami budowlanymi.",
+      "empty_title": "Brak projektów",
+      "empty_desc": "Utwórz pierwszy projekt lub poproś o zaproszenie.",
+      "shared_badge": "Udostępniony",
+      "budget_label": "Budżet",
+      "created_label": "Utworzono"
+    }
   },
   "team": {
     "title": "Zespół i Udostępnianie",
@@ -229,7 +299,24 @@
     "category_other": "Inne",
     "stage": "Etap",
     "actions": "Akcje",
-    "summary": "Podsumowanie wydatków"
+    "summary": "Podsumowanie wydatków",
+    "global": {
+      "title": "Twoje Wydatki",
+      "subtitle": "Pełna historia wszystkich kosztów we wszystkich Twoich inwestycjach.",
+      "search_placeholder": "Szukaj w wydatkach...",
+      "all_projects": "Wszystkie projekty",
+      "found_count": "Znaleziono: {count} pozycji",
+      "total_sum": "Suma: ",
+      "no_results": "Nie znaleziono wydatków spełniających kryteria.",
+      "no_description": "Brak opisu",
+      "table": {
+        "date": "Data",
+        "project": "Projekt",
+        "description": "Opis",
+        "category": "Kategoria",
+        "amount": "Kwota"
+      }
+    }
   },
   "files": {
     "title": "Pliki i Dokumenty",
@@ -246,7 +333,8 @@
     "delete": "Usuń",
     "size_limit": "Maksymalny rozmiar pliku: 10MB",
     "error_upload": "Błąd podczas przesyłania pliku: {name}",
-    "error_download": "Nie udało się wygenerować linku do pobrania."
+    "error_download": "Nie udało się wygenerować linku do pobrania.",
+    "assign_stage": "Przypisz do etapu"
   },
   "stages": {
     "title": "Etapy Budowy",

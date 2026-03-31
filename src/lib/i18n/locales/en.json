@@ -19,7 +19,14 @@
     "editor": "Editor",
     "viewer": "Viewer",
     "search": "Search...",
-    "none": "None"
+    "none": "None",
+    "preview": "Preview",
+    "close": "Close",
+    "confirm_delete": "Are you sure you want to delete this?",
+    "cannot_be_undone": "This operation cannot be undone.",
+    "deleting": "Deleting...",
+    "brand_name_1": "Construction",
+    "brand_name_2": "Planner"
   },
   "auth": {
     "login_tab": "Log In",
@@ -40,7 +47,12 @@
     "hero_title": "Platform for ambitious",
     "hero_accent": "Investors",
     "hero_desc": "Ditch chaotic spreadsheets. Keep costs in check, verify progress with ready-to-use checklists, and store all contracts and receipts in one place.",
-    "social_proof": "Join the pioneers of digital construction."
+    "social_proof": "Join the pioneers of digital construction.",
+    "errors": {
+      "invalid_credentials": "Invalid login credentials.",
+      "user_exists": "An account with this email already exists. Try logging in instead.",
+      "email_not_confirmed": "Email address not confirmed. Please check your inbox."
+    }
   },
   "landing": {
     "nav": {
@@ -101,7 +113,8 @@
       "in_all": "in all projects",
       "budget_usage": "{progress}% of budget",
       "to_use": "to use",
-      "all": "All"
+      "all": "All",
+      "currency": "$"
     },
     "alerts": {
       "near_limit": "Warning: already used {progress}% of budget",
@@ -145,7 +158,15 @@
     "status_in_progress": "In progress",
     "status_done": "Finished",
     "summary_title": "Project summary",
-    "controls_title": "Management"
+    "controls_title": "Management",
+    "extra": {
+      "subtitle": "Manage your own and shared building projects.",
+      "empty_title": "No projects",
+      "empty_desc": "Create your first project or ask for an invitation.",
+      "shared_badge": "Shared",
+      "budget_label": "Budget",
+      "created_label": "Created"
+    }
   },
   "checklists": {
     "title": "Your Checklists",
@@ -173,12 +194,51 @@
     "unknown_project": "Unknown project"
   },
   "documents": {
-    "title": "Document TEMPLATES",
-    "page_title": "Contract Templates 📝",
-    "page_subtitle": "Ready-to-use construction document and contract templates. Copy the content, fill in your details, and sign with the contractor.",
+    "title": "Documents & Contracts",
+    "page_title": "Documents and Templates",
+    "page_subtitle": "Store scans of contracts, invoices and manage electronic signatures in one place.",
+    "tab_templates": "Templates",
+    "tab_my_documents": "My wallet",
+    "filter_all_projects": "All sites",
+    "add_document": "Add document +",
+    "add_document_desc": "Upload a scan of a paper contract or send a document for signature.",
+    "no_documents": "No documents uploaded",
+    "no_documents_msg": "Your wallet is empty. Add your first document to start tracking it.",
+    "mode_scan": "Scan / File",
+    "mode_esign": "E-Signature",
+    "doc_name": "Document name",
+    "doc_name_placeholder": "e.g. Electrician Contract",
+    "select_project": "Assign to project (optional)",
+    "no_project": "None (General Document)",
+    "click_to_upload": "Click or drag file here",
+    "file_types_desc": "PDF or Image (JPG, PNG)",
+    "esign_setup": "Signature Setup",
+    "signer_name": "Recipient name",
+    "signer_name_placeholder": "e.g. John Doe",
+    "signer_email": "Recipient email",
+    "esign_provider_info": "Document will be sent securely via {provider}.",
+    "error_missing_signer": "Please provide recipient details.",
+    "upload_scan": "Upload scan",
+    "send_to_sign": "Send for signature",
+    "uploading": "Uploading...",
+    "status_signed": "Signed",
+    "status_pending": "Pending",
+    "status_rejected": "Rejected",
+    "type_scan": "Scan",
+    "type_esign": "E-Signature",
+    "open_provider": "Open in BoldSign",
     "template_content_label": "Template content",
     "copy_content": "Copy content",
-    "copied": "Copied"
+    "copied": "Copied",
+    "delete_confirm_msg": "Are you sure you want to delete the document \"{name}\"? The file will be permanently removed from the server.",
+    "status_syncing": "Syncing...",
+    "tooltip_preview": "Document preview",
+    "preview_error": "Could not load preview.",
+    "preview_error_hint": "The file might be unavailable or corrupted.",
+    "preview_not_supported": "Preview is not supported for this format.",
+    "esign_preview_title": "E-Signature Preview",
+    "esign_preview_desc": "BoldSign document previews require provider authorization. Click below to open the document.",
+    "open_in_boldsign": "Open in BoldSign"
   },
   "settings": {
     "account_settings": "Account Settings",
@@ -197,7 +257,16 @@
     "new_password": "New Password",
     "confirm_new_password": "Confirm New Password",
     "password_success": "Password has been successfully updated!",
-    "update_password": "Update Password"
+    "update_password": "Update password",
+    "profile": {
+      "photo_title": "Your photo",
+      "photo_desc": "Recommended 400x400px. JPG, PNG or WebP.",
+      "change_photo": "Change photo",
+      "errors": {
+        "select_image": "Please select an image file to upload.",
+        "upload_failed": "Error uploading photo."
+      }
+    }
   },
   "team": {
     "title": "Team & Sharing",
@@ -229,7 +298,24 @@
     "category_other": "Other",
     "stage": "Stage",
     "actions": "Actions",
-    "summary": "Expense summary"
+    "summary": "Expense summary",
+    "global": {
+      "title": "Your Expenses",
+      "subtitle": "Full history of all costs across all your investments.",
+      "search_placeholder": "Search in expenses...",
+      "all_projects": "All projects",
+      "found_count": "Found: {count} items",
+      "total_sum": "Total: ",
+      "no_results": "No expenses found matching the criteria.",
+      "no_description": "No description",
+      "table": {
+        "date": "Date",
+        "project": "Project",
+        "description": "Description",
+        "category": "Category",
+        "amount": "Amount"
+      }
+    }
   },
   "files": {
     "title": "Files & Documents",
@@ -244,9 +330,10 @@
     "select_files": "Select files",
     "download": "Download",
     "delete": "Delete",
-    "size_limit": "Maximum file size: 10MB",
+    "size_limit": "Max file size: 10MB",
     "error_upload": "Error during file upload: {name}",
-    "error_download": "Could not generate download link."
+    "error_download": "Failed to generate download link.",
+    "assign_stage": "Assign to stage"
   },
   "stages": {
     "title": "Construction Stages",

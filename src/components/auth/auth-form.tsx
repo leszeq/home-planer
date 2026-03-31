@@ -16,30 +16,54 @@ export function AuthForm({ initialMode = 'login', error, message }: { initialMod
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
+  // Reset loading if error/message changes (props update from server action redirect)
+  useState(() => {
+    setIsLoading(false)
+  })
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     setIsLoading(true)
-    // Server actions redirect on finish, so if it resolves quickly or errors out,
-    // we should leave isLoading true until the redirect or reset if an error comes back.
   }
+
+  // Map Supabase errors to translated strings
+  const getErrorMessage = (err?: string) => {
+    if (!err) return null
+    if (err.includes('Invalid login credentials')) return t('auth.errors.invalid_credentials')
+    if (err.includes('User already registered')) return t('auth.errors.user_exists')
+    if (err.includes('Email not confirmed')) return t('auth.errors.email_not_confirmed')
+    return err
+  }
+
+  const translatedError = getErrorMessage(error)
 
   return (
     <div className="w-full">
       {/* Mode Tabs */}
-      <div className="flex bg-secondary/30 rounded-full p-1 mb-8 border border-border/50">
+      <div className="flex bg-muted/50 rounded-full p-1.5 mb-8 border border-border/40 shadow-inner">
         <button
-          onClick={() => setMode('login')}
+          onClick={() => {
+            setMode('login')
+            setIsLoading(false)
+          }}
           className={cn(
-            "flex-1 text-sm font-medium py-2 rounded-full transition-all duration-200",
-            mode === 'login' ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+            "flex-1 text-sm font-semibold py-2.5 rounded-full transition-all duration-300",
+            mode === 'login' 
+              ? "bg-background shadow-[0_2px_10px_rgba(0,0,0,0.1)] text-foreground scale-[1.02]" 
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
           )}
         >
           {t('auth.login_tab')}
         </button>
         <button
-          onClick={() => setMode('register')}
+          onClick={() => {
+            setMode('register')
+            setIsLoading(false)
+          }}
           className={cn(
-            "flex-1 text-sm font-medium py-2 rounded-full transition-all duration-200",
-            mode === 'register' ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+            "flex-1 text-sm font-semibold py-2.5 rounded-full transition-all duration-300",
+            mode === 'register' 
+              ? "bg-background shadow-[0_2px_10px_rgba(0,0,0,0.1)] text-foreground scale-[1.02]" 
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
           )}
         >
           {t('auth.register_tab')}
@@ -60,13 +84,13 @@ export function AuthForm({ initialMode = 'login', error, message }: { initialMod
           </p>
         </div>
 
-        {error && (
-          <div className="p-3 text-sm font-medium bg-destructive/10 text-destructive border border-destructive/20 rounded-lg">
-            {error}
+        {translatedError && (
+          <div className="p-3 text-sm font-medium bg-destructive/10 text-destructive border border-destructive/20 rounded-lg animate-in fade-in slide-in-from-top-1">
+            {translatedError}
           </div>
         )}
         {message && (
-          <div className="p-3 text-sm font-medium bg-[var(--accent-green)]/10 text-[var(--accent-green)] border border-[var(--accent-green)]/20 rounded-lg">
+          <div className="p-3 text-sm font-medium bg-[var(--accent-green)]/10 text-[var(--accent-green)] border border-[var(--accent-green)]/20 rounded-lg animate-in fade-in slide-in-from-top-1">
             {message}
           </div>
         )}

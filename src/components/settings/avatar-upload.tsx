@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { User, Camera, Loader2 } from 'lucide-react'
 import Image from 'next/image'
+import { useTranslation } from '@/lib/i18n/LanguageContext'
 
 interface AvatarUploadProps {
   uid: string
@@ -13,6 +14,7 @@ interface AvatarUploadProps {
 }
 
 export function AvatarUpload({ uid, url, onUpload }: AvatarUploadProps) {
+  const { t } = useTranslation()
   const [uploading, setUploading] = useState(false)
   const supabase = createClient()
 
@@ -21,7 +23,7 @@ export function AvatarUpload({ uid, url, onUpload }: AvatarUploadProps) {
       setUploading(true)
 
       if (!event.target.files || event.target.files.length === 0) {
-        throw new Error('You must select an image to upload.')
+        throw new Error(t('settings.profile.errors.select_image'))
       }
 
       const file = event.target.files[0]
@@ -39,7 +41,7 @@ export function AvatarUpload({ uid, url, onUpload }: AvatarUploadProps) {
       const { data } = supabase.storage.from('avatars').getPublicUrl(filePath)
       onUpload(data.publicUrl)
     } catch (error: any) {
-      alert(`Error uploading avatar: ${error?.message || JSON.stringify(error)}`)
+      alert(t('settings.profile.errors.upload_failed'))
       console.error('Upload Error:', error)
     } finally {
       setUploading(false)
@@ -69,8 +71,8 @@ export function AvatarUpload({ uid, url, onUpload }: AvatarUploadProps) {
       </div>
 
       <div>
-        <h4 className="font-semibold text-foreground mb-1">Twoje zdjęcie</h4>
-        <p className="text-sm text-muted-foreground mb-3">Zalecane 400x400px. JPG, PNG lub WebP.</p>
+        <h4 className="font-semibold text-foreground mb-1">{t('settings.profile.photo_title')}</h4>
+        <p className="text-sm text-muted-foreground mb-3">{t('settings.profile.photo_desc')}</p>
         <div className="relative">
           <input
             type="file"
@@ -89,7 +91,7 @@ export function AvatarUpload({ uid, url, onUpload }: AvatarUploadProps) {
             >
               <span>
                 <Camera className="w-4 h-4 mr-2" />
-                Zmień zdjęcie
+                {t('settings.profile.change_photo')}
               </span>
             </Button>
           </label>

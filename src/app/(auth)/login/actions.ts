@@ -15,7 +15,7 @@ export async function login(formData: FormData) {
   })
 
   if (error) {
-    return redirect(`/login?error=${encodeURIComponent(error.message)}`)
+    return redirect(`/login?error=${encodeURIComponent(error.message)}&mode=login`)
   }
 
   return redirect('/dashboard')
@@ -37,7 +37,7 @@ export async function signup(formData: FormData) {
     return redirect(`/login?error=${encodeURIComponent('Hasło musi zawierać co najmniej jeden znak specjalny.')}&mode=register`)
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -45,11 +45,17 @@ export async function signup(formData: FormData) {
     },
   })
 
+  // Supabase returns a fake success if user exists to prevent email enumeration.
+  // We check if identities is empty to know if the user actually already exists.
+  if (!error && data?.user && (!data.user.identities || data.user.identities.length === 0)) {
+    return redirect(`/login?error=${encodeURIComponent('User already registered')}&mode=login`)
+  }
+
   if (error) {
     return redirect(`/login?error=${encodeURIComponent(error.message)}&mode=register`)
   }
 
-  return redirect(`/login?message=${encodeURIComponent('Potwierdź swój adres email, aby się zalogować.')}&mode=login`)
+  return redirect(`/login?message=${encodeURIComponent('Konto zostało utworzone. Potwierdź swój adres email, aby się zalogować.')}&mode=login`)
 }
 
 export async function loginWithMagicLink(formData: FormData) {

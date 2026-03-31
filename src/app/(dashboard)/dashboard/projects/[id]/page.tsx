@@ -107,6 +107,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             projectId={project.id} 
             userId={project.user_id} 
             files={files || []} 
+            stages={stages || []}
             canEdit={canEditProject}
           />
         </div>

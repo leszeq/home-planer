@@ -4,6 +4,7 @@ import { AuthForm } from '@/components/auth/auth-form'
 import { HardHat } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from '@/lib/i18n/LanguageContext'
+import { LanguageSwitcher } from '@/components/common/language-switcher'
 
 export function LoginClientView({ initialMode, error, message }: { 
   initialMode: 'login' | 'register' | 'magiclink',
@@ -34,8 +35,8 @@ export function LoginClientView({ initialMode, error, message }: {
               <HardHat className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="block text-xl font-bold text-foreground tracking-wide uppercase leading-none">Planer</span>
-              <span className="block text-xs text-muted-foreground tracking-widest uppercase mt-0.5">Budowy</span>
+              <span className="block text-xl font-bold text-foreground tracking-wide uppercase leading-none">{t('common.brand_name_1')}</span>
+              <span className="block text-xs text-muted-foreground tracking-widest uppercase mt-0.5">{t('common.brand_name_2')}</span>
             </div>
           </Link>
 
@@ -65,17 +66,18 @@ export function LoginClientView({ initialMode, error, message }: {
 
       {/* Right Panel - Auth Form */}
       <div className="flex-1 flex flex-col justify-center items-center p-6 lg:p-12 relative z-10">
-        {/* Mobile Header */}
-        <div className="absolute top-6 left-6 lg:hidden">
-          <Link href="/" className="flex items-center gap-3">
+        {/* Header / Language Switcher */}
+        <div className="absolute top-6 left-6 right-6 flex items-center justify-between lg:justify-end lg:gap-6">
+          <Link href="/" className="flex items-center gap-3 lg:hidden">
             <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-primary shadow-lg">
               <HardHat className="w-4 h-4 text-white" />
             </div>
             <div>
-              <span className="block text-sm font-bold text-foreground tracking-wide uppercase leading-none">Planer</span>
-              <span className="block text-[10px] text-muted-foreground tracking-widest uppercase mt-0.5">Budowy</span>
+              <span className="block text-sm font-bold text-foreground tracking-wide uppercase leading-none">{t('common.brand_name_1')}</span>
+              <span className="block text-[10px] text-muted-foreground tracking-widest uppercase mt-0.5">{t('common.brand_name_2')}</span>
             </div>
           </Link>
+          <LanguageSwitcher />
         </div>
 
         <div className="w-full max-w-sm animate-fade-in-up">

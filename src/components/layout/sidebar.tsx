@@ -16,6 +16,7 @@ import {
 import { cn } from '@/lib/utils'
 import { signOut } from '@/app/(auth)/login/actions'
 import { useTranslation } from '@/lib/i18n/LanguageContext'
+import { LanguageSwitcher } from '@/components/common/language-switcher'
 
 export function Sidebar() {
   const pathname = usePathname()
@@ -39,8 +40,8 @@ export function Sidebar() {
             <HardHat className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="block text-sm font-bold text-white tracking-wide uppercase leading-none">Planer</span>
-            <span className="block text-[10px] text-[var(--sidebar-muted)] tracking-widest uppercase mt-0.5">Budowy</span>
+            <span className="block text-sm font-bold text-white tracking-wide uppercase leading-none">{t('common.brand_name_1')}</span>
+            <span className="block text-[10px] text-[var(--sidebar-muted)] tracking-widest uppercase mt-0.5">{t('common.brand_name_2')}</span>
           </div>
         </Link>
       </div>
@@ -71,26 +72,7 @@ export function Sidebar() {
 
       {/* Footer / Sign out & Language */}
       <div className="px-3 pb-5 pt-3 border-t border-[var(--sidebar-border)] space-y-2">
-        <div className="flex gap-1 p-1 bg-[var(--sidebar-accent)]/30 rounded-lg">
-          <button
-            onClick={() => setLocale('pl')}
-            className={cn(
-              "flex-1 text-[10px] py-1 px-2 rounded font-bold transition-all",
-              locale === 'pl' ? "bg-primary text-white" : "text-[var(--sidebar-muted)] hover:text-white"
-            )}
-          >
-            PL
-          </button>
-          <button
-            onClick={() => setLocale('en')}
-            className={cn(
-              "flex-1 text-[10px] py-1 px-2 rounded font-bold transition-all",
-              locale === 'en' ? "bg-primary text-white" : "text-[var(--sidebar-muted)] hover:text-white"
-            )}
-          >
-            EN
-          </button>
-        </div>
+        <LanguageSwitcher className="bg-[var(--sidebar-accent)]/30 border-none" />
         
         <form action={signOut}>
           <button

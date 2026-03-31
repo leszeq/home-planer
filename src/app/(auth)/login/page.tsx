@@ -8,7 +8,7 @@ export default async function LoginPage({
   const awaitedParams = await searchParams;
   return (
     <LoginClientView 
-      initialMode={awaitedParams.mode || 'register'} 
+      initialMode={awaitedParams.mode || 'login'} 
       error={awaitedParams.error} 
       message={awaitedParams.message} 
     />

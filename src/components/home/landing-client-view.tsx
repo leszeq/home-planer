@@ -1,9 +1,10 @@
 'use client'
 
 import Link from "next/link"
-import { HardHat, ArrowRight, LayoutDashboard, Folders, CheckCircle2, TrendingDown, FileText, Smartphone, ShieldCheck } from "lucide-react"
+import { HardHat, ArrowRight, LayoutDashboard, Folders, CheckCircle2, TrendingDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useTranslation } from "@/lib/i18n/LanguageContext"
+import { LanguageSwitcher } from "@/components/common/language-switcher"
 
 export function LandingClientView({ user }: { user: any }) {
   const { t } = useTranslation()
@@ -14,31 +15,38 @@ export function LandingClientView({ user }: { user: any }) {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-primary shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all">
-              <HardHat className="w-4 h-4 text-white" />
+            <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-primary shadow-lg group-hover:shadow-primary/40 transition-shadow">
+              <HardHat className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="block text-sm font-bold text-foreground tracking-wide uppercase leading-none">Planer</span>
-              <span className="block text-[10px] text-muted-foreground tracking-widest uppercase mt-0.5">Budowy</span>
+              <span className="block text-sm font-bold text-foreground tracking-wide uppercase leading-none">{t('common.brand_name_1')}</span>
+              <span className="block text-[10px] text-muted-foreground tracking-widest uppercase mt-0.5">{t('common.brand_name_2')}</span>
             </div>
           </Link>
 
           <div>
             {user ? (
-              <Link href="/dashboard">
-                <Button variant="glow" size="sm" className="gap-2">
-                  {t('landing.nav.dashboard_link')} <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
-            ) : (
               <div className="flex items-center gap-4">
-                <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                  {t('landing.nav.login_link')}
-                </Link>
-                <Link href="/login">
-                  <Button variant="glow" size="sm">{t('landing.nav.get_started')}</Button>
+                <LanguageSwitcher />
+                <Link href="/dashboard">
+                  <Button variant="glow" size="sm" className="gap-2">
+                    {t('landing.nav.dashboard_link')} <ArrowRight className="w-4 h-4" />
+                  </Button>
                 </Link>
               </div>
+            ) : (
+                <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-4">
+                    <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                      {t('landing.nav.login_link')}
+                    </Link>
+                    <Link href="/login?mode=register">
+                      <Button variant="glow" size="sm">{t('landing.nav.get_started')}</Button>
+                    </Link>
+                  </div>
+                  <div className="h-4 w-[1px] bg-border/40 hidden md:block" />
+                  <LanguageSwitcher />
+                </div>
             )}
           </div>
         </div>
@@ -68,7 +76,7 @@ export function LandingClientView({ user }: { user: any }) {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href={user ? "/dashboard" : "/login"}>
+            <Link href={user ? "/dashboard" : "/login?mode=register"}>
               <Button variant="glow" size="lg" className="h-14 px-8 text-base w-full sm:w-auto">
                 {user ? t('landing.hero.dashboard_back') : t('landing.hero.cta_primary')}
               </Button>
@@ -188,7 +196,7 @@ export function LandingClientView({ user }: { user: any }) {
             <span className="text-muted-foreground text-3xl">{t('landing.cta.subtitle')}</span>
           </h2>
           <p className="text-lg text-muted-foreground mb-10">{t('landing.cta.description')}</p>
-          <Link href="/login">
+          <Link href="/login?mode=register">
             <Button variant="glow" size="lg" className="h-14 px-10 text-lg">
               {t('landing.cta.button')}
             </Button>

@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Filter, Search, Receipt } from "lucide-react"
+import { useTranslation } from "@/lib/i18n/LanguageContext"
 
 interface Project {
   id: string
@@ -26,6 +27,7 @@ export function ExpensesClientView({
   initialExpenses: Expense[]
   projects: Project[] 
 }) {
+  const { t } = useTranslation()
   const [selectedProjectId, setSelectedProjectId] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -42,7 +44,12 @@ export function ExpensesClientView({
   const totalAmount = filteredExpenses.reduce((sum, e) => sum + Number(e.amount), 0)
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in pb-10">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">{t('expenses.global.title')}</h2>
+        <p className="text-muted-foreground">{t('expenses.global.subtitle')}</p>
+      </div>
+
       {/* Search & Filter Bar */}
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-card p-4 rounded-xl border border-border/50 shadow-sm">
         <div className="flex items-center gap-3 flex-1 w-full max-w-md">
@@ -50,7 +57,7 @@ export function ExpensesClientView({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Szukaj w wydatkach..."
+              placeholder={t('expenses.global.search_placeholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 bg-secondary/30 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
@@ -68,7 +75,7 @@ export function ExpensesClientView({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Wszystkie projekty
+              {t('expenses.global.all_projects')}
             </button>
             {projects.map(project => (
               <button
@@ -91,11 +98,11 @@ export function ExpensesClientView({
       <div className="flex items-center justify-between px-2">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Receipt className="w-4 h-4" />
-          <span>Znaleziono: <b>{filteredExpenses.length}</b> pozycji</span>
+          <span>{t('expenses.global.found_count', { count: filteredExpenses.length })}</span>
         </div>
         <div className="text-sm">
-          <span className="text-muted-foreground">Suma: </span>
-          <span className="font-bold text-primary text-lg">{totalAmount.toLocaleString()} zł</span>
+          <span className="text-muted-foreground">{t('expenses.global.total_sum')}</span>
+          <span className="font-bold text-primary text-lg">{totalAmount.toLocaleString()} {t('dashboard.stats.currency', { defaultValue: 'zł' })}</span>
         </div>
       </div>
 
@@ -105,25 +112,25 @@ export function ExpensesClientView({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-secondary/20">
-                <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Data</th>
-                <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Projekt</th>
-                <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Opis</th>
-                <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Kategoria</th>
-                <th className="p-4 text-right font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Kwota</th>
+                <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">{t('expenses.global.table.date')}</th>
+                <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">{t('expenses.global.table.project')}</th>
+                <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">{t('expenses.global.table.description')}</th>
+                <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">{t('expenses.global.table.category')}</th>
+                <th className="p-4 text-right font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">{t('expenses.global.table.amount')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/50">
               {filteredExpenses.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="p-12 text-center text-muted-foreground italic bg-secondary/5">
-                    Nie znaleziono wydatków spełniających kryteria.
+                    {t('expenses.global.no_results')}
                   </td>
                 </tr>
               ) : (
                 filteredExpenses.map((expense) => (
                   <tr key={expense.id} className="hover:bg-secondary/30 transition-colors group">
                     <td className="p-4 text-muted-foreground">
-                      {new Date(expense.date).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                      {new Date(expense.date).toLocaleDateString()}
                     </td>
                     <td className="p-4">
                       <div className="flex items-center gap-2">
@@ -131,14 +138,14 @@ export function ExpensesClientView({
                         <span className="font-medium">{expense.projects?.name}</span>
                       </div>
                     </td>
-                    <td className="p-4">{expense.description || "Brak opisu"}</td>
+                    <td className="p-4">{expense.description || t('expenses.global.no_description')}</td>
                     <td className="p-4">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter bg-secondary text-muted-foreground border border-border/50">
                         {expense.category}
                       </span>
                     </td>
                     <td className="p-4 text-right font-bold tabular-nums text-foreground">
-                      {Number(expense.amount).toLocaleString()} zł
+                      {Number(expense.amount).toLocaleString()} {t('dashboard.stats.currency', { defaultValue: 'zł' })}
                     </td>
                   </tr>
                 ))
