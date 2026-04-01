@@ -15,6 +15,7 @@ interface DocumentsClientViewProps {
   initialDocuments: Document[]
   templates: DocumentTemplate[]
   projects: { id: string, name: string }[]
+  hideHeader?: boolean
 }
 
 function TemplateCard({ template }: { template: DocumentTemplate }) {
@@ -86,7 +87,12 @@ function TemplateCard({ template }: { template: DocumentTemplate }) {
   )
 }
 
-export function DocumentsClientView({ initialDocuments, templates, projects }: DocumentsClientViewProps) {
+export function DocumentsClientView({ 
+  initialDocuments, 
+  templates, 
+  projects,
+  hideHeader = false 
+}: DocumentsClientViewProps) {
   const { t } = useTranslation()
   const [selectedProjectId, setSelectedProjectId] = useState<string>('all')
 
@@ -97,34 +103,59 @@ export function DocumentsClientView({ initialDocuments, templates, projects }: D
   const projectNames = projects.reduce((acc, p) => ({ ...acc, [p.id]: p.name }), {})
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="flex-1">
-          <h2 className="text-4xl font-extrabold tracking-tight">{t('documents.page_title')}</h2>
-          <p className="text-muted-foreground mt-2 text-lg max-w-2xl">
-            {t('documents.page_subtitle')}
-          </p>
-        </div>
-        
-        <div className="flex flex-col sm:flex-row items-center gap-3">
-          <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-xl border w-full sm:w-auto">
-            <span className="text-xs font-semibold px-3 uppercase text-muted-foreground hidden sm:inline-block">
-              {t('dashboard.filter')}
-            </span>
-            <select 
-              className="bg-transparent text-sm font-medium focus:outline-none p-1.5 min-w-[160px]"
-              value={selectedProjectId}
-              onChange={(e) => setSelectedProjectId(e.target.value)}
-            >
-              <option value="all">{t('documents.filter_all_projects')}</option>
-              {projects.map(p => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
+    <div className={cn("max-w-5xl mx-auto space-y-8 pb-12", hideHeader ? "animate-fade-in" : "animate-in fade-in slide-in-from-bottom-4 duration-500")}>
+      {!hideHeader && (
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="flex-1">
+            <h2 className="text-4xl font-extrabold tracking-tight">{t('documents.page_title')}</h2>
+            <p className="text-muted-foreground mt-2 text-lg max-w-2xl">
+              {t('documents.page_subtitle')}
+            </p>
           </div>
-          <UploadDocumentModal />
+          
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-xl border w-full sm:w-auto">
+              <span className="text-xs font-semibold px-3 uppercase text-muted-foreground hidden sm:inline-block">
+                {t('dashboard.filter')}
+              </span>
+              <select 
+                className="bg-transparent text-sm font-medium focus:outline-none p-1.5 min-w-[160px]"
+                value={selectedProjectId}
+                onChange={(e) => setSelectedProjectId(e.target.value)}
+              >
+                <option value="all">{t('documents.filter_all_projects')}</option>
+                {projects.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+            <UploadDocumentModal />
+          </div>
         </div>
-      </div>
+      )}
+
+      {hideHeader && (
+         <div className="flex justify-end -mt-14">
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-xl border w-full sm:w-auto">
+                <span className="text-xs font-semibold px-3 uppercase text-muted-foreground hidden sm:inline-block">
+                  {t('dashboard.filter')}
+                </span>
+                <select 
+                  className="bg-transparent text-sm font-medium focus:outline-none p-1.5 min-w-[160px]"
+                  value={selectedProjectId}
+                  onChange={(e) => setSelectedProjectId(e.target.value)}
+                >
+                  <option value="all">{t('documents.filter_all_projects')}</option>
+                  {projects.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+              <UploadDocumentModal />
+            </div>
+         </div>
+      )}
 
       <Tabs defaultValue="my-documents" className="w-full">
         <TabsList className="grid w-full grid-cols-2 max-w-md bg-muted/50 p-1 rounded-xl border">

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { cn } from "@/lib/utils"
 import { ChecklistView } from '@/components/checklists/checklist-view'
 import { CreateChecklistForm } from '@/components/checklists/create-checklist-form'
 import { AddChecklistModal } from '@/components/checklists/add-checklist-modal'
@@ -105,11 +106,13 @@ export function ChecklistsClientView({
   projects,
   stages,
   roles = {},
+  hideHeader = false,
 }: {
   checklists: Checklist[]
   projects: Project[]
   stages: Stage[]
   roles?: Record<string, string>
+  hideHeader?: boolean
 }) {
   const { t } = useTranslation()
   const [checklists, setChecklists] = useState(
@@ -157,24 +160,41 @@ export function ChecklistsClientView({
   const firstProject = projects[0]
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className={cn("space-y-8 animate-fade-in", hideHeader ? "" : "")}>
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('checklists.page_title')}</h1>
-          <p className="text-muted-foreground mt-1">{t('checklists.page_subtitle')}</p>
+      {!hideHeader && (
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{t('checklists.page_title')}</h1>
+            <p className="text-muted-foreground mt-1">{t('checklists.page_subtitle')}</p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {firstProject && (roles[firstProject.id] === 'owner' || roles[firstProject.id] === 'editor') && (
+              <AddChecklistModal
+                projectId={firstProject.id}
+                stages={stages}
+                projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
+                onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
+              />
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {firstProject && (roles[firstProject.id] === 'owner' || roles[firstProject.id] === 'editor') && (
-            <AddChecklistModal
-              projectId={firstProject.id}
-              stages={stages}
-              projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
-              onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
-            />
-          )}
-        </div>
-      </div>
+      )}
+
+      {hideHeader && (
+         <div className="flex justify-end -mt-20">
+            <div className="flex items-center gap-2 shrink-0">
+              {firstProject && (roles[firstProject.id] === 'owner' || roles[firstProject.id] === 'editor') && (
+                <AddChecklistModal
+                  projectId={firstProject.id}
+                  stages={stages}
+                  projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
+                  onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
+                />
+              )}
+            </div>
+         </div>
+      )}
 
       {/* Filter & Group Bar */}
       <div className="flex flex-wrap items-center gap-3">

@@ -6,6 +6,7 @@ import { DeleteProjectButton } from "@/components/projects/delete-project-button
 import { FolderKanban } from "lucide-react"
 import Link from "next/link"
 import { useTranslation } from "@/lib/i18n/LanguageContext"
+import { cn } from "@/lib/utils"
 
 interface Project {
   id: string
@@ -17,22 +18,32 @@ interface Project {
 
 export function ProjectsClientView({ 
   projects, 
-  currentUserId 
+  currentUserId,
+  hideHeader = false
 }: { 
   projects: Project[]
   currentUserId?: string 
+  hideHeader?: boolean
 }) {
   const { t } = useTranslation()
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">{t('common.projects')}</h2>
-          <p className="text-muted-foreground">{t('projects.extra.subtitle')}</p>
+    <div className={cn("space-y-8", hideHeader ? "animate-fade-in" : "")}>
+      {!hideHeader && (
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">{t('common.projects')}</h2>
+            <p className="text-muted-foreground">{t('projects.extra.subtitle')}</p>
+          </div>
+          <CreateProjectModal />
         </div>
-        <CreateProjectModal />
-      </div>
+      )}
+
+      {hideHeader && (
+         <div className="flex justify-end -mt-20">
+           <CreateProjectModal />
+         </div>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {projects.length === 0 && (

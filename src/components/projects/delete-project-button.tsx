@@ -7,6 +7,8 @@ import { deleteProject } from '@/app/(dashboard)/dashboard/projects/[id]/actions
 import { useRouter } from 'next/navigation'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 
+import { toast } from 'sonner'
+
 export function DeleteProjectButton({ projectId, isShared }: { projectId: string, isShared: boolean }) {
   const [isOpen, setIsOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -20,15 +22,16 @@ export function DeleteProjectButton({ projectId, isShared }: { projectId: string
       e.stopPropagation();
     }
     setIsDeleting(true)
+    const toastId = toast.loading('Usuwanie projektu...')
     
     const result = await deleteProject(projectId)
     if (result && result.error) {
        setIsDeleting(false)
-       alert(result.error)
+       toast.error(result.error, { id: toastId })
        setIsOpen(false)
        return
     }
-
+    toast.success('Projekt został usunięty', { id: toastId })
     router.push('/dashboard/projects')
   }
 

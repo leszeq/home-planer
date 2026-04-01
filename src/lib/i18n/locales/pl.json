@@ -27,7 +27,14 @@
     "deleting": "Usuwanie...",
     "close": "Zamknij",
     "brand_name_1": "Planer",
-    "brand_name_2": "Budowy"
+    "brand_name_2": "Budowy",
+    "selected": "Wybrano",
+    "delete_selected": "Usuń wybrane",
+    "sort_date_desc": "Data: od najnowszych",
+    "sort_date_asc": "Data: od najstarszych",
+    "sort_amount_desc": "Kwota: od największych",
+    "sort_amount_asc": "Kwota: od najmniejszych",
+    "no_search_results": "Brak wyników wyszukiwania"
   },
   "auth": {
     "login_tab": "Zaloguj się",
@@ -364,5 +371,21 @@
     "timeline_duration": "Czas trwania: {days} dni (od {start} do {end})",
     "no_timeline_data": "Brak danych do harmonogramu",
     "no_timeline_details": "Dodaj datę rozpoczęcia i zakończenia do etapów budowy."
+  },
+  "activity": {
+    "title": "Historia zmian",
+    "subtitle": "Najnowsze wydarzenia w projekcie",
+    "no_logs": "Brak zarejestrowanej historii",
+    "create_expense": "Dodano wydatek: {name} ({amount} zł)",
+    "delete_expense": "Usunięto wydatek: {name}",
+    "delete_expense_bulk": "Usunięto zbiorczo {count} wydatków",
+    "create_stage": "Utworzono etap: {name}",
+    "delete_stage": "Usunięto etap: {name}",
+    "update_stage_status": "Zmieniono status etapu {name} na {status}",
+    "upload_file": "Wgrano plik: {name}",
+    "delete_file": "Usunięto plik: {name}",
+    "delete_file_bulk": "Usunięto zbiorczo {count} plików",
+    "invite_member": "Zaproszono użytkownika: {email}",
+    "remove_member": "Usunięto użytkownika: {email}"
   }
 }

@@ -7,6 +7,8 @@ import { User, Camera, Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import { useTranslation } from '@/lib/i18n/LanguageContext'
 
+import { toast } from 'sonner'
+
 interface AvatarUploadProps {
   uid: string
   url: string | null
@@ -19,6 +21,7 @@ export function AvatarUpload({ uid, url, onUpload }: AvatarUploadProps) {
   const supabase = createClient()
 
   async function uploadAvatar(event: React.ChangeEvent<HTMLInputElement>) {
+    const toastId = toast.loading(t('settings.profile.uploading') || 'Przesyłanie...')
     try {
       setUploading(true)
 
@@ -40,8 +43,9 @@ export function AvatarUpload({ uid, url, onUpload }: AvatarUploadProps) {
 
       const { data } = supabase.storage.from('avatars').getPublicUrl(filePath)
       onUpload(data.publicUrl)
+      toast.success(t('settings.profile.success.upload_success') || 'Zdjęcie zostało zaktualizowane!', { id: toastId })
     } catch (error: any) {
-      alert(t('settings.profile.errors.upload_failed'))
+      toast.error(error.message || t('settings.profile.errors.upload_failed'), { id: toastId })
       console.error('Upload Error:', error)
     } finally {
       setUploading(false)

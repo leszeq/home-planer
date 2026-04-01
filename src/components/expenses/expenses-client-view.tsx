@@ -4,6 +4,13 @@ import { useState, useMemo } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Filter, Search, Receipt } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/LanguageContext"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface Project {
   id: string
@@ -20,12 +27,16 @@ interface Expense {
   projects?: { name: string }
 }
 
+import { cn } from "@/lib/utils"
+
 export function ExpensesClientView({ 
   initialExpenses, 
-  projects 
+  projects,
+  hideHeader = false
 }: { 
   initialExpenses: Expense[]
-  projects: Project[] 
+  projects: Project[]
+  hideHeader?: boolean
 }) {
   const { t } = useTranslation()
   const [selectedProjectId, setSelectedProjectId] = useState<string>('all')
@@ -65,31 +76,25 @@ export function ExpensesClientView({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-          <div className="flex items-center gap-2 p-1 bg-secondary/30 rounded-lg border border-border">
-            <button
-              onClick={() => setSelectedProjectId('all')}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-                selectedProjectId === 'all' 
-                  ? 'bg-primary text-primary-foreground shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {t('expenses.global.all_projects')}
-            </button>
-            {projects.map(project => (
-              <button
-                key={project.id}
-                onClick={() => setSelectedProjectId(project.id)}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap transition-all ${
-                  selectedProjectId === project.id 
-                    ? 'bg-primary text-primary-foreground shadow-sm' 
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {project.name}
-              </button>
-            ))}
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground hidden sm:inline-block">
+              {t('dashboard.filter')}
+            </span>
+            <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+              <SelectTrigger className="w-full sm:w-[200px] h-10 rounded-lg font-medium">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 opacity-50" />
+                  <SelectValue placeholder={t('expenses.global.all_projects')} />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('expenses.global.all_projects')}</SelectItem>
+                {projects.map(project => (
+                  <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>

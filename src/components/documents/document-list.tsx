@@ -8,6 +8,8 @@ import { deleteDocument, syncDocumentStatusAction, getBoldSignUrl } from '@/app/
 import { cn } from '@/lib/utils'
 import { DeleteConfirmationModal } from './delete-confirmation-modal'
 import { DocumentPreviewModal } from './document-preview-modal'
+import { toast } from 'sonner'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export interface Document {
   id: string
@@ -47,7 +49,7 @@ export function DocumentList({ documents, isLoading, projectNames }: DocumentLis
       .createSignedUrl(doc.storage_path, 60)
       
     if (error || !data) {
-      alert(t('common.error'))
+      toast.error(t('common.error'))
       return
     }
     window.open(data.signedUrl, '_blank')
@@ -56,51 +58,59 @@ export function DocumentList({ documents, isLoading, projectNames }: DocumentLis
   const handleSyncStatus = async (e: React.MouseEvent, docId: string) => {
     e.stopPropagation()
     setIsRefreshing(docId)
-    try {
-      await syncDocumentStatusAction(docId)
-    } catch (err) {
-      console.error('Failed to sync status:', err)
-    } finally {
-      setIsRefreshing(null)
+    const toastId = toast.loading(t('documents.syncing_status') || 'Synchronizacja statusu...')
+    
+    // Updated to handle ActionResponse
+    const response = await syncDocumentStatusAction(docId)
+    
+    if (response.success) {
+      toast.success(t('documents.status_synced') || 'Status zaktualizowany!', { id: toastId })
+    } else {
+      toast.error(response.error || t('common.error'), { id: toastId })
     }
+    setIsRefreshing(null)
   }
 
   const handleOpenBoldSign = async (e: React.MouseEvent, documentId: string) => {
     e.stopPropagation()
     setIsOpeningUrl(documentId)
-    try {
-      const { url } = await getBoldSignUrl(documentId)
-      window.open(url, '_blank')
-    } catch (err) {
-      console.error('Failed to get BoldSign URL:', err)
-      alert(t('common.error'))
-    } finally {
-      setIsOpeningUrl(null)
+    
+    // Updated to handle ActionResponse
+    const response = await getBoldSignUrl(documentId)
+    
+    if (response.success && response.data) {
+      window.open(response.data.url, '_blank')
+    } else {
+      toast.error(response.error || t('common.error'))
     }
+    setIsOpeningUrl(null)
   }
 
   const handleDelete = async () => {
     if (!docToDelete) return
     setIsDeletingId(docToDelete.id)
-    try {
-      await deleteDocument(docToDelete.id, docToDelete.storage_path || undefined)
+    const toastId = toast.loading(t('common.deleting') || 'Usuwanie...')
+    
+    // Updated to handle ActionResponse
+    const response = await deleteDocument(docToDelete.id, docToDelete.storage_path || undefined)
+    
+    if (response.success) {
+      toast.success(t('common.deleted') || 'Usunięto!', { id: toastId })
       setDocToDelete(null)
-    } catch (err) {
-      console.error(err)
-      alert(t('common.error'))
-    } finally {
-      setIsDeletingId(null)
+    } else {
+      toast.error(response.error || t('common.error'), { id: toastId })
     }
+    setIsDeletingId(null)
   }
 
   const getStatusBadge = (status: Document['status'], docId: string) => {
     switch (status) {
       case 'signed':
-        return <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20 gap-1"><CheckCircle2 className="w-3 h-3" /> {t('documents.status_signed')}</Badge>
+        return <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20 gap-1 font-bold text-[10px] uppercase tracking-tighter"><CheckCircle2 className="w-3 h-3" /> {t('documents.status_signed')}</Badge>
       case 'pending':
         return (
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/20 gap-1">
+            <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/20 gap-1 font-bold text-[10px] uppercase tracking-tighter">
               <Clock className="w-3 h-3" /> {t('documents.status_pending')}
             </Badge>
             <Button 
@@ -115,9 +125,9 @@ export function DocumentList({ documents, isLoading, projectNames }: DocumentLis
           </div>
         )
       case 'rejected':
-        return <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-500/20 gap-1"><AlertCircle className="w-3 h-3" /> {t('documents.status_rejected')}</Badge>
+        return <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-500/20 gap-1 font-bold text-[10px] uppercase tracking-tighter"><AlertCircle className="w-3 h-3" /> {t('documents.status_rejected')}</Badge>
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return <Badge variant="outline" className="font-bold text-[10px] uppercase tracking-tighter">{status}</Badge>
     }
   }
 
@@ -125,7 +135,7 @@ export function DocumentList({ documents, isLoading, projectNames }: DocumentLis
     return (
       <div className="space-y-4">
         {[1, 2, 3].map(i => (
-          <div key={i} className="h-20 bg-muted/50 rounded-xl animate-pulse" />
+          <Skeleton key={i} className="h-20 w-full rounded-xl" />
         ))}
       </div>
     )

@@ -9,25 +9,32 @@ import { useTranslation } from '@/lib/i18n/LanguageContext'
 interface SettingsPageProps {
   user: any
   profile: any
+  hideHeader?: boolean
 }
 
-export function SettingsClientView({ user, profile }: SettingsPageProps) {
+export function SettingsClientView({ 
+  user, 
+  profile,
+  hideHeader = false 
+}: SettingsPageProps) {
   const { t } = useTranslation()
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12 py-8">
+    <div className={`w-full space-y-12 ${hideHeader ? "" : "max-w-4xl mx-auto py-8"}`}>
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-          <Settings className="w-6 h-6 text-primary" />
+      {!hideHeader && (
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <Settings className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{t('settings.account_settings')}</h1>
+            <p className="text-muted-foreground mt-1">
+              {t('settings.account_subtitle')}
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">{t('settings.account_settings')}</h2>
-          <p className="text-muted-foreground mt-1">
-            {t('settings.account_subtitle')}
-          </p>
-        </div>
-      </div>
+      )}
 
       <div className="bg-card/50 border border-border/50 rounded-3xl overflow-hidden glass shadow-xl shadow-primary/5">
         <Tabs defaultValue="profile" className="w-full">

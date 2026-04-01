@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useTranslation } from '@/lib/i18n/LanguageContext'
 import { getBoldSignUrl } from '@/app/(dashboard)/dashboard/documents/actions'
+import { toast } from 'sonner'
 
 interface DocumentPreviewModalProps {
   document: {
@@ -65,11 +66,14 @@ export function DocumentPreviewModal({ document, isOpen, onClose }: DocumentPrev
     if (!document?.id) return
     setIsOpeningBoldSign(true)
     try {
-      const { url } = await getBoldSignUrl(document.id)
-      window.open(url, '_blank')
+      const response = await getBoldSignUrl(document.id)
+      if (response.success && response.data) {
+        window.open(response.data.url, '_blank')
+      } else {
+        toast.error(response.error || t('common.error'))
+      }
     } catch (err) {
-      console.error('Failed to get BoldSign URL:', err)
-      alert(t('common.error'))
+      toast.error(t('common.error'))
     } finally {
       setIsOpeningBoldSign(false)
     }

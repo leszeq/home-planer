@@ -1,7 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { DashboardClientView } from "@/components/dashboard/dashboard-client-view"
+import { Suspense } from "react"
+import { DashboardLoadingSkeleton } from "@/components/projects/project-skeletons"
 
-export default async function DashboardPage() {
+async function DashboardDataSection() {
   const supabase = await createClient()
 
   const { data: projects } = await supabase.from('projects').select('id, name, budget')
@@ -12,5 +14,15 @@ export default async function DashboardPage() {
       initialProjects={projects || []} 
       allExpenses={expenses || []} 
     />
+  )
+}
+
+export default async function DashboardPage() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+       <Suspense fallback={<DashboardLoadingSkeleton />}>
+          <DashboardDataSection />
+       </Suspense>
+    </div>
   )
 }
