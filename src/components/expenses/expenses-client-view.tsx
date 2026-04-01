@@ -56,10 +56,12 @@ export function ExpensesClientView({
 
   return (
     <div className="space-y-8 animate-fade-in pb-10">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">{t('expenses.global.title')}</h2>
-        <p className="text-muted-foreground">{t('expenses.global.subtitle')}</p>
-      </div>
+      {!hideHeader && (
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">{t('expenses.global.title')}</h2>
+          <p className="text-muted-foreground">{t('expenses.global.subtitle')}</p>
+        </div>
+      )}
 
       {/* Search & Filter Bar */}
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-card p-4 rounded-xl border border-border/50 shadow-sm">

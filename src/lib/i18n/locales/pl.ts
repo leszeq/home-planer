@@ -12,6 +12,8 @@ export const pl = {
     "delete": "Usuń",
     "edit": "Edytuj",
     "add": "Dodaj",
+    "create": "Utwórz",
+    "creating": "Tworzenie...",
     "loading": "Ładowanie...",
     "error": "Błąd",
     "success": "Sukces",

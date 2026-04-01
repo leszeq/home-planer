@@ -12,6 +12,8 @@ export const en = {
     "delete": "Delete",
     "edit": "Edit",
     "add": "Add",
+    "create": "Create",
+    "creating": "Creating...",
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
