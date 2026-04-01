@@ -1,12 +1,12 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import pl from './locales/pl.json'
-import en from './locales/en.json'
+import { pl } from './locales/pl'
+import { en } from './locales/en'
 
 type Locale = 'pl' | 'en'
-// Use the Polish version as the base, but allow the English version to be slightly different
-// to avoid rigid build-time errors when one file is updated before the other.
+// Use any to prevent rigid build-time errors when a key is missing in one file.
+// The code already has a runtime fallback to PL.
 type Translations = any 
 
 const translations: Record<Locale, Translations> = {
