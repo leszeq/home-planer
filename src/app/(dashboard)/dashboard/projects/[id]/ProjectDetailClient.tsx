@@ -104,31 +104,20 @@ export function ProjectDetailClient({ projectId }: { projectId: string }) {
   const project = result.project
   const canEditProject = result.canEditProject
 
-  // Calculations for Stats (moved from sub-components)
-  const totalBudget = Number(project.budget) || 0
-  const totalExpenses = result.expenses.reduce((acc, e) => acc + Number(e.amount), 0) || 0
-  const progressPercent = totalBudget > 0 ? Math.min((totalExpenses / totalBudget) * 100, 100) : 0
-  const isOverBudget = totalExpenses > totalBudget
-  const isNearLimit = totalExpenses > totalBudget * 0.8 && !isOverBudget
-  
-  const largestCategory = result.expenses.length > 0 ? (
-    [...new Set(result.expenses.map(e => e.category))].sort((a,b) => 
-      result.expenses.filter(e => e.category === b).reduce((sum, e) => sum + Number(e.amount), 0) -
-      result.expenses.filter(e => e.category === a).reduce((sum, e) => sum + Number(e.amount), 0)
-    )[0]
-  ) : "-"
-
+  // Pass entire collections to Stats Client to render rich charts
   return (
     <div className="space-y-8 pb-12 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/dashboard/projects">
-          <Button variant="ghost" size="icon">
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <ProjectHeaderClient name={project.name} />
-        <div className="ml-auto flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard/projects">
+            <Button variant="ghost" size="icon">
+              <ChevronLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          <ProjectHeaderClient name={project.name} />
+        </div>
+        <div className="sm:ml-auto flex items-center gap-2">
           {/* History Drawer */}
           <ActivitySheet logs={result.logs} />
 
@@ -148,60 +137,41 @@ export function ProjectDetailClient({ projectId }: { projectId: string }) {
         </div>
       </div>
 
-      {/* Timeline – full width */}
+      {/* Top Level Metric Cards */}
+      <ProjectStatsClient 
+        project={project}
+        expenses={result.expenses}
+        stages={result.stages}
+      />
+
+      {/* Timeline */}
       <ProjectTimeline stages={result.stages} />
 
-      {/* Stages + Stats: 2/3 + 1/3 side by side */}
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <StageList 
-            projectId={project.id} 
-            stages={result.stages} 
-            checklists={result.checklists} 
-            canEdit={canEditProject} 
-          />
-        </div>
+      {/* Main Content Areas - Full Width */}
+      <div className="space-y-8">
+        <StageList 
+          projectId={project.id} 
+          stages={result.stages} 
+          checklists={result.checklists} 
+          canEdit={canEditProject} 
+        />
         
-        <div className="space-y-6">
-          <ProjectStatsClient 
-            totalBudget={totalBudget}
-            totalExpenses={totalExpenses}
-            progressPercent={progressPercent}
-            isOverBudget={isOverBudget}
-            isNearLimit={isNearLimit}
-            doneStages={result.stages.filter(s => s.status === 'done').length}
-            totalStages={result.stages.length}
-            largestCategory={largestCategory}
-            projectId={project.id}
-          />
-        </div>
-      </div>
-
-      {/* Expenses – 2/3 width */}
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <ExpenseList 
-            projectId={project.id} 
-            expenses={result.expenses} 
-            stages={result.stages.map(s => ({id: s.id, name: s.name}))} 
-            files={result.files}
-            userId={result.user?.id || ''}
-            canEdit={canEditProject} 
-          />
-        </div>
-      </div>
-
-      {/* Files – 2/3 width */}
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <FileList 
-            projectId={project.id} 
-            userId={project.user_id} 
-            files={result.files} 
-            stages={result.stages.map(s => ({id: s.id, name: s.name}))} 
-            canEdit={canEditProject} 
-          />
-        </div>
+        <ExpenseList 
+          projectId={project.id} 
+          expenses={result.expenses} 
+          stages={result.stages.map(s => ({id: s.id, name: s.name}))} 
+          files={result.files}
+          userId={result.user?.id || ''}
+          canEdit={canEditProject} 
+        />
+        
+        <FileList 
+          projectId={project.id} 
+          userId={project.user_id} 
+          files={result.files} 
+          stages={result.stages.map(s => ({id: s.id, name: s.name}))} 
+          canEdit={canEditProject} 
+        />
       </div>
     </div>
   )

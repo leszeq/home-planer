@@ -29,6 +29,8 @@ interface Expense {
 
 import { cn } from "@/lib/utils"
 
+import { CreateExpenseModal } from "./create-expense-modal"
+
 export function ExpensesClientView({ 
   initialExpenses, 
   projects,
@@ -54,12 +56,22 @@ export function ExpensesClientView({
 
   const totalAmount = filteredExpenses.reduce((sum, e) => sum + Number(e.amount), 0)
 
+  const getLocalizedCategory = (cat: string) => {
+    if (cat === 'materials') return t('expenses.category_materials')
+    if (cat === 'labor') return t('expenses.category_labor')
+    if (cat === 'other') return t('expenses.category_other')
+    return cat
+  }
+
   return (
     <div className="space-y-8 animate-fade-in pb-10">
       {!hideHeader && (
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">{t('expenses.global.title')}</h2>
-          <p className="text-muted-foreground">{t('expenses.global.subtitle')}</p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">{t('expenses.global.title')}</h2>
+            <p className="text-muted-foreground">{t('expenses.global.subtitle')}</p>
+          </div>
+          <CreateExpenseModal projects={projects} />
         </div>
       )}
 
@@ -148,7 +160,7 @@ export function ExpensesClientView({
                     <td className="p-4">{expense.description || t('expenses.global.no_description')}</td>
                     <td className="p-4">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter bg-secondary text-muted-foreground border border-border/50">
-                        {expense.category}
+                        {getLocalizedCategory(expense.category)}
                       </span>
                     </td>
                     <td className="p-4 text-right font-bold tabular-nums text-foreground">
