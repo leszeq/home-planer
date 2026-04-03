@@ -182,18 +182,18 @@ export function ChecklistsClientView({
       )}
 
       {hideHeader && (
-         <div className="flex justify-end -mt-20">
-            <div className="flex items-center gap-2 shrink-0">
-              {firstProject && (roles[firstProject.id] === 'owner' || roles[firstProject.id] === 'editor') && (
-                <AddChecklistModal
-                  projectId={firstProject.id}
-                  stages={stages}
-                  projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
-                  onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
-                />
-              )}
-            </div>
-         </div>
+        <div className="flex justify-end -mt-20">
+          <div className="flex items-center gap-2 shrink-0">
+            {firstProject && (roles[firstProject.id] === 'owner' || roles[firstProject.id] === 'editor') && (
+              <AddChecklistModal
+                projectId={firstProject.id}
+                stages={stages}
+                projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
+                onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
+              />
+            )}
+          </div>
+        </div>
       )}
 
       {/* Filter & Group Bar */}
@@ -261,8 +261,8 @@ export function ChecklistsClientView({
                     onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
                   />
                 )}
-                <CreateChecklistForm 
-                  projectId={selectedProjectId || firstProject.id} 
+                <CreateChecklistForm
+                  projectId={selectedProjectId || firstProject.id}
                   projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
                   label={t('checklists.create_custom')}
                   onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
@@ -308,10 +308,10 @@ export function ChecklistsClientView({
               </div>
               <div className="pl-2 mt-3">
                 {(roles[projectId] === 'owner' || roles[projectId] === 'editor') && (
-                  <CreateChecklistForm 
-                    projectId={projectId} 
+                  <CreateChecklistForm
+                    projectId={projectId}
                     projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
-                    label="+ Nowa checklista" 
+                    label="+ Nowa checklista"
                     onSuccess={(cl) => setChecklists(prev => [cl, ...prev])}
                   />
                 )}
@@ -352,10 +352,10 @@ export function ChecklistsClientView({
       {!grouped && filtered.length > 0 && (
         <div className="flex justify-center pt-4">
           {(roles[selectedProjectId || firstProject?.id || ''] === 'owner' || roles[selectedProjectId || firstProject?.id || ''] === 'editor') && (
-            <CreateChecklistForm 
-              projectId={selectedProjectId || firstProject?.id || ''} 
+            <CreateChecklistForm
+              projectId={selectedProjectId || firstProject?.id || ''}
               projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
-              label="+ Kolejna checklista" 
+              label="+ Kolejna checklista"
               onSuccess={(cl) => setChecklists(prev => [cl, ...prev])}
             />
           )}

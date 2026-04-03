@@ -13,24 +13,24 @@ export async function addFileRecord(
   contentType: string, 
   sizeBytes: number,
   stageId: string | null = null
-): Promise<ActionResponse> {
+): Promise<ActionResponse<{ id: string }>> {
   try {
     await checkPermission(projectId)
     const supabase = await createClient()
-    const { error } = await supabase.from('project_files').insert({
+    const { data, error } = await supabase.from('project_files').insert({
       project_id: projectId,
       name,
       storage_path: storagePath,
       content_type: contentType,
       size_bytes: sizeBytes,
       stage_id: stageId
-    })
+    }).select('id').single()
     
     if (error) return { success: false, error: error.message }
     
     await logActivity(projectId, 'upload_file', 'file', undefined, { name, size: sizeBytes })
     revalidatePath(`/dashboard/projects/${projectId}`)
-    return { success: true }
+    return { success: true, data: { id: data.id } }
   } catch (err: any) {
     return { success: false, error: err.message }
   }

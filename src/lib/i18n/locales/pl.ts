@@ -189,7 +189,11 @@ export const pl = {
     "preview_not_supported": "Podgląd dla tego formatu nie jest wspierany.",
     "esign_preview_title": "Podgląd E-Podpisu",
     "esign_preview_desc": "Podgląd dokumentów BoldSign wymaga autoryzacji u dostawcy. Kliknij poniżej, aby otworzyć dokument.",
-    "open_in_boldsign": "Otwórz w BoldSign"
+    "open_in_boldsign": "Otwórz w BoldSign",
+    "syncing_status": "Synchronizacja statusu...",
+    "status_synced": "Status zaktualizowany!",
+    "sending_request": "Wysyłanie dokumentu do podpisu...",
+    "error_missing_fields": "Wypełnij wszystkie wymagane pola"
   },
   "settings": {
     "header_title": "Ustawienia konta",

@@ -99,17 +99,17 @@ function SortableItem({
   )
 }
 
-export function ChecklistView({ 
-  checklist, 
-  projectId, 
+export function ChecklistView({
+  checklist,
+  projectId,
   onDelete,
   onItemChange, // To notify parent about toggles/adds/removes
   onItemsOrderChange, // To notify parent about reorders
   canEdit,
-}: { 
-  checklist: Checklist; 
-  projectId: string; 
-  onDelete?: () => void 
+}: {
+  checklist: Checklist;
+  projectId: string;
+  onDelete?: () => void
   onItemChange?: (items: Item[]) => void
   onItemsOrderChange?: (items: Item[]) => void
   canEdit?: boolean
@@ -134,7 +134,7 @@ export function ChecklistView({
     const newItems = items.map(i => i.id === itemId ? { ...i, is_done: newDone } : i)
     setItems(newItems)
     onItemChange?.(newItems)
-    
+
     // Fire server action in the background
     toggleChecklistItem(itemId, newDone, projectId).then(() => {
       queryClient.invalidateQueries({ queryKey: ['checklists-all'] })
@@ -278,7 +278,7 @@ export function ChecklistView({
             isAddingItem ? (
               <form onSubmit={handleAddItem} className="flex items-center gap-2 px-3 py-2.5 border-t bg-secondary/20">
                 <Circle className="w-5 h-5 text-muted-foreground/40 shrink-0" />
-                 <Input
+                <Input
                   autoFocus
                   value={newItem}
                   onChange={e => setNewItem(e.target.value)}
@@ -292,7 +292,7 @@ export function ChecklistView({
                 </Button>
               </form>
             ) : (
-               <button
+              <button
                 onClick={() => setIsAddingItem(true)}
                 className="w-full text-xs text-muted-foreground/70 hover:text-muted-foreground hover:bg-secondary/20 flex items-center gap-2 px-4 py-3 transition-colors"
               >

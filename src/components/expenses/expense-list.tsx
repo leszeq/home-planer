@@ -5,7 +5,8 @@ import { useState, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Plus, Trash2, Receipt, Search, Filter, ArrowUpDown, ChevronDown, CheckCircle, X, FileText, Paperclip, Loader2, Image as ImageIcon, File } from 'lucide-react'
+import { Plus, Trash2, Receipt, Search, Filter, ArrowUpDown, ChevronDown, CheckCircle, X, FileText, Paperclip, Loader2, Image as ImageIcon, File, Eye, Pencil } from 'lucide-react'
+import { DocumentPreviewModal } from '@/components/documents/document-preview-modal'
 import { createExpense, deleteExpense, deleteMultipleExpenses, updateExpense, getProjectCategories, createCategory } from '@/app/(dashboard)/dashboard/projects/[id]/actions'
 import { useTranslation } from '@/lib/i18n/LanguageContext'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -65,6 +66,7 @@ export function ExpenseList({
   const [addingCustomCategory, setAddingCustomCategory] = useState('')
   const [customCategories, setCustomCategories] = useState<any[]>([])
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null)
+  const [previewFile, setPreviewFile] = useState<any>(null)
   const queryClient = useQueryClient()
 
   const { uploadFiles, isUploading: isUploadingFile, uploadProgress } = useFileUpload({
@@ -178,7 +180,7 @@ export function ExpenseList({
   }
 
   return (
-    <Card className="flex flex-col border border-border shadow-sm animate-fade-in pb-4 relative">
+    <Card className="flex flex-col border border-border shadow-sm animate-fade-in pb-4">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div>
@@ -225,7 +227,9 @@ export function ExpenseList({
         {isAdding && (
           <Card className="bg-secondary/10 border-dashed border-2 border-primary/20 animate-in slide-in-from-top duration-300">
             <CardContent className="pt-6">
-              <form action={async (formData) => {
+              <form onSubmit={async (e) => {
+                e.preventDefault()
+                const formData = new FormData(e.currentTarget)
                 const category = addingCategory === '__custom__'
                   ? addingCustomCategory
                   : addingCategory || 'other'
@@ -303,13 +307,19 @@ export function ExpenseList({
                         onChange={async (e) => {
                           if (e.target.files && e.target.files[0]) {
                             const file = e.target.files[0]
-                            const storagePath = `${userId}/${projectId}/${Date.now()}-${file.name}`
-                            await uploadFiles([file], (f, path) => Promise.resolve({ success: true }), `${userId}/${projectId}`)
-                            const recRes = await addFileRecord(projectId, file.name, storagePath, file.type, file.size)
-                            if (recRes.success) {
-                              toast.info(t('expenses.file_uploaded_success') || "Plik wgrany pomyślnie.")
-                              queryClient.invalidateQueries({ queryKey: ['project', projectId] })
-                            }
+                            await uploadFiles(
+                              [file],
+                              async (f, storagePath) => {
+                                const recRes = await addFileRecord(projectId, f.name, storagePath, f.type, f.size)
+                                if (recRes.success && recRes.data?.id) {
+                                  setSelectedFileId(recRes.data.id)
+                                  toast.info(t('expenses.file_uploaded_success') || "Plik wgrany pomyślnie.")
+                                  queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+                                }
+                                return recRes
+                              },
+                              `${userId}/${projectId}`
+                            )
                           }
                         }}
                         className="h-10 text-xs" 
@@ -430,8 +440,23 @@ export function ExpenseList({
                           {Number(expense.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })} zł
                         </td>
                         <td className="p-4 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            {expense.file_id && files.find(f => f.id === expense.file_id) && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="w-8 h-8 text-primary/60 hover:text-primary hover:bg-primary/10"
+                                title={t('documents.tooltip_preview') || "Podgląd"}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setPreviewFile(files.find(f => f.id === expense.file_id))
+                                }}
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                              </Button>
+                            )}
                           {canEdit && (
-                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -444,7 +469,7 @@ export function ExpenseList({
                                   setAddingCustomCategory(isCustom ? expense.category : '')
                                 }}
                               >
-                                <Filter className="w-3.5 h-3.5" />
+                                <Pencil className="w-3.5 h-3.5" />
                               </Button>
                               <Button
                                 variant="ghost"
@@ -456,6 +481,7 @@ export function ExpenseList({
                               </Button>
                             </div>
                           )}
+                          </div>
                         </td>
                       </tr>
                       {editingId === expense.id && (
@@ -539,7 +565,7 @@ export function ExpenseList({
 
         {/* Batch Action Bar */}
         {selectedIds.size > 0 && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-8 duration-300">
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-8 duration-300">
             <div className="flex items-center gap-4 bg-foreground text-background px-6 py-3 rounded-2xl shadow-2xl border border-border/20">
               <span className="text-sm font-bold flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-primary" />
@@ -569,6 +595,17 @@ export function ExpenseList({
             </div>
           </div>
         )}
+
+        <DocumentPreviewModal 
+          isOpen={!!previewFile}
+          onClose={() => setPreviewFile(null)}
+          document={previewFile ? {
+            id: previewFile.id,
+            name: previewFile.name,
+            storage_path: previewFile.storage_path,
+            type: 'scan'
+          } : null}
+        />
       </CardContent>
     </Card>
   )

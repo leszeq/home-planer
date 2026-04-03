@@ -202,7 +202,7 @@ export function FileList({
   }
 
   return (
-    <Card className="flex flex-col border border-border shadow-sm animate-fade-in pb-4 relative">
+    <Card className="flex flex-col border border-border shadow-sm animate-fade-in pb-4">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div>
@@ -409,7 +409,7 @@ export function FileList({
 
         {/* Batch Action Bar */}
         {selectedIds.size > 0 && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-8 duration-300">
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-8 duration-300">
             <div className="flex items-center gap-4 bg-foreground text-background px-6 py-3 rounded-2xl shadow-2xl border border-border/20">
               <span className="text-sm font-bold flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-primary" />

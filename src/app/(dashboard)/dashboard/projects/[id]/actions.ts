@@ -135,7 +135,12 @@ export async function createExpense(projectId: string, data: {
     const supabase = await createClient()
     const { error } = await supabase.from('expenses').insert({
       project_id: projectId,
-      ...data
+      amount: data.amount,
+      category: data.category,
+      description: data.description,
+      date: data.date,
+      stage_id: data.stage_id || null,
+      file_id: data.file_id || null
     })
     
     if (error) return { success: false, error: error.message }

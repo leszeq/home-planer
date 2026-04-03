@@ -85,7 +85,7 @@ export function DocumentPreviewModal({ document, isOpen, onClose }: DocumentPrev
   const isPdf = document.storage_path?.toLowerCase().endsWith('.pdf')
 
   return (
-    <div className="fixed inset-0 bg-background/90 backdrop-blur-md flex items-center justify-center p-4 z-[100] animate-in fade-in duration-300">
+    <div className="fixed inset-0 bg-background/90 backdrop-blur-md flex items-center justify-center p-4 z-[9999] animate-in fade-in duration-300">
       <Card className="w-full max-w-5xl h-[90vh] flex flex-col shadow-2xl border-primary/20 animate-in zoom-in-95 duration-300 overflow-hidden">
         <CardHeader className="flex flex-row items-center justify-between border-b bg-muted/10 shrink-0">
           <div className="flex items-center gap-3">

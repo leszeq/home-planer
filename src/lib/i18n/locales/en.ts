@@ -189,7 +189,11 @@ export const en = {
     "preview_not_supported": "Preview is not supported for this format.",
     "esign_preview_title": "E-Signature Preview",
     "esign_preview_desc": "BoldSign document previews require provider authorization. Click below to open the document.",
-    "open_in_boldsign": "Open in BoldSign"
+    "open_in_boldsign": "Open in BoldSign",
+    "syncing_status": "Syncing status...",
+    "status_synced": "Status updated!",
+    "sending_request": "Sending document for signature...",
+    "error_missing_fields": "Please fill all required fields"
   },
   "settings": {
     "header_title": "Account Settings",
