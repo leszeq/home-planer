@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Plus, X, ListChecks, GripVertical } from 'lucide-react'
 import { createCustomChecklist } from '@/app/(dashboard)/dashboard/checklists/actions'
 import { useTranslation } from '@/lib/i18n/LanguageContext'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface Props {
   projectId: string
@@ -15,15 +16,18 @@ interface Props {
   label?: string
   onSuccess?: (checklist: any) => void
   onOpenChange?: (open: boolean) => void
+  projects?: { id: string; name: string }[]
 }
 
-export function CreateChecklistForm({ projectId, stageId = null, label, onSuccess, onOpenChange }: Props) {
+export function CreateChecklistForm({ projectId: initialProjectId, stageId = null, label, onSuccess, onOpenChange, projects }: Props) {
   const { t } = useTranslation()
   const displayLabel = label || t('checklists.create_new')
   const [isOpen, setIsOpen] = useState(false)
   const [name, setName] = useState('')
   const [items, setItems] = useState<string[]>([''])
   const [loading, setLoading] = useState(false)
+  const [projectId, setProjectId] = useState(initialProjectId)
+  const queryClient = useQueryClient()
 
   const addItemField = () => setItems(prev => [...prev, ''])
   const removeItemField = (index: number) => setItems(prev => prev.filter((_, i) => i !== index))
@@ -49,8 +53,10 @@ export function CreateChecklistForm({ projectId, stageId = null, label, onSucces
     setLoading(true)
     try {
       const newChecklist = await createCustomChecklist(projectId, stageId, name.trim(), items)
-      if (newChecklist && onSuccess) {
-        onSuccess(newChecklist)
+      if (newChecklist) {
+        queryClient.invalidateQueries({ queryKey: ['checklists-all'] })
+        queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+        if (onSuccess) onSuccess(newChecklist)
       }
     } catch (err) {
       console.error(err)
@@ -104,6 +110,18 @@ export function CreateChecklistForm({ projectId, stageId = null, label, onSucces
               className="h-12 text-base"
             />
           </div>
+          {projects && projects.length > 1 && !stageId && (
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-muted-foreground">{t('checklists.select_project')}</label>
+              <select 
+                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                value={projectId}
+                onChange={e => setProjectId(e.target.value)}
+              >
+                {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+            </div>
+          )}
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground font-semibold">Pozycje na liście (zadania):</p>
             <div className="space-y-3">

@@ -4,6 +4,7 @@ import { SettingsClientView } from '@/components/settings/settings-client-view'
 import { Suspense } from 'react'
 import { SettingsSkeleton } from '@/components/projects/project-skeletons'
 import { Settings } from 'lucide-react'
+import { ClientPageHeader } from '@/components/layout/client-page-header'
 
 async function SettingsDataSection() {
   const supabase = await createClient()
@@ -25,18 +26,11 @@ async function SettingsDataSection() {
 export default async function SettingsPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-12 py-8 animate-fade-in">
-      {/* Zero-Flicker Header */}
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-          <Settings className="w-6 h-6 text-primary" />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Ustawienia konta</h1>
-          <p className="text-muted-foreground mt-1">
-            Zarządzaj swoim profilem i ustawieniami bezpieczeństwa
-          </p>
-        </div>
-      </div>
+      <ClientPageHeader 
+        titleKey="settings.header_title" 
+        descKey="settings.header_desc" 
+        icon={<Settings className="w-6 h-6 text-primary" />}
+      />
 
       <Suspense fallback={<SettingsSkeleton />}>
         <SettingsDataSection />

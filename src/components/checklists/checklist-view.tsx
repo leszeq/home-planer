@@ -13,6 +13,7 @@ import {
 import { CheckCircle2, Circle, Trash2, ChevronDown, ChevronUp, GripVertical, Plus, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useTranslation } from '@/lib/i18n/LanguageContext'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   DndContext,
   closestCenter,
@@ -114,6 +115,7 @@ export function ChecklistView({
   canEdit?: boolean
 }) {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const [isOpen, setIsOpen] = useState(true)
   const [isAddingItem, setIsAddingItem] = useState(false)
   const [newItem, setNewItem] = useState('')
@@ -134,14 +136,20 @@ export function ChecklistView({
     onItemChange?.(newItems)
     
     // Fire server action in the background
-    toggleChecklistItem(itemId, newDone, projectId)
+    toggleChecklistItem(itemId, newDone, projectId).then(() => {
+      queryClient.invalidateQueries({ queryKey: ['checklists-all'] })
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+    })
   }
 
   const handleDelete = (itemId: string) => {
     const newItems = items.filter(i => i.id !== itemId)
     setItems(newItems)
     onItemChange?.(newItems)
-    deleteChecklistItem(itemId)
+    deleteChecklistItem(itemId).then(() => {
+      queryClient.invalidateQueries({ queryKey: ['checklists-all'] })
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+    })
   }
   const doneCount = items.filter(i => i.is_done).length
   const progress = items.length > 0 ? (doneCount / items.length) * 100 : 0
@@ -156,6 +164,8 @@ export function ChecklistView({
     setItems(reordered)
     onItemsOrderChange?.(reordered)
     await updateChecklistItemsOrder(checklist.id, reordered.map(i => i.id))
+    queryClient.invalidateQueries({ queryKey: ['checklists-all'] })
+    queryClient.invalidateQueries({ queryKey: ['project', projectId] })
   }
 
   const handleAddItem = async (e: React.FormEvent) => {
@@ -168,6 +178,8 @@ export function ChecklistView({
     onItemChange?.(newItems)
     setNewItem('')
     await addChecklistItem(checklist.id, newItem.trim(), projectId)
+    queryClient.invalidateQueries({ queryKey: ['checklists-all'] })
+    queryClient.invalidateQueries({ queryKey: ['project', projectId] })
   }
 
   return (
@@ -214,6 +226,8 @@ export function ChecklistView({
                   onClick={async () => {
                     onDelete?.()  // Optimistic: remove from parent list immediately
                     await deleteChecklist(checklist.id)
+                    queryClient.invalidateQueries({ queryKey: ['checklists-all'] })
+                    queryClient.invalidateQueries({ queryKey: ['project', projectId] })
                   }}
                 >
                   <Trash2 className="w-3 h-3" />

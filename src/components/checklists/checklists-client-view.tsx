@@ -263,6 +263,7 @@ export function ChecklistsClientView({
                 )}
                 <CreateChecklistForm 
                   projectId={selectedProjectId || firstProject.id} 
+                  projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
                   label={t('checklists.create_custom')}
                   onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
                   onOpenChange={setIsCustomCreating}
@@ -309,6 +310,7 @@ export function ChecklistsClientView({
                 {(roles[projectId] === 'owner' || roles[projectId] === 'editor') && (
                   <CreateChecklistForm 
                     projectId={projectId} 
+                    projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
                     label="+ Nowa checklista" 
                     onSuccess={(cl) => setChecklists(prev => [cl, ...prev])}
                   />
@@ -352,6 +354,7 @@ export function ChecklistsClientView({
           {(roles[selectedProjectId || firstProject?.id || ''] === 'owner' || roles[selectedProjectId || firstProject?.id || ''] === 'editor') && (
             <CreateChecklistForm 
               projectId={selectedProjectId || firstProject?.id || ''} 
+              projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
               label="+ Kolejna checklista" 
               onSuccess={(cl) => setChecklists(prev => [cl, ...prev])}
             />

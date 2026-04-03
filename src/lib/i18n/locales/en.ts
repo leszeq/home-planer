@@ -2,6 +2,7 @@ export const en = {
   "common": {
     "dashboard": "Dashboard",
     "projects": "Projects",
+    "all": "All",
     "expenses": "Expenses",
     "checklists": "Checklists",
     "documents": "Documents",
@@ -17,6 +18,7 @@ export const en = {
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
+    "saved": "Saved!",
     "owner": "Owner",
     "editor": "Editor",
     "viewer": "Viewer",
@@ -102,6 +104,8 @@ export const en = {
     }
   },
   "checklists": {
+    "header_title": "Project Schedule",
+    "header_desc": "Manage construction stages and checklists",
     "title": "Your Checklists",
     "page_title": "Checklists",
     "page_subtitle": "Quality control tools for every construction stage",
@@ -124,9 +128,19 @@ export const en = {
     "templates_banner_desc": "Ready-to-use checklists: foundations (54 pts), slab (30 pts), shell (92 pts), windows (13 pts), installations (78 pts), insulation (13 pts), facade (18 pts).",
     "no_checklists_title": "No checklists",
     "no_checklists_desc": "You don't have any checklists for the selected projects yet. Add a new list from a template or create your own.",
-    "unknown_project": "Unknown project"
+    "unknown_project": "Unknown project",
+    "add_from_template": "Add from template",
+    "add_from_template_short": "From template",
+    "select_template": "Choose a checklist template",
+    "assign_to_stage": "Assign to stage (optional)",
+    "no_stage": "No stage",
+    "adding_template": "Adding...",
+    "added_from_template": "Checklist \"{{name}}\" added successfully.",
+    "select_project": "Project"
   },
   "documents": {
+    "header_title": "Documents & Templates",
+    "header_desc": "Browse all project documents and use ready-made templates",
     "title": "Documents & Contracts",
     "page_title": "Documents and Templates",
     "page_subtitle": "Store scans of contracts, invoices and manage electronic signatures in one place.",
@@ -174,6 +188,8 @@ export const en = {
     "open_in_boldsign": "Open in BoldSign"
   },
   "settings": {
+    "header_title": "Account Settings",
+    "header_desc": "Manage your profile and security settings",
     "account_settings": "Account Settings",
     "account_subtitle": "Manage your profile details, avatar, and security.",
     "profile_tab": "My Profile",
@@ -238,6 +254,8 @@ export const en = {
     "budget_label": "budget"
   },
   "projects": {
+    "header_title": "Projects",
+    "header_desc": "Manage your construction investments",
     "title": "Your Projects",
     "new_project": "New Project",
     "summary_subtitle": "Project summary and settings",
@@ -266,7 +284,12 @@ export const en = {
     "add_stage": "Add stage",
     "status_todo": "To do",
     "status_in_progress": "In progress",
-    "status_done": "Finished",
+    "status_done": "Done",
+    "stage_added": "Stage \"{{name}}\" added.",
+    "stage_deleted": "Stage deleted.",
+    "stage_status_changed": "Status changed to \"{{status}}\".",
+    "edit_budget": "Edit budget",
+    "budget_updated": "Budget updated to {{amount}} PLN.",
     "summary_title": "Project summary",
     "controls_title": "Management",
     "extra": {
@@ -306,9 +329,22 @@ export const en = {
     "category_materials": "Materials",
     "category_labor": "Labor",
     "category_other": "Other",
+    "category_custom": "Other (custom)",
     "stage": "Stage",
     "actions": "Actions",
     "summary": "Expense summary",
+    "edit_expense": "Edit expense",
+    "expense_added": "Expense \"{{desc}}\" ({{amount}} PLN) added.",
+    "expense_deleted": "Expense deleted.",
+    "expenses_deleted": "{{count}} expenses deleted.",
+    "expense_updated": "Expense updated.",
+    "custom_category_label": "Own category name",
+    "document_label": "Related document",
+    "upload_new": "Upload new",
+    "link_existing": "Link to existing",
+    "select_file": "Select file...",
+    "file_uploaded_success": "File uploaded successfully.",
+    "document": "Document",
     "global": {
       "title": "Your Expenses",
       "subtitle": "Full history of all costs across all your investments.",
@@ -343,7 +379,10 @@ export const en = {
     "size_limit": "Max file size: 10MB",
     "error_upload": "Error during file upload: {name}",
     "error_download": "Failed to generate download link.",
-    "assign_stage": "Assign to stage"
+    "assign_stage": "Assign to stage",
+    "type_pdf": "PDF",
+    "type_image": "Image",
+    "type_document": "Document"
   },
   "stages": {
     "title": "Construction Stages",

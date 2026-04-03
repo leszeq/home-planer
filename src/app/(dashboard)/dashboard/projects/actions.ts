@@ -12,13 +12,33 @@ export async function createProject(formData: FormData) {
 
   if (!user) throw new Error("Unauthorized")
 
-  const { error } = await supabase.from('projects').insert({
+  const { data: project, error: projectError } = await supabase.from('projects').insert({
     name,
     budget,
     user_id: user.id
-  })
+  }).select().single()
 
-  if (error) throw error
+  if (projectError) throw projectError
+
+  // Auto-create predefined stages
+  const predefinedStages = [
+    "Działka",
+    "Formalności",
+    "Fundamenty",
+    "Stan surowy",
+    "Instalacje",
+    "Wykończenie"
+  ]
+
+  const stageRows = predefinedStages.map((stageName, index) => ({
+    project_id: project.id,
+    name: stageName,
+    order: index,
+    status: 'todo'
+  }))
+
+  const { error: stagesError } = await supabase.from('stages').insert(stageRows)
+  if (stagesError) throw stagesError
 
   revalidatePath('/dashboard/projects')
 }

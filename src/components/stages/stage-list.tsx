@@ -26,7 +26,10 @@ import { cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 import { ChecklistView } from '@/components/checklists/checklist-view'
 import { CreateChecklistForm } from '@/components/checklists/create-checklist-form'
+import { AddChecklistModal } from '@/components/checklists/add-checklist-modal'
 import { useTranslation } from '@/lib/i18n/LanguageContext'
+import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 interface Stage {
   id: string
@@ -39,7 +42,6 @@ interface Stage {
 
 interface ChecklistItem { id: string; content: string; is_done: boolean; order: number }
 interface Checklist { id: string; name: string; checklist_items: ChecklistItem[], stage_id: string | null }
-
 function SortableStage({
   stage,
   projectId,
@@ -47,6 +49,7 @@ function SortableStage({
   onDeleteChecklist,
   onAddChecklist,
   onUpdateChecklist,
+  allStages,
   canEdit,
 }: {
   stage: Stage
@@ -55,6 +58,7 @@ function SortableStage({
   onDeleteChecklist: (checklistId: string) => void
   onAddChecklist: (checklist: any) => void
   onUpdateChecklist: (checklistId: string, items: ChecklistItem[]) => void
+  allStages: Stage[]
   canEdit?: boolean
 }) {
   const { t, locale } = useTranslation()
@@ -66,6 +70,7 @@ function SortableStage({
   const [startDate, setStartDate] = useState(stage.start_date || '')
   const [endDate, setEndDate] = useState(stage.end_date || '')
   const [isSavingDates, setIsSavingDates] = useState(false)
+  const queryClient = useQueryClient()
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -77,7 +82,10 @@ function SortableStage({
 
   const handleSaveDates = async () => {
     setIsSavingDates(true)
-    await updateStageDates(projectId, stage.id, startDate || null, endDate || null)
+    const res = await updateStageDates(projectId, stage.id, startDate || null, endDate || null)
+    if (res.success) {
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+    }
     setIsSavingDates(false)
     setIsEditingDates(false)
   }
@@ -103,7 +111,16 @@ function SortableStage({
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => updateStageStatus(projectId, stage.id, nextStatus)}
+          onClick={async () => {
+            const res = await updateStageStatus(projectId, stage.id, nextStatus)
+            if (res.success) {
+              queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+              const statusLabel = nextStatus === 'done' ? t('projects.status_done') : nextStatus === 'in_progress' ? t('projects.status_in_progress') : t('projects.status_todo')
+              toast.success(`${t('projects.stage_status_changed').replace('{{status}}', statusLabel)}`)
+            } else {
+              toast.error(res.error || t('common.error'))
+            }
+          }}
           className="shrink-0"
           disabled={!canEdit}
         >
@@ -139,7 +156,7 @@ function SortableStage({
           'hidden sm:inline-flex text-xs font-medium px-2.5 py-1 rounded-full',
           stage.status === 'done' ? 'badge-done' : stage.status === 'in_progress' ? 'badge-progress' : 'badge-todo'
         )}>
-          {stage.status === 'done' ? t('projects.status_done') : stage.status === 'in_progress' ? t('projects.status_in_progress') : 'Todo'}
+          {stage.status === 'done' ? t('projects.status_done') : stage.status === 'in_progress' ? t('projects.status_in_progress') : t('projects.status_todo')}
         </span>
 
         {/* Calendar Edit */}
@@ -158,7 +175,15 @@ function SortableStage({
               variant="ghost"
               size="icon"
               className="text-muted-foreground hover:text-destructive shrink-0"
-              onClick={() => deleteStage(projectId, stage.id)}
+              onClick={async () => {
+                const res = await deleteStage(projectId, stage.id)
+                if (res.success) {
+                  queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+                  toast.success(t('projects.stage_deleted'))
+                } else {
+                  toast.error(res.error || t('common.error'))
+                }
+              }}
             >
               <Trash2 className="w-4 h-4" />
             </Button>
@@ -199,12 +224,22 @@ function SortableStage({
           />
         ))}
         {canEdit && (
-          <CreateChecklistForm 
-            projectId={projectId} 
-            stageId={stage.id} 
-            label="+ Checklista" 
-            onSuccess={onAddChecklist}
-          />
+          <div className="flex items-center gap-2">
+            <CreateChecklistForm 
+              projectId={projectId} 
+              stageId={stage.id} 
+              label="+ Checklista" 
+              onSuccess={onAddChecklist}
+            />
+            <AddChecklistModal
+              projectId={projectId}
+              stages={allStages.map((s: Stage) => ({ ...s, project_id: projectId }))}
+              onSuccess={onAddChecklist}
+              initialStageId={stage.id}
+              lockStage={true}
+              variant="ghost"
+            />
+          </div>
         )}
       </div>
     </div>
@@ -241,6 +276,7 @@ export function StageList({
   const [checklists, setChecklists] = useState(initialChecklists)
   const [isAdding, setIsAdding] = useState(false)
   const [newName, setNewName] = useState('')
+  const queryClient = useQueryClient()
 
   const suggestedStages = t('stages.suggested_list') as string[]
 
@@ -264,15 +300,24 @@ export function StageList({
     const newIndex = stages.findIndex(s => s.id === over.id)
     const reordered = arrayMove(stages, oldIndex, newIndex)
     setStages(reordered)
-    await updateStagesOrder(projectId, reordered.map(s => s.id))
+    const res = await updateStagesOrder(projectId, reordered.map(s => s.id))
+    if (res.success) {
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+    }
   }
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newName.trim()) return
-    await createStage(projectId, newName, stages.length + 1)
-    setNewName('')
-    setIsAdding(false)
+    const res = await createStage(projectId, newName, stages.length + 1)
+    if (res.success) {
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+      toast.success(t('projects.stage_added').replace('{{name}}', newName))
+      setNewName('')
+      setIsAdding(false)
+    } else {
+      toast.error(res.error || t('common.error'))
+    }
   }
 
   return (
@@ -336,6 +381,7 @@ export function StageList({
                 onDeleteChecklist={(id) => setChecklists(prev => prev.filter(c => c.id !== id))}
                 onAddChecklist={(cl) => setChecklists(prev => [cl, ...prev])}
                 onUpdateChecklist={(id, newItems) => setChecklists(prev => prev.map(c => c.id === id ? { ...c, checklist_items: newItems } : c))}
+                allStages={stages}
                 canEdit={canEdit}
               />
             ))}

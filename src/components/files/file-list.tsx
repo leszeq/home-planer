@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { cn } from '@/lib/utils'
+import { useQueryClient } from '@tanstack/react-query'
 
 export interface ProjectFile {
   id: string
@@ -67,6 +68,7 @@ export function FileList({
   const [isDeletingBatch, setIsDeletingBatch] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
+  const queryClient = useQueryClient()
 
   // 1. Filter Logic
   const filteredFiles = useMemo(() => {
@@ -94,6 +96,7 @@ export function FileList({
   const { uploadFiles, isUploading, uploadProgress } = useFileUpload({
     userId,
     onSuccess: () => {
+       queryClient.invalidateQueries({ queryKey: ['project', projectId] })
        if (fileInputRef.current) fileInputRef.current.value = ''
     }
   })
@@ -127,6 +130,7 @@ export function FileList({
     const response = await deleteMultipleFiles(projectId, filesToDelete)
     
     if (response.success) {
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] })
       toast.success(t('common.deleted'), { id: toastId })
       setSelectedIds(new Set())
     } else {
@@ -155,6 +159,7 @@ export function FileList({
     const response = await updateFileStage(projectId, fileId, newStageId)
     
     if (response.success) {
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] })
       toast.success(t('common.saved') || 'Zapisano!', { id: toastId })
     } else {
       toast.error(response.error || t('common.error'), { id: toastId })
@@ -166,6 +171,7 @@ export function FileList({
     const response = await deleteFile(projectId, file.id, file.storage_path)
     
     if (response.success) {
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] })
       toast.success(t('common.deleted') || 'Usunięto!', { id: toastId })
     } else {
       toast.error(response.error || t('common.error'), { id: toastId })
@@ -190,7 +196,7 @@ export function FileList({
   }
 
   return (
-    <Card className="flex flex-col h-full border border-border shadow-sm animate-fade-in pb-4 relative">
+    <Card className="flex flex-col border border-border shadow-sm animate-fade-in pb-4 relative">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div>
@@ -207,7 +213,7 @@ export function FileList({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col gap-6 flex-1 overflow-visible pt-2">
+      <CardContent className="flex flex-col gap-6 overflow-visible pt-2">
         {/* Top Search and Filter Bar */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
@@ -301,7 +307,7 @@ export function FileList({
         )}
 
         {/* File List */}
-        <div className="space-y-2 flex-1 overflow-y-auto pr-1 custom-scrollbar min-h-[300px]">
+        <div className="space-y-2 flex-1 overflow-y-auto pr-1 custom-scrollbar">
           {filteredFiles.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mb-3">
@@ -349,6 +355,12 @@ export function FileList({
                       )}
                     </div>
                     <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-semibold">
+                      <span className="bg-muted px-1.5 py-0.5 rounded text-[9px] uppercase tracking-tighter">
+                        {file.content_type.startsWith('image/') ? t('files.type_image') : 
+                         file.content_type.includes('pdf') ? t('files.type_pdf') : 
+                         t('files.type_document')}
+                      </span>
+                      <span className="opacity-30">•</span>
                       <span className="tabular-nums">{(file.size_bytes / 1024 / 1024).toFixed(2)} MB</span>
                       <span className="opacity-30">•</span>
                       <span>{new Date(file.created_at).toLocaleDateString(locale === 'pl' ? 'pl-PL' : 'en-US')}</span>

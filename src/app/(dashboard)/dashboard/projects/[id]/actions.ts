@@ -110,7 +110,8 @@ export async function createExpense(projectId: string, data: {
   category: string,
   description: string,
   stage_id: string | null,
-  date: string
+  date: string,
+  file_id?: string | null
 }): Promise<ActionResponse> {
   try {
     await checkPermission(projectId)
@@ -172,6 +173,48 @@ export async function deleteMultipleExpenses(projectId: string, expenseIds: stri
       isBulk: true
     })
     
+    revalidatePath(`/dashboard/projects/${projectId}`)
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err.message }
+  }
+}
+
+export async function updateExpense(projectId: string, expenseId: string, data: {
+  amount?: number,
+  category?: string,
+  description?: string,
+  stage_id?: string | null,
+  date?: string,
+  file_id?: string | null
+}): Promise<ActionResponse> {
+  try {
+    await checkPermission(projectId)
+    const supabase = await createClient()
+    const { error } = await supabase.from('expenses').update(data).match({ id: expenseId, project_id: projectId })
+    if (error) return { success: false, error: error.message }
+    
+    await logActivity(projectId, 'update_expense' as any, 'expense', expenseId, { 
+      desc: data.description,
+      amount: data.amount
+    })
+
+    revalidatePath(`/dashboard/projects/${projectId}`)
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err.message }
+  }
+}
+
+export async function updateProjectBudget(projectId: string, budget: number): Promise<ActionResponse> {
+  try {
+    await checkPermission(projectId)
+    const supabase = await createClient()
+    const { error } = await supabase.from('projects').update({ budget }).match({ id: projectId })
+    if (error) return { success: false, error: error.message }
+    
+    await logActivity(projectId, 'create_project' as any, 'project', projectId, { budget })
+
     revalidatePath(`/dashboard/projects/${projectId}`)
     return { success: true }
   } catch (err: any) {
@@ -258,6 +301,31 @@ export async function deleteProject(projectId: string): Promise<ActionResponse> 
     // Note: Log will be orphaned or deleted by CASCADE but good practice to keep it if we add soft delete later
     await logActivity(projectId, 'delete_project', 'project', projectId, { name: project?.name })
     
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err.message }
+  }
+}
+
+// --- Category Actions ---
+
+export async function getProjectCategories(projectId: string): Promise<{ success: boolean, data?: any[], error?: string }> {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase.from('expense_categories').select('*').match({ project_id: projectId }).order('name')
+    if (error) return { success: false, error: error.message }
+    return { success: true, data }
+  } catch (err: any) {
+    return { success: false, error: err.message }
+  }
+}
+
+export async function createCategory(projectId: string, name: string): Promise<ActionResponse> {
+  try {
+    await checkPermission(projectId)
+    const supabase = await createClient()
+    const { error } = await supabase.from('expense_categories').insert({ project_id: projectId, name })
+    if (error && error.code !== '23505') return { success: false, error: error.message }
     return { success: true }
   } catch (err: any) {
     return { success: false, error: err.message }

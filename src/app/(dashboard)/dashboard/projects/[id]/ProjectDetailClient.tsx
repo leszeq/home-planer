@@ -148,44 +148,56 @@ export function ProjectDetailClient({ projectId }: { projectId: string }) {
         </div>
       </div>
 
-      {/* Stats */}
-      <ProjectStatsClient 
-        totalBudget={totalBudget}
-        totalExpenses={totalExpenses}
-        progressPercent={progressPercent}
-        isOverBudget={isOverBudget}
-        isNearLimit={isNearLimit}
-        doneStages={result.stages.filter(s => s.status === 'done').length}
-        totalStages={result.stages.length}
-        largestCategory={largestCategory}
-      />
-
-      {/* Timeline */}
+      {/* Timeline – full width */}
       <ProjectTimeline stages={result.stages} />
 
-      {/* Main Grid Section (2-column layout) */}
-      <div className="grid gap-8 lg:grid-cols-2">
-        <div className="space-y-8">
+      {/* Stages + Stats: 2/3 + 1/3 side by side */}
+      <div className="grid gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2">
           <StageList 
             projectId={project.id} 
             stages={result.stages} 
             checklists={result.checklists} 
             canEdit={canEditProject} 
           />
-          
+        </div>
+        
+        <div className="space-y-6">
+          <ProjectStatsClient 
+            totalBudget={totalBudget}
+            totalExpenses={totalExpenses}
+            progressPercent={progressPercent}
+            isOverBudget={isOverBudget}
+            isNearLimit={isNearLimit}
+            doneStages={result.stages.filter(s => s.status === 'done').length}
+            totalStages={result.stages.length}
+            largestCategory={largestCategory}
+            projectId={project.id}
+          />
+        </div>
+      </div>
+
+      {/* Expenses – 2/3 width */}
+      <div className="grid gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <ExpenseList 
+            projectId={project.id} 
+            expenses={result.expenses} 
+            stages={result.stages.map(s => ({id: s.id, name: s.name}))} 
+            files={result.files}
+            userId={result.user?.id || ''}
+            canEdit={canEditProject} 
+          />
+        </div>
+      </div>
+
+      {/* Files – 2/3 width */}
+      <div className="grid gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2">
           <FileList 
             projectId={project.id} 
             userId={project.user_id} 
             files={result.files} 
-            stages={result.stages.map(s => ({id: s.id, name: s.name}))} 
-            canEdit={canEditProject} 
-          />
-        </div>
-        
-        <div className="space-y-8">
-          <ExpenseList 
-            projectId={project.id} 
-            expenses={result.expenses} 
             stages={result.stages.map(s => ({id: s.id, name: s.name}))} 
             canEdit={canEditProject} 
           />

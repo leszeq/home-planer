@@ -2,6 +2,7 @@ export const pl = {
   "common": {
     "dashboard": "Dashboard",
     "projects": "Projekty",
+    "all": "Wszystkie",
     "expenses": "Wydatki",
     "checklists": "Checklisty",
     "documents": "Dokumenty",
@@ -17,6 +18,7 @@ export const pl = {
     "loading": "Ładowanie...",
     "error": "Błąd",
     "success": "Sukces",
+    "saved": "Zapisano!",
     "owner": "Właściciel",
     "editor": "Edytor",
     "viewer": "Widz",
@@ -102,6 +104,8 @@ export const pl = {
     }
   },
   "checklists": {
+    "header_title": "Harmonogram prac",
+    "header_desc": "Zarządzaj etapami budowy i listami kontrolnymi",
     "title": "Twoje Checklisty",
     "page_title": "Checklisty",
     "page_subtitle": "Narzędzia kontroli jakości dla każdego etapu budowy",
@@ -124,9 +128,19 @@ export const pl = {
     "templates_banner_desc": "Gotowe listy kontrolne: fundamenty (54 pkt), płyta (30 pkt), stan surowy (92 pkt), okna (13 pkt), instalacje (78 pkt), termoizolacja (13 pkt), elewacja (18 pkt).",
     "no_checklists_title": "Brak checklisty",
     "no_checklists_desc": "Nie masz jeszcze żadnych list kontrolnych dla wybranych projektów. Dodaj nową listę z gotowego szablonu lub stwórz własną od zera.",
-    "unknown_project": "Nieznany projekt"
+    "unknown_project": "Nieznany projekt",
+    "add_from_template": "Dodaj z szablonu",
+    "add_from_template_short": "Z szablonu",
+    "select_template": "Wybierz szablon checklisty",
+    "assign_to_stage": "Przypisz do etapu (opcjonalnie)",
+    "no_stage": "Bez etapu",
+    "adding_template": "Dodawanie...",
+    "added_from_template": "Checklista \"{{name}}\" została dodana.",
+    "select_project": "Projekt"
   },
   "documents": {
+    "header_title": "Dokumenty i Wzory",
+    "header_desc": "Przeglądaj wszystkie dokumenty projektowe i korzystaj z gotowych wzorów pism",
     "title": "Dokumenty i wzory umów",
     "page_title": "Dokumenty i wzory umów",
     "page_subtitle": "Gotowe szablony dokumentów i umów budowlanych. Skopiuj treść, uzupełnij swoje dane i podpisz z wykonawcą.",
@@ -174,6 +188,8 @@ export const pl = {
     "open_in_boldsign": "Otwórz w BoldSign"
   },
   "settings": {
+    "header_title": "Ustawienia konta",
+    "header_desc": "Zarządzaj swoim profilem i ustawieniami bezpieczeństwa",
     "account_settings": "Ustawienia Konta",
     "account_subtitle": "Zarządzaj swoimi danymi, zdjęciem profilowym i bezpieczeństwem.",
     "profile_tab": "Mój Profil",
@@ -238,6 +254,8 @@ export const pl = {
     "budget_label": "budżet"
   },
   "projects": {
+    "header_title": "Projekty",
+    "header_desc": "Zarządzaj swoimi inwestycjami budowlanymi",
     "title": "Twoje Projekty",
     "new_project": "Nowy Projekt",
     "summary_subtitle": "Podsumowanie projektu i ustawienia",
@@ -267,6 +285,11 @@ export const pl = {
     "status_todo": "Do zrobienia",
     "status_in_progress": "W trakcie",
     "status_done": "Gotowe",
+    "stage_added": "Etap \"{{name}}\" został dodany.",
+    "stage_deleted": "Etap został usunięty.",
+    "stage_status_changed": "Status zmieniony na \"{{status}}\".",
+    "edit_budget": "Edytuj budżet",
+    "budget_updated": "Budżet zaktualizowany do {{amount}} zł.",
     "summary_title": "Podsumowanie projektu",
     "controls_title": "Zarządzanie",
     "extra": {
@@ -306,9 +329,22 @@ export const pl = {
     "category_materials": "Materiały",
     "category_labor": "Robocizna",
     "category_other": "Inne",
+    "category_custom": "Inne (własna)",
     "stage": "Etap",
     "actions": "Akcje",
     "summary": "Podsumowanie wydatków",
+    "edit_expense": "Edytuj wydatek",
+    "expense_added": "Dodano wydatek \"{{desc}}\" ({{amount}} zł).",
+    "expense_deleted": "Wydatek usunięty.",
+    "expenses_deleted": "Usunięto {{count}} wydatków.",
+    "expense_updated": "Wydatek zaktualizowany.",
+    "custom_category_label": "Własna nazwa kategorii",
+    "document_label": "Powiązany dokument",
+    "upload_new": "Wgraj nowy",
+    "link_existing": "Połącz z istniejącym",
+    "select_file": "Wybierz plik...",
+    "file_uploaded_success": "Plik wgrany pomyślnie.",
+    "document": "Dokument",
     "global": {
       "title": "Twoje Wydatki",
       "subtitle": "Pełna historia wszystkich kosztów we wszystkich Twoich inwestycjach.",
@@ -343,7 +379,10 @@ export const pl = {
     "size_limit": "Maksymalny rozmiar pliku: 10MB",
     "error_upload": "Błąd podczas przesyłania pliku: {name}",
     "error_download": "Nie udało się wygenerować linku do pobrania.",
-    "assign_stage": "Przypisz do etapu"
+    "assign_stage": "Przypisz do etapu",
+    "type_pdf": "PDF",
+    "type_image": "Zdjęcie",
+    "type_document": "Dokument"
   },
   "stages": {
     "title": "Etapy Budowy",

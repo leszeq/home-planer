@@ -1,17 +1,15 @@
 import { ChecklistDataClient } from "./ChecklistDataClient"
+import { ClientPageHeader } from "@/components/layout/client-page-header"
 
 export const dynamic = 'force-dynamic'
 
 export default async function ChecklistsPage() {
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Zero-Flicker Header (Instant Server Render) */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Harmonogram prac</h1>
-          <p className="text-muted-foreground mt-1">Zarządzaj etapami budowy i listami kontrolnymi</p>
-        </div>
-      </div>
+      <ClientPageHeader 
+        titleKey="checklists.header_title" 
+        descKey="checklists.header_desc" 
+      />
 
       {/* Internal Caching Section (Client Side) */}
       <ChecklistDataClient />
