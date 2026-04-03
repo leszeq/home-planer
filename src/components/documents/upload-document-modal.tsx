@@ -92,7 +92,7 @@ export function UploadDocumentModal() {
     }
 
     setIsEsignSending(true)
-    const toastId = toast.loading(t('documents.sending_request') || 'Wysyłanie prośby...')
+    const toastId = toast.loading(t('documents.sending_request') || 'Wysyłanie dokumentu do podpisu...')
     try {
       const projectId = selectedProjectId === 'none' ? "" : selectedProjectId
       const response = await requestSignatureAction(projectId, docName, signerName, signerEmail, file)
@@ -201,7 +201,7 @@ export function UploadDocumentModal() {
               </Select>
             </div>
 
-            {mode === 'esign' ? (
+            {mode === 'esign' && (
               <div className="space-y-4 pt-2 p-4 bg-primary/5 rounded-xl border border-primary/10">
                 <h4 className="text-sm font-bold text-primary flex items-center gap-2">
                   <PenTool className="w-4 h-4" />
@@ -228,34 +228,34 @@ export function UploadDocumentModal() {
                   {t('documents.esign_provider_info', { provider: 'BoldSign' })}
                 </p>
               </div>
-            ) : (
-              <div 
-                onClick={() => !isAnyLoading && fileInputRef.current?.click()}
-                className={cn(
-                  "border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all bg-secondary/20 hover:bg-secondary/40 hover:border-primary/50",
-                  file ? "border-primary bg-primary/5" : "border-border",
-                  isAnyLoading && "opacity-50 cursor-not-allowed"
-                )}
-              >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  disabled={isAnyLoading}
-                  accept=".pdf,image/*"
-                  onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0])}
-                />
-                <UploadCloud className={cn("w-10 h-10", file ? "text-primary" : "text-muted-foreground")} />
-                <div className="text-center">
-                  <p className="text-sm font-bold">
-                    {file ? file.name : t('documents.click_to_upload')}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {t('documents.file_types_desc')}
-                  </p>
-                </div>
-              </div>
             )}
+
+            <div 
+              onClick={() => !isAnyLoading && fileInputRef.current?.click()}
+              className={cn(
+                "border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all bg-secondary/20 hover:bg-secondary/40 hover:border-primary/50",
+                file ? "border-primary bg-primary/5" : "border-border",
+                isAnyLoading && "opacity-50 cursor-not-allowed"
+              )}
+            >
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                disabled={isAnyLoading}
+                accept=".pdf,image/*"
+                onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0])}
+              />
+              <UploadCloud className={cn("w-10 h-10", file ? "text-primary" : "text-muted-foreground")} />
+              <div className="text-center">
+                <p className="text-sm font-bold">
+                  {file ? file.name : t('documents.click_to_upload')}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t('documents.file_types_desc')}
+                </p>
+              </div>
+            </div>
           </div>
         </CardContent>
 

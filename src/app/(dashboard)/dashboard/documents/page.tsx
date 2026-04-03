@@ -8,7 +8,7 @@ import { ClientPageHeader } from "@/components/layout/client-page-header"
 async function DocumentsListSection() {
   const supabase = await createClient()
   
-  const { data: documents } = await supabase.from('project_files').select('*').order('created_at', { ascending: false })
+  const { data: documents } = await supabase.from('documents').select('*').order('created_at', { ascending: false })
   const { data: projects } = await supabase.from('projects').select('id, name')
   const templates = DOCUMENT_TEMPLATES
 

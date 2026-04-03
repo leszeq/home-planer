@@ -162,24 +162,20 @@ export function DocumentList({ documents, isLoading, projectNames }: DocumentLis
           >
             <div 
               className={cn(
-                "p-3 rounded-lg flex-shrink-0 transition-colors relative",
-                doc.type === 'scan' ? "bg-blue-500/10 text-blue-600 group-hover:bg-blue-500/20" : "bg-purple-500/10 text-purple-600 group-hover:bg-purple-500/20"
+                "p-3 rounded-lg flex-shrink-0 transition-colors",
+                doc.type === 'e-signature' ? "bg-purple-500/10 text-purple-600 group-hover:bg-purple-500/20" : "bg-blue-500/10 text-blue-600 group-hover:bg-blue-500/20"
               )}
-              title={t('documents.tooltip_preview') || "Podgląd dokumentu"}
             >
               <FileText className="w-6 h-6" />
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Eye className="w-4 h-4" />
-              </div>
             </div>
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors" title={doc.name}>{doc.name}</p>
-                {getStatusBadge(doc.status, doc.id)}
+                {doc.type === 'e-signature' && getStatusBadge(doc.status, doc.id)}
               </div>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span className="shrink-0">{doc.type === 'scan' ? t('documents.type_scan') : t('documents.type_esign')}</span>
+                <span className="shrink-0">{doc.type === 'e-signature' ? t('documents.type_esign') : t('documents.type_scan')}</span>
                 <span className="shrink-0">•</span>
                 <span className="shrink-0">{new Date(doc.created_at).toLocaleDateString(locale === 'pl' ? 'pl-PL' : 'en-US')}</span>
                 {doc.project_id && projectNames?.[doc.project_id] && (
@@ -198,6 +194,17 @@ export function DocumentList({ documents, isLoading, projectNames }: DocumentLis
             </div>
             
             <div className="flex items-center gap-1">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setPreviewDoc(doc)
+                }} 
+                title={t('documents.tooltip_preview') || "Podgląd dokumentu"}
+              >
+                <Eye className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
+              </Button>
               {doc.storage_path && (
                 <Button 
                   variant="ghost" 

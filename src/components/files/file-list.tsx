@@ -143,14 +143,20 @@ export function FileList({
   const handleDownload = async (file: ProjectFile) => {
     const { data, error } = await supabase.storage
       .from('project-files')
-      .createSignedUrl(file.storage_path, 60)
+      .createSignedUrl(file.storage_path, 60, { download: file.name })
 
     if (error || !data) {
+      console.error(error)
       toast.error(t('files.error_download'))
       return
     }
 
-    window.open(data.signedUrl, '_blank')
+    const a = document.createElement('a')
+    a.href = data.signedUrl
+    a.download = file.name
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
   }
 
   const handleUpdateStage = async (fileId: string, stageId: string) => {
@@ -378,8 +384,8 @@ export function FileList({
                     {canEdit && (
                       <div className="flex items-center gap-1">
                         <Select value={file.stage_id || 'none'} onValueChange={(val) => handleUpdateStage(file.id, val)}>
-                          <SelectTrigger className="h-8 w-8 p-0 border-none bg-transparent hover:bg-secondary/50 focus:ring-0 [&>span]:hidden [&>svg]:hidden">
-                            <Tag className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
+                          <SelectTrigger title="Zmień etap" className="h-8 w-8 p-0 flex items-center justify-center border-none bg-transparent hover:bg-secondary/50 focus:ring-0 [&>svg:last-child]:hidden">
+                            <Tag className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors shrink-0" />
                           </SelectTrigger>
                           <SelectContent align="end">
                             <SelectItem value="none">{t('common.none')}</SelectItem>
