@@ -10,7 +10,21 @@ export async function createProject(formData: FormData) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) throw new Error("Unauthorized")
+  if (!user) {
+    return { success: false, error: "Brak autoryzacji" }
+  }
+
+  // Check for existing project with the same name
+  const { data: existingProject } = await supabase
+    .from('projects')
+    .select('id')
+    .eq('user_id', user.id)
+    .ilike('name', name)
+    .single()
+
+  if (existingProject) {
+    return { success: false, error: "Projekt o takiej nazwie już istnieje." }
+  }
 
   const { data: project, error: projectError } = await supabase.from('projects').insert({
     name,
@@ -18,8 +32,9 @@ export async function createProject(formData: FormData) {
     user_id: user.id
   }).select().single()
 
-  if (projectError) throw projectError
-
+  if (projectError) {
+    return { success: false, error: "Wystąpił błąd podczas tworzenia projektu." }
+  }
   // Auto-create predefined stages
   const predefinedStages = [
     "Działka",
@@ -38,9 +53,12 @@ export async function createProject(formData: FormData) {
   }))
 
   const { error: stagesError } = await supabase.from('stages').insert(stageRows)
-  if (stagesError) throw stagesError
+  if (stagesError) {
+    return { success: false, error: "Projekt został utworzony, ale wystąpił błąd przy generowaniu etapów." }
+  }
 
   revalidatePath('/dashboard/projects')
+  return { success: true }
 }
 
 export async function deleteProject(id: string) {

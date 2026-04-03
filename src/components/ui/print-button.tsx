@@ -2,8 +2,11 @@
 
 import { Button } from "@/components/ui/button"
 import { FileText } from "lucide-react"
+import { useTranslation } from "@/lib/i18n/LanguageContext"
 
 export function PrintButton() {
+  const { t } = useTranslation()
+
   return (
     <Button 
       variant="outline" 
@@ -11,7 +14,7 @@ export function PrintButton() {
       className="hidden sm:flex print:hidden bg-background"
     >
       <FileText className="w-4 h-4 mr-2" />
-      Eksportuj PDF
+      {t('common.export_pdf')}
     </Button>
   )
 }

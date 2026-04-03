@@ -20,8 +20,8 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { CheckCircle2, Circle, Clock, GripVertical, Plus, Trash2, Calendar } from 'lucide-react'
-import { createStage, updateStageStatus, deleteStage, updateStagesOrder, updateStageDates } from '@/app/(dashboard)/dashboard/projects/[id]/actions'
+import { CheckCircle2, Circle, Clock, GripVertical, Plus, Trash2, Calendar, X, Pencil, Check } from 'lucide-react'
+import { createStage, updateStageStatus, deleteStage, updateStagesOrder, updateStageDates, updateStageName } from '@/app/(dashboard)/dashboard/projects/[id]/actions'
 import { cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 import { ChecklistView } from '@/components/checklists/checklist-view'
@@ -70,6 +70,12 @@ function SortableStage({
   const [startDate, setStartDate] = useState(stage.start_date || '')
   const [endDate, setEndDate] = useState(stage.end_date || '')
   const [isSavingDates, setIsSavingDates] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [editedName, setEditedName] = useState(stage.name)
+  const [isSavingName, setIsSavingName] = useState(false)
+
   const queryClient = useQueryClient()
 
   const style = {
@@ -88,6 +94,41 @@ function SortableStage({
     }
     setIsSavingDates(false)
     setIsEditingDates(false)
+  }
+
+  const handleSaveName = async () => {
+    if (!editedName.trim() || editedName === stage.name) {
+      setIsEditingName(false)
+      return
+    }
+    setIsSavingName(true)
+    const res = await updateStageName(projectId, stage.id, editedName.trim())
+    if (res.success) {
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+      toast.success(t('common.saved'))
+    } else {
+      toast.error(res.error || t('common.error'))
+      setEditedName(stage.name)
+    }
+    setIsSavingName(false)
+    setIsEditingName(false)
+  }
+
+  const handleDelete = async () => {
+    if (!isDeleting) {
+      setIsDeleting(true)
+      setTimeout(() => setIsDeleting(false), 3000)
+      return
+    }
+
+    const res = await deleteStage(projectId, stage.id)
+    if (res.success) {
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+      toast.success(t('projects.stage_deleted'))
+    } else {
+      toast.error(res.error || t('common.error'))
+      setIsDeleting(false)
+    }
   }
 
   return (
@@ -134,12 +175,47 @@ function SortableStage({
         </Button>
 
         {/* Stage Name */}
-        <div className="flex-1 min-w-0">
-          <p className={cn('font-medium text-sm truncate', stage.status === 'done' && 'line-through text-muted-foreground')}>
-            {stage.name}
-          </p>
-          <div className="flex items-center gap-2 mt-0.5">
-            <p className="text-xs text-muted-foreground capitalize">
+        <div className="flex-1 min-w-0 flex items-center gap-2 group">
+          {isEditingName ? (
+            <div className="flex items-center gap-1.5 w-full max-w-[200px] sm:max-w-[300px]">
+              <Input
+                value={editedName}
+                onChange={e => setEditedName(e.target.value)}
+                autoFocus
+                className="h-7 text-sm py-1 px-2"
+                onKeyDown={e => {
+                  if (e.key === 'Enter') handleSaveName()
+                  if (e.key === 'Escape') {
+                    setIsEditingName(false)
+                    setEditedName(stage.name)
+                  }
+                }}
+              />
+              <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0 text-primary hover:bg-primary/10" disabled={isSavingName || !editedName.trim()} onClick={handleSaveName}>
+                <Check className="w-3.5 h-3.5" />
+              </Button>
+              <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0 text-muted-foreground hover:bg-secondary" onClick={() => { setIsEditingName(false); setEditedName(stage.name); }}>
+                <X className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          ) : (
+            <>
+              <p className={cn('font-medium text-sm truncate', stage.status === 'done' && 'line-through text-muted-foreground')}>
+                {t(`stages.predefined.${stage.name}`) === `stages.predefined.${stage.name}` ? stage.name : t(`stages.predefined.${stage.name}`)}
+              </p>
+              {canEdit && (
+                <button
+                  type="button"
+                  onClick={() => setIsEditingName(true)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-muted-foreground hover:text-foreground rounded"
+                >
+                  <Pencil className="w-3 h-3" />
+                </button>
+              )}
+            </>
+          )}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 mt-0.5">
+            <p className="text-[10px] sm:text-xs text-muted-foreground capitalize">
               {stage.status === 'todo' ? t('projects.status_todo') : stage.status === 'in_progress' ? t('projects.status_in_progress') : t('projects.status_done')}
             </p>
             {(stage.start_date || stage.end_date) && (
@@ -171,22 +247,34 @@ function SortableStage({
               <Calendar className="w-4 h-4" />
             </Button>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground hover:text-destructive shrink-0"
-              onClick={async () => {
-                const res = await deleteStage(projectId, stage.id)
-                if (res.success) {
-                  queryClient.invalidateQueries({ queryKey: ['project', projectId] })
-                  toast.success(t('projects.stage_deleted'))
-                } else {
-                  toast.error(res.error || t('common.error'))
-                }
-              }}
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
+            {isDeleting ? (
+              <div className="flex items-center gap-1 bg-destructive/10 border border-destructive/30 rounded-lg px-2 py-1 animate-fade-in">
+                <span className="text-xs text-destructive font-medium whitespace-nowrap">
+                  {t('checklists.delete_item_confirm', { defaultValue: 'Usunąć?' })}
+                </span>
+                <button 
+                  onClick={handleDelete}
+                  className="inline-flex items-center justify-center font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-foreground rounded-lg h-6 w-6 text-destructive hover:bg-destructive/20"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+                <button 
+                  onClick={() => setIsDeleting(false)}
+                  className="inline-flex items-center justify-center font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-secondary hover:text-foreground rounded-lg h-6 w-6 text-muted-foreground"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-muted-foreground hover:text-destructive shrink-0 transition-colors"
+                onClick={handleDelete}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
           </>
         )}
       </div>
@@ -228,17 +316,26 @@ function SortableStage({
             <CreateChecklistForm 
               projectId={projectId} 
               stageId={stage.id} 
-              label="+ Checklista" 
+              label={t('checklists.add_custom')} 
               onSuccess={onAddChecklist}
+              onOpenChange={(isOpen) => {
+                // If it's open, add a class to hide the sibling template button
+                const modalWrapper = document.getElementById(`template-modal-${stage.id}`)
+                if (modalWrapper) {
+                  modalWrapper.style.display = isOpen ? 'none' : 'block'
+                }
+              }}
             />
-            <AddChecklistModal
-              projectId={projectId}
-              stages={allStages.map((s: Stage) => ({ ...s, project_id: projectId }))}
-              onSuccess={onAddChecklist}
-              initialStageId={stage.id}
-              lockStage={true}
-              variant="ghost"
-            />
+            <div id={`template-modal-${stage.id}`}>
+              <AddChecklistModal
+                projectId={projectId}
+                stages={allStages.map((s: Stage) => ({ ...s, project_id: projectId }))}
+                onSuccess={onAddChecklist}
+                initialStageId={stage.id}
+                lockStage={true}
+                variant="ghost"
+              />
+            </div>
           </div>
         )}
       </div>

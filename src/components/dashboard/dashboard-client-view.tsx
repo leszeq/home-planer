@@ -6,6 +6,8 @@ import { CategoryDonutChart } from "@/components/charts/category-donut-chart"
 import { BarChart3, TrendingDown, TrendingUp, Layers, AlertTriangle, Filter } from "lucide-react"
 import Link from "next/link"
 import { useTranslation } from "@/lib/i18n/LanguageContext"
+import { CreateProjectModal } from "@/components/projects/create-project-modal"
+
 
 interface Project {
   id: string
@@ -226,10 +228,17 @@ export function DashboardClientView({
             <CardDescription>{t('dashboard.investment_shortcut')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {filteredProjects.length === 0 && (
+            {initialProjects.length === 0 ? (
+               <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl bg-muted/20 gap-4">
+                 <p className="text-sm font-semibold text-center">{t('projects.extra.empty_title')}</p>
+                 <p className="text-xs text-muted-foreground text-center">{t('projects.extra.empty_desc')}</p>
+                 <CreateProjectModal />
+               </div>
+            ) : filteredProjects.length === 0 ? (
               <p className="text-sm text-muted-foreground italic">{t('dashboard.no_projects_match')}</p>
-            )}
-            {filteredProjects.map((p) => {
+            ) : (
+              filteredProjects.map((p) => {
+
               const budget = Number(p.budget) || 0
               return (
                 <Link key={p.id} href={`/dashboard/projects/${p.id}`}>
@@ -244,7 +253,7 @@ export function DashboardClientView({
                   </div>
                 </Link>
               )
-            })}
+            }))}
           </CardContent>
         </Card>
       </div>

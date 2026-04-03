@@ -18,6 +18,7 @@ export const en = {
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
+    "export_pdf": "Export PDF",
     "saved": "Saved!",
     "owner": "Owner",
     "editor": "Editor",
@@ -136,7 +137,10 @@ export const en = {
     "no_stage": "No stage",
     "adding_template": "Adding...",
     "added_from_template": "Checklist \"{{name}}\" added successfully.",
-    "select_project": "Project"
+    "select_project": "Project",
+    "custom_name_placeholder": "e.g. Important tasks...",
+    "list_items": "List items (tasks)",
+    "add_custom": "+ Checklist"
   },
   "documents": {
     "header_title": "Documents & Templates",
@@ -411,7 +415,15 @@ export const en = {
     "timeline_title": "Project Schedule",
     "timeline_duration": "Duration: {days} days (from {start} to {end})",
     "no_timeline_data": "No data for schedule",
-    "no_timeline_details": "Add start and end dates to construction stages."
+    "no_timeline_details": "Add start and end dates to construction stages.",
+    "predefined": {
+      "Działka": "Land & Formalities",
+      "Formalności": "Paperwork",
+      "Fundamenty": "Foundations",
+      "Stan surowy": "Shell Stage",
+      "Instalacje": "Installations",
+      "Wykończenie": "Finishing Works"
+    }
   },
   "activity": {
     "title": "Project History",

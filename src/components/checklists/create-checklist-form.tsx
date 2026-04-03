@@ -104,7 +104,7 @@ export function CreateChecklistForm({ projectId: initialProjectId, stageId = nul
             <Input
               autoFocus
               required
-              placeholder="np. 'Odbiór instalacji elektrycznej'"
+              placeholder={t('checklists.custom_name_placeholder')}
               value={name}
               onChange={e => setName(e.target.value)}
               className="h-12 text-base"
@@ -123,7 +123,7 @@ export function CreateChecklistForm({ projectId: initialProjectId, stageId = nul
             </div>
           )}
           <div className="space-y-3">
-            <p className="text-sm text-muted-foreground font-semibold">Pozycje na liście (zadania):</p>
+            <p className="text-sm text-muted-foreground font-semibold">{t('checklists.list_items')}:</p>
             <div className="space-y-3">
               {items.map((item, index) => (
                 <div key={index} className="flex items-center gap-3">

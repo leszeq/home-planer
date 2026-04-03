@@ -29,6 +29,23 @@ export async function createStage(projectId: string, name: string, order: number
   }
 }
 
+export async function updateStageName(projectId: string, stageId: string, name: string): Promise<ActionResponse> {
+  try {
+    await checkPermission(projectId)
+    const supabase = await createClient()
+    const { error } = await supabase.from('stages').update({ name }).match({ id: stageId })
+    
+    if (error) return { success: false, error: error.message }
+    
+    // We can reuse update_stage or add a new log type. Let's not spam logs for every letter, but we can log it.
+    await logActivity(projectId, 'update_stage_status' as any, 'stage', stageId, { name })
+    revalidatePath(`/dashboard/projects/${projectId}`)
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err.message }
+  }
+}
+
 export async function updateStageStatus(projectId: string, stageId: string, status: string): Promise<ActionResponse> {
   try {
     await checkPermission(projectId)

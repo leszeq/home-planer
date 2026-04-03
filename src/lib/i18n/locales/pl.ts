@@ -18,6 +18,7 @@ export const pl = {
     "loading": "Ładowanie...",
     "error": "Błąd",
     "success": "Sukces",
+    "export_pdf": "Eksportuj PDF",
     "saved": "Zapisano!",
     "owner": "Właściciel",
     "editor": "Edytor",
@@ -136,7 +137,10 @@ export const pl = {
     "no_stage": "Bez etapu",
     "adding_template": "Dodawanie...",
     "added_from_template": "Checklista \"{{name}}\" została dodana.",
-    "select_project": "Projekt"
+    "select_project": "Projekt",
+    "custom_name_placeholder": "Np. Ważne zadania...",
+    "list_items": "Pozycje na liście (zadania)",
+    "add_custom": "+ Checklista"
   },
   "documents": {
     "header_title": "Dokumenty i Wzory",
@@ -411,7 +415,15 @@ export const pl = {
     "timeline_title": "Harmonogram Projektu",
     "timeline_duration": "Czas trwania: {days} dni (od {start} do {end})",
     "no_timeline_data": "Brak danych do harmonogramu",
-    "no_timeline_details": "Dodaj datę rozpoczęcia i zakończenia do etapów budowy."
+    "no_timeline_details": "Dodaj datę rozpoczęcia i zakończenia do etapów budowy.",
+    "predefined": {
+      "Działka": "Działka",
+      "Formalności": "Formalności",
+      "Fundamenty": "Fundamenty",
+      "Stan surowy": "Stan surowy",
+      "Instalacje": "Instalacje",
+      "Wykończenie": "Wykończenie"
+    }
   },
   "activity": {
     "title": "Historia zmian",
