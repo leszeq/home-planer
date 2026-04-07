@@ -39,7 +39,9 @@ export const pl = {
     "sort_date_asc": "Data: od najstarszych",
     "sort_amount_desc": "Kwota: od największych",
     "sort_amount_asc": "Kwota: od najmniejszych",
-    "no_search_results": "Brak wyników wyszukiwania"
+    "no_search_results": "Brak wyników wyszukiwania",
+    "error_field_required": "To pole jest wymagane",
+    "select": "Wybierz..."
   },
   "auth": {
     "login_tab": "Zaloguj się",

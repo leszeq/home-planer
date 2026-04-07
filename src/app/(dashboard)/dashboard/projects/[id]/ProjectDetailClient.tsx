@@ -37,7 +37,7 @@ export function ProjectDetailClient({ projectId }: { projectId: string }) {
         supabase.from('stages').select('*').match({ project_id: projectId }).order('order', { ascending: true }),
         supabase.from('expenses').select('*').match({ project_id: projectId }).order('date', { ascending: false }),
         supabase.from('project_files').select('*').match({ project_id: projectId }).order('created_at', { ascending: false }),
-        supabase.from('activity_logs').select('*, profiles(full_name)').match({ project_id: projectId }).order('created_at', { ascending: false }).limit(30)
+        supabase.from('activity_logs').select('*').match({ project_id: projectId }).order('created_at', { ascending: false }).limit(30)
       ])
 
       const project = projectRes.data
@@ -56,11 +56,21 @@ export function ProjectDetailClient({ projectId }: { projectId: string }) {
       const canEditProject = canEditRole(role as any)
 
       // Owner for sheet
-      const { data: ownerProfile } = await supabase.from('profiles').select('full_name').match({ id: project.user_id }).single()
       const ownerEmail = memberships.find(m => m.user_id === project.user_id)?.email || ""
+      const ownerProfile = { full_name: ownerEmail || 'Właściciel' }
 
-      // Additional checklist fetch
       const { data: checklists } = await supabase.from('checklists').select('*, checklist_items(*)').match({ project_id: projectId })
+
+      // Manual join for profiles using project_members to avoid relationship/permission errors
+      const logs = logsRes.data || []
+      
+      const logsWithProfiles = logs.map(log => {
+        const member = memberships.find(m => m.user_id === log.user_id)
+        return {
+          ...log,
+          profiles: { full_name: member?.email || 'Użytkownik' }
+        }
+      })
 
       return {
         user,
@@ -69,7 +79,7 @@ export function ProjectDetailClient({ projectId }: { projectId: string }) {
         stages: stagesRes.data || [],
         expenses: expensesRes.data || [],
         files: filesRes.data || [],
-        logs: logsRes.data || [],
+        logs: logsWithProfiles,
         role,
         canEditProject,
         ownerProfile,

@@ -1,10 +1,31 @@
 'use server'
 
 import { createClient } from "@/lib/supabase/server"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { revalidatePath } from "next/cache"
 import { checkPermission } from "@/lib/permissions"
 import { ActionResponse } from "@/lib/types/actions"
 import { logActivity } from "@/lib/activity-logger"
+
+// --- Fetch Actions ---
+
+export async function getProjectLogsAction(projectId: string) {
+  try {
+    await checkPermission(projectId)
+    const adminClient = createServiceRoleClient()
+    const { data, error } = await adminClient
+      .from('activity_logs')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('created_at', { ascending: false })
+      .limit(30)
+      
+    if (error) return { success: false, error: error.message }
+    return { success: true, data: data || [] }
+  } catch (err: any) {
+    return { success: false, error: err.message }
+  }
+}
 
 // --- Stages Actions ---
 

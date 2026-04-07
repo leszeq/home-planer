@@ -39,7 +39,9 @@ export const en = {
     "sort_date_asc": "Date: oldest first",
     "sort_amount_desc": "Amount: higher first",
     "sort_amount_asc": "Amount: lower first",
-    "no_search_results": "No results found"
+    "no_search_results": "No results found",
+    "error_field_required": "This field is required",
+    "select": "Select..."
   },
   "auth": {
     "login_tab": "Log In",

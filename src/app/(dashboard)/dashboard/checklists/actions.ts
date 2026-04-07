@@ -2,17 +2,21 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import { CHECKLIST_TEMPLATES } from "@/lib/checklist-templates"
+import { CHECKLIST_TEMPLATES, ChecklistTemplate } from "@/lib/checklist-templates"
 import { checkPermission } from "@/lib/permissions"
 
 export async function createChecklistFromTemplate(
   projectId: string,
   stageId: string | null,
-  templateId: string
+  templateId: string,
+  locale: string = 'pl'
 ) {
   await checkPermission(projectId)
   const supabase = await createClient()
-  const template = CHECKLIST_TEMPLATES.find(t => t.id === templateId)
+  
+  const templates = (CHECKLIST_TEMPLATES as any)[locale] || CHECKLIST_TEMPLATES.pl
+  const template = templates.find((t: any) => t.id === templateId) as ChecklistTemplate | undefined
+  
   if (!template) throw new Error("Template not found")
 
   const { data: checklist, error: clError } = await supabase
@@ -23,7 +27,7 @@ export async function createChecklistFromTemplate(
 
   if (clError) throw clError
 
-  const items = template.items.map((content, index) => ({
+  const items = template.items.map((content: string, index: number) => ({
     checklist_id: checklist.id,
     content,
     order: index,

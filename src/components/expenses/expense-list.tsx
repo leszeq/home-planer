@@ -67,6 +67,8 @@ export function ExpenseList({
   const [customCategories, setCustomCategories] = useState<any[]>([])
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null)
   const [previewFile, setPreviewFile] = useState<any>(null)
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const queryClient = useQueryClient()
 
   const { uploadFiles, isUploading: isUploadingFile, uploadProgress } = useFileUpload({
@@ -227,59 +229,99 @@ export function ExpenseList({
         {isAdding && (
           <Card className="bg-secondary/10 border-dashed border-2 border-primary/20 animate-in slide-in-from-top duration-300">
             <CardContent className="pt-6">
-              <form onSubmit={async (e) => {
-                e.preventDefault()
-                const formData = new FormData(e.currentTarget)
-                const category = addingCategory === '__custom__'
-                  ? addingCustomCategory
-                  : addingCategory || 'other'
-                
-                const data = {
-                  amount: parseFloat(formData.get('amount') as string),
-                  category: category,
-                  description: formData.get('description') as string,
-                  stage_id: formData.get('stage_id') as string || null,
-                  date: formData.get('date') as string,
-                  file_id: selectedFileId
-                }
+                <form onSubmit={async (e) => {
+                  e.preventDefault()
+                  if (isSubmitting) return
+                  setIsSubmitting(true)
+                  
+                  const formData = new FormData(e.currentTarget)
+                  const amountStr = formData.get('amount') as string
+                  const date = formData.get('date') as string
+                  const description = formData.get('description') as string
+                  const category = addingCategory === '__custom__'
+                    ? addingCustomCategory
+                    : addingCategory
 
-                if (addingCategory === '__custom__' && addingCustomCategory) {
-                  await createCategory(projectId, addingCustomCategory)
-                  const catRes = await getProjectCategories(projectId)
-                  if (catRes.success) setCustomCategories(catRes.data || [])
-                }
+                  // Validation
+                  const errors: Record<string, string> = {}
+                  if (!amountStr || isNaN(parseFloat(amountStr)) || parseFloat(amountStr) <= 0) {
+                    errors.amount = t('common.error_field_required')
+                  }
+                  if (!category) {
+                    errors.category = t('common.error_field_required')
+                  }
+                  if (!date) {
+                    errors.date = t('common.error_field_required')
+                  }
+                  if (!description || !description.trim()) {
+                    errors.description = t('common.error_field_required')
+                  }
 
-                const response = await createExpense(projectId, data)
-                if (response.success) {
-                  queryClient.invalidateQueries({ queryKey: ['project', projectId] })
-                  setIsAdding(false)
-                  setAddingCategory('')
-                  setAddingCustomCategory('')
-                  setSelectedFileId(null)
-                  toast.success(t('expenses.expense_added').replace('{{desc}}', data.description || '').replace('{{amount}}', String(data.amount)))
-                } else {
-                  toast.error(response.error)
-                }
-              }} className="grid gap-4 md:grid-cols-2">
+                  if (Object.keys(errors).length > 0) {
+                    setFormErrors(errors)
+                    setIsSubmitting(false)
+                    return
+                  }
+
+                  setFormErrors({})
+                  
+                  try {
+                    const data = {
+                      amount: parseFloat(amountStr),
+                      category: category,
+                      description: description.trim(),
+                      stage_id: formData.get('stage_id') as string || null,
+                      date: date,
+                      file_id: selectedFileId
+                    }
+
+                    if (addingCategory === '__custom__' && addingCustomCategory) {
+                      await createCategory(projectId, addingCustomCategory)
+                      const catRes = await getProjectCategories(projectId)
+                      if (catRes.success) setCustomCategories(catRes.data || [])
+                    }
+
+                    const response = await createExpense(projectId, data)
+                    if (response.success) {
+                      queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+                      setIsAdding(false)
+                      setAddingCategory('')
+                      setAddingCustomCategory('')
+                      setSelectedFileId(null)
+                      toast.success(t('expenses.expense_added').replace('{{desc}}', data.description || '').replace('{{amount}}', String(data.amount)))
+                    } else {
+                      toast.error(response.error)
+                    }
+                  } finally {
+                    setIsSubmitting(false)
+                  }
+                }} className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">{t('expenses.amount')} (zł)</label>
-                  <Input name="amount" type="number" step="0.01" required placeholder="0.00" className="h-10 bg-card border-muted-foreground/20" />
+                  <Input name="amount" type="number" step="0.01" placeholder="0.00" className={cn("h-10 bg-card border-muted-foreground/20", formErrors.amount && "border-destructive ring-1 ring-destructive")} />
+                  {formErrors.amount && <p className="text-[10px] font-bold text-destructive ml-1 animate-in fade-in slide-in-from-top-1">{formErrors.amount}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">{t('expenses.category')}</label>
-                  <select name="category" className="flex h-10 w-full rounded-lg border border-muted-foreground/20 bg-card px-3 py-2 text-sm font-medium" required
+                  <select name="category" className={cn(
+                    "flex h-10 w-full rounded-lg border border-muted-foreground/20 bg-card px-3 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    formErrors.category && "border-destructive ring-1 ring-destructive"
+                  )}
                     value={addingCategory} onChange={e => { setAddingCategory(e.target.value); if (e.target.value !== '__custom__') setAddingCustomCategory('') }}
                   >
+                    <option value="">{t('common.select') || "Wybierz..."}</option>
                     {allCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     <option value="__custom__">+ {t('expenses.category_custom')}</option>
                   </select>
+                  {formErrors.category && <p className="text-[10px] font-bold text-destructive ml-1 animate-in fade-in slide-in-from-top-1">{formErrors.category}</p>}
                   {addingCategory === '__custom__' && (
                     <Input name="custom_category" className="mt-2 h-9 text-sm" placeholder={t('expenses.custom_category_label')} value={addingCustomCategory} onChange={e => setAddingCustomCategory(e.target.value)} />
                   )}
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">{t('expenses.description')}</label>
-                  <Input name="description" placeholder={t('expenses.description')} className="h-10 bg-card border-muted-foreground/20" />
+                  <Input name="description" placeholder={t('expenses.description')} className={cn("h-10 bg-card border-muted-foreground/20", formErrors.description && "border-destructive ring-1 ring-destructive")} />
+                  {formErrors.description && <p className="text-[10px] font-bold text-destructive ml-1 animate-in fade-in slide-in-from-top-1">{formErrors.description}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">{t('expenses.stage')}</label>
@@ -290,7 +332,8 @@ export function ExpenseList({
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">{t('expenses.date')}</label>
-                  <Input name="date" type="date" defaultValue={new Date().toISOString().split('T')[0]} required className="h-10 bg-card border-muted-foreground/20" />
+                  <Input name="date" type="date" defaultValue={new Date().toISOString().split('T')[0]} className={cn("h-10 bg-card border-muted-foreground/20", formErrors.date && "border-destructive ring-1 ring-destructive")} />
+                  {formErrors.date && <p className="text-[10px] font-bold text-destructive ml-1 animate-in fade-in slide-in-from-top-1">{formErrors.date}</p>}
                 </div>
 
                 {/* File handling */}
@@ -349,9 +392,9 @@ export function ExpenseList({
                 </div>
 
                 <div className="md:col-span-2 flex justify-end gap-2 pt-4 border-t mt-2">
-                  <Button variant="ghost" type="button" onClick={() => setIsAdding(false)} className="rounded-xl font-bold">{t('common.cancel')}</Button>
-                  <Button type="submit" className="rounded-xl font-bold shadow-md shadow-primary/20" disabled={isUploadingFile}>
-                    {isUploadingFile && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  <Button variant="ghost" type="button" onClick={() => { setIsAdding(false); setFormErrors({}); }} className="rounded-xl font-bold">{t('common.cancel')}</Button>
+                  <Button type="submit" className="rounded-xl font-bold shadow-md shadow-primary/20" disabled={isUploadingFile || isSubmitting}>
+                    {(isUploadingFile || isSubmitting) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     {t('expenses.add_expense')}
                   </Button>
                 </div>

@@ -27,7 +27,7 @@ export function AddChecklistModal({
   lockStage?: boolean
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'glow'
 }) {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [selected, setSelected] = useState<string | null>(null)
   const [selectedProjectId, setSelectedProjectId] = useState(defaultProjectId)
@@ -41,8 +41,9 @@ export function AddChecklistModal({
     if (!selected) return
     setPending(true)
     try {
-      const template = CHECKLIST_TEMPLATES.find(t => t.id === selected)
-      const newChecklist = await createChecklistFromTemplate(selectedProjectId, stageId || null, selected)
+      const templates = (CHECKLIST_TEMPLATES as any)[locale] || CHECKLIST_TEMPLATES.pl
+      const template = templates.find((t: any) => t.id === selected)
+      const newChecklist = await createChecklistFromTemplate(selectedProjectId, stageId || null, selected, locale)
       if (newChecklist) {
         queryClient.invalidateQueries({ queryKey: ['checklists-all'] })
         queryClient.invalidateQueries({ queryKey: ['project', selectedProjectId] })
@@ -105,7 +106,7 @@ export function AddChecklistModal({
             </div>
           )}
           <div className="grid gap-2 max-h-80 overflow-y-auto pr-1">
-            {CHECKLIST_TEMPLATES.map((tmpl) => (
+            {((CHECKLIST_TEMPLATES as any)[locale] || CHECKLIST_TEMPLATES.pl).map((tmpl: any) => (
               <button
                 key={tmpl.id}
                 type="button"
