@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { cn } from "@/lib/utils"
 import { ChecklistView } from '@/components/checklists/checklist-view'
 import { CreateChecklistForm } from '@/components/checklists/create-checklist-form'
@@ -121,6 +121,11 @@ export function ChecklistsClientView({
   const [groupByProject, setGroupByProject] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [isCustomCreating, setIsCustomCreating] = useState(false)
+
+  useEffect(() => {
+    setChecklists([...initialChecklists].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)))
+  }, [initialChecklists])
+
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -264,6 +269,7 @@ export function ChecklistsClientView({
                 <CreateChecklistForm
                   projectId={selectedProjectId || firstProject.id}
                   projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
+                  stages={stages}
                   label={t('checklists.create_custom')}
                   onSuccess={(newCl) => setChecklists(prev => [newCl, ...prev])}
                   onOpenChange={setIsCustomCreating}
@@ -311,6 +317,7 @@ export function ChecklistsClientView({
                   <CreateChecklistForm
                     projectId={projectId}
                     projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
+                    stages={stages}
                     label="+ Nowa checklista"
                     onSuccess={(cl) => setChecklists(prev => [cl, ...prev])}
                   />
@@ -355,6 +362,7 @@ export function ChecklistsClientView({
             <CreateChecklistForm
               projectId={selectedProjectId || firstProject?.id || ''}
               projects={projects.filter(p => roles[p.id] === 'owner' || roles[p.id] === 'editor')}
+              stages={stages}
               label="+ Kolejna checklista"
               onSuccess={(cl) => setChecklists(prev => [cl, ...prev])}
             />

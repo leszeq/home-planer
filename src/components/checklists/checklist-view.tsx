@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useOptimistic } from 'react'
+import { useState, useEffect, useOptimistic } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -123,6 +123,10 @@ export function ChecklistView({
   const [items, setItems] = useState(
     [...(checklist.checklist_items ?? [])].sort((a, b) => a.order - b.order)
   )
+
+  useEffect(() => {
+    setItems([...(checklist.checklist_items ?? [])].sort((a, b) => a.order - b.order))
+  }, [checklist.checklist_items])
 
   const sensors = useSensors(
     useSensor(PointerSensor),

@@ -17,9 +17,10 @@ interface Props {
   onSuccess?: (checklist: any) => void
   onOpenChange?: (open: boolean) => void
   projects?: { id: string; name: string }[]
+  stages?: { id: string; name: string; project_id: string }[]
 }
 
-export function CreateChecklistForm({ projectId: initialProjectId, stageId = null, label, onSuccess, onOpenChange, projects }: Props) {
+export function CreateChecklistForm({ projectId: initialProjectId, stageId = null, label, onSuccess, onOpenChange, projects, stages }: Props) {
   const { t } = useTranslation()
   const displayLabel = label || t('checklists.create_new')
   const [isOpen, setIsOpen] = useState(false)
@@ -27,7 +28,10 @@ export function CreateChecklistForm({ projectId: initialProjectId, stageId = nul
   const [items, setItems] = useState<string[]>([''])
   const [loading, setLoading] = useState(false)
   const [projectId, setProjectId] = useState(initialProjectId)
+  const [internalStageId, setInternalStageId] = useState(stageId || '')
   const queryClient = useQueryClient()
+  
+  const filteredStages = stages?.filter(s => s.project_id === projectId) || []
 
   const addItemField = () => setItems(prev => [...prev, ''])
   const removeItemField = (index: number) => setItems(prev => prev.filter((_, i) => i !== index))
@@ -52,7 +56,7 @@ export function CreateChecklistForm({ projectId: initialProjectId, stageId = nul
     if (!name.trim()) return
     setLoading(true)
     try {
-      const newChecklist = await createCustomChecklist(projectId, stageId, name.trim(), items)
+      const newChecklist = await createCustomChecklist(projectId, internalStageId, name.trim(), items)
       if (newChecklist) {
         queryClient.invalidateQueries({ queryKey: ['checklists-all'] })
         queryClient.invalidateQueries({ queryKey: ['project', projectId] })
@@ -116,10 +120,30 @@ export function CreateChecklistForm({ projectId: initialProjectId, stageId = nul
               <select 
                 className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 value={projectId}
-                onChange={e => setProjectId(e.target.value)}
+                onChange={e => { setProjectId(e.target.value); setInternalStageId('') }}
               >
                 {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
+            </div>
+          )}
+          
+          {!stageId && (
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-muted-foreground">{t('checklists.assign_to_stage')}</label>
+              {filteredStages.length > 0 ? (
+                <select
+                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={internalStageId}
+                  onChange={e => setInternalStageId(e.target.value)}
+                >
+                  <option value="" disabled>{t('common.select')}</option>
+                  {filteredStages.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              ) : (
+                <p className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-md">
+                  Najpierw utwórz etapy w tym projekcie.
+                </p>
+              )}
             </div>
           )}
           <div className="space-y-3">
@@ -153,7 +177,7 @@ export function CreateChecklistForm({ projectId: initialProjectId, stageId = nul
           <Button type="button" variant="ghost" className="h-10 px-6" onClick={handleClose}>
             {t('common.cancel')}
           </Button>
-          <Button type="submit" className="h-10 px-10 font-semibold" disabled={loading || !name.trim()}>
+          <Button type="submit" className="h-10 px-10 font-semibold" disabled={loading || !name.trim() || !internalStageId}>
             {loading ? t('common.creating') : t('checklists.save')}
           </Button>
         </CardFooter>

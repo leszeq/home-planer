@@ -39,6 +39,10 @@ export function AddChecklistModal({
 
   const handleAdd = async () => {
     if (!selected) return
+    if (!stageId) {
+      toast.error('Wymagane jest przypisanie etapu.')
+      return
+    }
     setPending(true)
     try {
       const templates = (CHECKLIST_TEMPLATES as any)[locale] || CHECKLIST_TEMPLATES.pl
@@ -92,17 +96,23 @@ export function AddChecklistModal({
               </select>
             </div>
           )}
-          {filteredStages.length > 0 && !lockStage && (
+          {!lockStage && (
             <div className="space-y-1.5">
               <label className="text-sm font-medium">{t('checklists.assign_to_stage')}</label>
-              <select
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                value={stageId}
-                onChange={e => setStageId(e.target.value)}
-              >
-                <option value="">{t('checklists.no_stage')}</option>
-                {filteredStages.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
+              {filteredStages.length > 0 ? (
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={stageId}
+                  onChange={e => setStageId(e.target.value)}
+                >
+                  <option value="" disabled>{t('common.select')}</option>
+                  {filteredStages.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              ) : (
+                <p className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-md">
+                  Najpierw utwórz etapy w tym projekcie.
+                </p>
+              )}
             </div>
           )}
           <div className="grid gap-2 max-h-80 overflow-y-auto pr-1">
@@ -124,7 +134,7 @@ export function AddChecklistModal({
           </div>
         </CardContent>
         <CardFooter>
-          <Button onClick={handleAdd} disabled={!selected || pending} className="w-full">
+          <Button onClick={handleAdd} disabled={!selected || pending || !stageId} className="w-full">
             {pending ? t('checklists.adding_template') : t('checklists.add_from_template')}
           </Button>
         </CardFooter>

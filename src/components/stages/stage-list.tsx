@@ -156,6 +156,7 @@ function SortableStage({
             const res = await updateStageStatus(projectId, stage.id, nextStatus)
             if (res.success) {
               queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+              queryClient.invalidateQueries({ queryKey: ['checklists-all'] })
               const statusLabel = nextStatus === 'done' ? t('projects.status_done') : nextStatus === 'in_progress' ? t('projects.status_in_progress') : t('projects.status_todo')
               toast.success(`${t('projects.stage_status_changed').replace('{{status}}', statusLabel)}`)
             } else {

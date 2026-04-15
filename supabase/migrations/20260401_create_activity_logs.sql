@@ -24,7 +24,7 @@ CREATE POLICY "Project members can view activity logs" ON public.activity_logs
         EXISTS (
             SELECT 1 FROM public.project_members
             WHERE project_members.project_id = activity_logs.project_id
-            AND project_members.email = (SELECT email FROM auth.users WHERE id = auth.uid())
+            AND project_members.email = (auth.jwt() ->> 'email')::text
         )
         OR 
         EXISTS (

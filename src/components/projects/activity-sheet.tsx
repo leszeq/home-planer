@@ -38,7 +38,7 @@ export function ActivitySheet({ logs }: ActivitySheetProps) {
       {/* Sheet Content */}
       <div 
         className={cn(
-          "fixed right-0 top-0 h-full w-full max-w-sm bg-card border-l shadow-2xl z-50 transition-transform duration-300 ease-in-out transform overflow-hidden flex flex-col",
+          "fixed right-0 top-0 h-full w-full max-w-[85vw] sm:max-w-md bg-card border-l shadow-2xl z-50 transition-transform duration-300 ease-in-out transform overflow-hidden flex flex-col",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >

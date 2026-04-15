@@ -96,8 +96,18 @@ export function ActivityFeed({ logs, className, hideCard = false }: ActivityFeed
         return t('activity.invite_member', { email: details.email }) || `Zaproszono użytkownika: ${details.email}`
       case 'remove_member':
         return t('activity.remove_member', { email: details.email }) || `Usunięto użytkownika: ${details.email}`
+      case 'update_stage_dates':
+        return t('activity.update_stage_dates', { name }) || `Zmieniono daty etapu: ${name}`
+      case 'update_expense':
+        return t('activity.update_expense', { name }) || `Zaktualizowano wydatek: ${name}`
+      case 'update_file_stage':
+        return t('activity.update_file_stage', { name }) || `Zmieniono przypisanie pliku: ${name}`
+      case 'update_member_role':
+        return t('activity.update_member_role', { email: details.email, role: details.role }) || `Zmieniono rolę: ${details.email} (${details.role})`
+      case 'update_project_budget':
+        return t('activity.update_project_budget', { budget: details.budget }) || `Zmieniono budżet na ${details.budget} zł`
       default:
-        return log.action.replace('_', ' ')
+        return log.action.replace(/_/g, ' ')
     }
   }
 
@@ -117,7 +127,10 @@ export function ActivityFeed({ logs, className, hideCard = false }: ActivityFeed
               </div>
               <div className="flex-1 pt-1 min-w-0">
                 <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 mb-1">
-                  <p className="text-sm font-bold text-foreground/90 truncate pr-4">
+                  <p 
+                    className="text-sm font-bold text-foreground/90 truncate pr-4"
+                    title={formatActionMessage(log).toString()}
+                  >
                     {formatActionMessage(log)}
                   </p>
                   <time className="text-[10px] text-muted-foreground font-semibold tabular-nums sm:shrink-0">

@@ -186,3 +186,5 @@ export function ProjectDetailClient({ projectId }: { projectId: string }) {
     </div>
   )
 }
+
+// trigger rebuild

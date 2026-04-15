@@ -38,6 +38,7 @@ export async function createChecklistFromTemplate(
   if (itemsError) throw itemsError
 
   revalidatePath('/dashboard/checklists')
+  revalidatePath(`/dashboard/projects/${projectId}`)
 
   // Return the new checklist with items
   const { data: fullChecklist } = await supabase
@@ -54,6 +55,7 @@ export async function toggleChecklistItem(itemId: string, isDone: boolean, proje
   const supabase = await createClient()
   await supabase.from('checklist_items').update({ is_done: isDone }).match({ id: itemId })
   revalidatePath(`/dashboard/checklists`)
+  revalidatePath(`/dashboard/projects/${projectId}`)
 }
 
 export async function deleteChecklist(checklistId: string) {
@@ -65,6 +67,7 @@ export async function deleteChecklist(checklistId: string) {
 
   await supabase.from('checklists').delete().match({ id: checklistId })
   revalidatePath('/dashboard/checklists')
+  if (checklist) revalidatePath(`/dashboard/projects/${checklist.project_id}`)
 }
 
 export async function createCustomChecklist(
@@ -106,6 +109,7 @@ export async function createCustomChecklist(
   }
 
   revalidatePath('/dashboard/checklists')
+  revalidatePath(`/dashboard/projects/${projectId}`)
 
   // Return the new checklist with items for optimistic UI
   const { data: fullChecklist } = await supabase
@@ -139,6 +143,7 @@ export async function addChecklistItem(checklistId: string, content: string, pro
   })
 
   revalidatePath('/dashboard/checklists')
+  revalidatePath(`/dashboard/projects/${projectId}`)
 }
 
 export async function updateChecklistsOrder(projectId: string, orderedIds: string[]) {
@@ -150,6 +155,7 @@ export async function updateChecklistsOrder(projectId: string, orderedIds: strin
     )
   )
   revalidatePath(`/dashboard/checklists`)
+  revalidatePath(`/dashboard/projects/${projectId}`)
 }
 
 export async function updateChecklistItemsOrder(checklistId: string, orderedIds: string[]) {
@@ -163,6 +169,7 @@ export async function updateChecklistItemsOrder(checklistId: string, orderedIds:
     )
   )
   revalidatePath(`/dashboard/checklists`)
+  if (cl) revalidatePath(`/dashboard/projects/${cl.project_id}`)
 }
 
 export async function deleteChecklistItem(itemId: string) {
@@ -174,5 +181,6 @@ export async function deleteChecklistItem(itemId: string) {
 
   await supabase.from('checklist_items').delete().match({ id: itemId })
   revalidatePath('/dashboard/checklists')
+  if (projectId) revalidatePath(`/dashboard/projects/${projectId}`)
 }
 

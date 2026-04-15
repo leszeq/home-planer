@@ -135,7 +135,7 @@ export const en = {
     "add_from_template": "Add from template",
     "add_from_template_short": "From template",
     "select_template": "Choose a checklist template",
-    "assign_to_stage": "Assign to stage (optional)",
+    "assign_to_stage": "Assign to stage",
     "no_stage": "No stage",
     "adding_template": "Adding...",
     "added_from_template": "Checklist \"{{name}}\" added successfully.",
@@ -445,6 +445,11 @@ export const en = {
     "delete_file": "Deleted file: {name}",
     "delete_file_bulk": "Deleted {count} files in bulk",
     "invite_member": "Invited user: {email}",
-    "remove_member": "Removed user: {email}"
+    "remove_member": "Removed user: {email}",
+    "update_stage_dates": "Changed stage dates: {name}",
+    "update_expense": "Updated expense: {name}",
+    "update_file_stage": "Changed file assignment: {name}",
+    "update_member_role": "Changed role: {email} ({role})",
+    "update_project_budget": "Changed budget to {budget} zł"
   }
 } as const;

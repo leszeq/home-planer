@@ -135,7 +135,7 @@ export const pl = {
     "add_from_template": "Dodaj z szablonu",
     "add_from_template_short": "Z szablonu",
     "select_template": "Wybierz szablon checklisty",
-    "assign_to_stage": "Przypisz do etapu (opcjonalnie)",
+    "assign_to_stage": "Przypisz do etapu",
     "no_stage": "Bez etapu",
     "adding_template": "Dodawanie...",
     "added_from_template": "Checklista \"{{name}}\" została dodana.",
@@ -445,6 +445,11 @@ export const pl = {
     "delete_file": "Usunięto plik: {name}",
     "delete_file_bulk": "Usunięto zbiorczo {count} plików",
     "invite_member": "Zaproszono użytkownika: {email}",
-    "remove_member": "Usunięto użytkownika: {email}"
+    "remove_member": "Usunięto użytkownika: {email}",
+    "update_stage_dates": "Zmieniono daty etapu: {name}",
+    "update_expense": "Zaktualizowano wydatek: {name}",
+    "update_file_stage": "Zmieniono przypisanie pliku: {name}",
+    "update_member_role": "Zmieniono rolę: {email} ({role})",
+    "update_project_budget": "Zmieniono budżet na {budget} zł"
   }
 } as const;

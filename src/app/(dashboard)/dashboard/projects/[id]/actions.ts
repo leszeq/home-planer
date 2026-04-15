@@ -44,6 +44,7 @@ export async function createStage(projectId: string, name: string, order: number
     
     await logActivity(projectId, 'create_stage', 'stage', undefined, { name })
     revalidatePath(`/dashboard/projects/${projectId}`)
+    revalidatePath('/dashboard/checklists')
     return { success: true }
   } catch (err: any) {
     return { success: false, error: err.message }
@@ -61,6 +62,7 @@ export async function updateStageName(projectId: string, stageId: string, name: 
     // We can reuse update_stage or add a new log type. Let's not spam logs for every letter, but we can log it.
     await logActivity(projectId, 'update_stage_status' as any, 'stage', stageId, { name })
     revalidatePath(`/dashboard/projects/${projectId}`)
+    revalidatePath('/dashboard/checklists')
     return { success: true }
   } catch (err: any) {
     return { success: false, error: err.message }
@@ -75,8 +77,17 @@ export async function updateStageStatus(projectId: string, stageId: string, stat
     
     if (error) return { success: false, error: error.message }
     
+    if (status === 'done') {
+      const { data: checklists } = await supabase.from('checklists').select('id').eq('stage_id', stageId)
+      if (checklists && checklists.length > 0) {
+        const checklistIds = checklists.map(c => c.id)
+        await supabase.from('checklist_items').update({ is_done: true }).in('checklist_id', checklistIds).eq('is_done', false)
+      }
+    }
+
     await logActivity(projectId, 'update_stage_status', 'stage', stageId, { status })
     revalidatePath(`/dashboard/projects/${projectId}`)
+    revalidatePath('/dashboard/checklists')
     return { success: true }
   } catch (err: any) {
     return { success: false, error: err.message }
@@ -115,6 +126,7 @@ export async function deleteStage(projectId: string, stageId: string): Promise<A
     
     await logActivity(projectId, 'delete_stage', 'stage', stageId, { name: stage?.name })
     revalidatePath(`/dashboard/projects/${projectId}`)
+    revalidatePath('/dashboard/checklists')
     return { success: true }
   } catch (err: any) {
     return { success: false, error: err.message }
@@ -256,7 +268,7 @@ export async function updateProjectBudget(projectId: string, budget: number): Pr
     const { error } = await supabase.from('projects').update({ budget }).match({ id: projectId })
     if (error) return { success: false, error: error.message }
     
-    await logActivity(projectId, 'create_project' as any, 'project', projectId, { budget })
+    await logActivity(projectId, 'update_project_budget', 'project', projectId, { budget })
 
     revalidatePath(`/dashboard/projects/${projectId}`)
     return { success: true }

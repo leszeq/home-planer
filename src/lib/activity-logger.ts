@@ -7,7 +7,7 @@ export type ActivityAction =
   | 'create_stage' | 'delete_stage' | 'update_stage_status' | 'update_stage_dates'
   | 'upload_file' | 'delete_file' | 'update_file_stage'
   | 'invite_member' | 'remove_member' | 'update_member_role'
-  | 'create_project' | 'delete_project'
+  | 'create_project' | 'delete_project' | 'update_project_budget'
 
 export interface ActivityDetails {
   [key: string]: any
