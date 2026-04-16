@@ -121,7 +121,7 @@ export function Sidebar() {
       {/* Mobile: Hamburger trigger button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="md:hidden fixed top-4 left-4 z-50 flex items-center justify-center w-10 h-10 rounded-xl bg-sidebar border border-[var(--sidebar-border)] shadow-lg text-white"
+        className="md:hidden fixed top-3 left-3 z-50 flex items-center justify-center w-11 h-11 rounded-xl bg-primary shadow-lg shadow-primary/30 text-white ring-2 ring-primary/20 hover:brightness-110 active:scale-95 transition-all"
         aria-label="Otwórz menu"
       >
         <Menu className="w-5 h-5" />

@@ -94,7 +94,7 @@ export function ProjectDetailClient({ projectId }: { projectId: string }) {
   if (isLoading && !data) {
     return (
       <div className="space-y-8 animate-fade-in">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 ml-14 md:ml-0">
            <Link href="/dashboard/projects">
              <Button variant="ghost" size="icon">
                <ChevronLeft className="w-5 h-5" />
@@ -119,7 +119,7 @@ export function ProjectDetailClient({ projectId }: { projectId: string }) {
     <div className="space-y-8 pb-12 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 ml-14 md:ml-0">
           <Link href="/dashboard/projects">
             <Button variant="ghost" size="icon">
               <ChevronLeft className="w-5 h-5" />

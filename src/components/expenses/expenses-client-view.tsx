@@ -33,11 +33,11 @@ import { cn } from "@/lib/utils"
 import { CreateExpenseModal } from "./create-expense-modal"
 import { EditExpenseModal } from "./edit-expense-modal"
 
-export function ExpensesClientView({ 
-  initialExpenses, 
+export function ExpensesClientView({
+  initialExpenses,
   projects,
   hideHeader = false
-}: { 
+}: {
   initialExpenses: Expense[]
   projects: Project[]
   hideHeader?: boolean
@@ -45,7 +45,7 @@ export function ExpensesClientView({
   const { t } = useTranslation()
   const [selectedProjectId, setSelectedProjectId] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc'|'desc' } | null>(null)
+  const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
@@ -54,9 +54,9 @@ export function ExpensesClientView({
   const processedExpenses = useMemo(() => {
     let filtered = initialExpenses.filter(expense => {
       const matchesProject = selectedProjectId === 'all' || expense.project_id === selectedProjectId
-      const matchesSearch = expense.description?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                           expense.projects?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           expense.category.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesSearch = expense.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        expense.projects?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        expense.category.toLowerCase().includes(searchQuery.toLowerCase())
       return matchesProject && matchesSearch
     })
 
@@ -249,7 +249,7 @@ export function ExpensesClientView({
             </Select>
           </div>
           {hideHeader && (
-             <CreateExpenseModal projects={projects} />
+            <CreateExpenseModal projects={projects} />
           )}
         </div>
       </div>
@@ -314,8 +314,8 @@ export function ExpensesClientView({
             <thead>
               <tr className="border-b bg-secondary/20">
                 <th className="p-4 text-center w-[50px]">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={isAllSelected}
                     onChange={(e) => handleSelectAll(e.target.checked)}
                     className="w-4 h-4 rounded border-primary/50 text-primary cursor-pointer align-middle"
@@ -347,14 +347,14 @@ export function ExpensesClientView({
                 </tr>
               ) : (
                 paginatedExpenses.map((expense) => (
-                  <tr 
-                    key={expense.id} 
+                  <tr
+                    key={expense.id}
                     className="hover:bg-secondary/70 transition-colors group cursor-pointer"
                     onClick={() => setEditingExpense(expense)}
                   >
                     <td className="p-4 text-center" onClick={(e) => e.stopPropagation()}>
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         checked={selectedIds.includes(expense.id)}
                         onChange={() => toggleSelection(expense.id)}
                         className="w-4 h-4 rounded border-primary/50 text-primary cursor-pointer align-middle"
@@ -393,18 +393,18 @@ export function ExpensesClientView({
             Strona <span className="font-semibold text-foreground">{currentPage}</span> z <span className="font-semibold text-foreground">{totalPages}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
               className="h-10 px-4"
             >
               Poprzednia
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
               className="h-10 px-4"
@@ -415,7 +415,7 @@ export function ExpensesClientView({
         </div>
       )}
 
-      <EditExpenseModal 
+      <EditExpenseModal
         isOpen={!!editingExpense}
         onClose={() => setEditingExpense(null)}
         expense={editingExpense}
