@@ -128,9 +128,9 @@ export function DocumentsClientView({
     <div className={cn("max-w-5xl mx-auto space-y-8 pb-12 animate-fade-in")}>
       {!hideHeader && (
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="flex-1">
-            <h2 className="text-4xl font-extrabold tracking-tight">{t('documents.page_title')}</h2>
-            <p className="text-muted-foreground mt-2 text-lg max-w-2xl">
+          <div className="flex-1 pl-14 md:pl-0">
+            <h2 className="text-2xl md:text-4xl font-extrabold tracking-tight">{t('documents.page_title')}</h2>
+            <p className="text-muted-foreground mt-2 text-base md:text-lg max-w-2xl">
               {t('documents.page_subtitle')}
             </p>
           </div>

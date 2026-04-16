@@ -114,8 +114,8 @@ export function EditExpenseModal({
   if (!isOpen || !mounted) return null
 
   const modalContent = (
-    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-      <Card className="w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 animate-in fade-in duration-200">
+      <Card className="w-full sm:max-w-md sm:rounded-xl rounded-t-2xl rounded-b-none shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <form onSubmit={handleSubmit}>
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <CardTitle>{t('dashboard.stats.expenses')}</CardTitle>

@@ -266,8 +266,49 @@ export function ExpensesClientView({
         </div>
       </div>
 
-      {/* Expenses Table/List */}
-      <Card className="overflow-hidden border-border/50 shadow-md">
+      {/* ─── MOBILE: Card List (visible on < md) ─── */}
+      <div className="md:hidden space-y-3">
+        {paginatedExpenses.length === 0 ? (
+          <div className="p-12 text-center text-muted-foreground italic">
+            {t('expenses.global.no_results')}
+          </div>
+        ) : (
+          paginatedExpenses.map((expense) => (
+            <Card
+              key={expense.id}
+              className="p-4 flex items-start gap-3 cursor-pointer active:bg-secondary/80 transition-colors border-border/50"
+              onClick={() => setEditingExpense(expense)}
+            >
+              <div className="pt-0.5" onClick={(e) => e.stopPropagation()}>
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(expense.id)}
+                  onChange={() => toggleSelection(expense.id)}
+                  className="w-5 h-5 rounded border-primary/50 text-primary cursor-pointer"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-semibold text-sm truncate">{expense.description || t('expenses.global.no_description')}</p>
+                  <span className="font-bold text-primary text-sm tabular-nums whitespace-nowrap">
+                    {Number(expense.amount).toLocaleString()} {t('dashboard.stats.currency', { defaultValue: 'zł' })}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter bg-secondary text-muted-foreground border border-border/50">
+                    {getLocalizedCategory(expense.category)}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{expense.projects?.name}</span>
+                  <span className="text-xs text-muted-foreground ml-auto">{new Date(expense.date).toLocaleDateString()}</span>
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
+      </div>
+
+      {/* ─── DESKTOP: Table (visible on md+) ─── */}
+      <Card className="hidden md:block overflow-hidden border-border/50 shadow-md">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -343,36 +384,36 @@ export function ExpensesClientView({
             </tbody>
           </table>
         </div>
-        
-        {/* Pagination Controls */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t bg-secondary/10">
-            <div className="text-xs text-muted-foreground">
-              Strona <span className="font-semibold text-foreground">{currentPage}</span> z <span className="font-semibold text-foreground">{totalPages}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="h-8"
-              >
-                Poprzednia
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="h-8"
-              >
-                Następna
-              </Button>
-            </div>
-          </div>
-        )}
       </Card>
+
+      {/* Pagination — shared for both mobile and desktop */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-2 py-2">
+          <div className="text-xs text-muted-foreground">
+            Strona <span className="font-semibold text-foreground">{currentPage}</span> z <span className="font-semibold text-foreground">{totalPages}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="h-10 px-4"
+            >
+              Poprzednia
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="h-10 px-4"
+            >
+              Następna
+            </Button>
+          </div>
+        </div>
+      )}
 
       <EditExpenseModal 
         isOpen={!!editingExpense}
