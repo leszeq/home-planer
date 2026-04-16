@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { FileText, Copy, Check, ChevronDown, ChevronUp, FolderOpen, LayoutTemplate } from 'lucide-react'
+import { FileText, Copy, Check, ChevronDown, ChevronUp, FolderOpen, LayoutTemplate, Filter, Search } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -10,6 +10,13 @@ import { cn } from '@/lib/utils'
 import { DocumentList, Document } from '@/components/documents/document-list'
 import { UploadDocumentModal } from '@/components/documents/upload-document-modal'
 import { DocumentTemplate } from '@/lib/document-templates'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface DocumentsClientViewProps {
   initialDocuments: Document[]
@@ -95,15 +102,30 @@ export function DocumentsClientView({
 }: DocumentsClientViewProps) {
   const { t } = useTranslation()
   const [selectedProjectId, setSelectedProjectId] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState('')
 
-  const filteredDocuments = initialDocuments.filter(doc => 
-    selectedProjectId === 'all' || doc.project_id === selectedProjectId
-  )
-  
-  const projectNames = projects.reduce((acc, p) => ({ ...acc, [p.id]: p.name }), {})
+  const projectNames = projects.reduce((acc, p) => ({ ...acc, [p.id]: p.name }), {} as Record<string, string>)
+
+  const filteredDocuments = initialDocuments.filter(doc => {
+    const matchesProject = selectedProjectId === 'all' || doc.project_id === selectedProjectId
+    const q = searchQuery.toLowerCase()
+    const matchesSearch = !q ||
+      doc.name.toLowerCase().includes(q) ||
+      (doc.project_id && projectNames[doc.project_id]?.toLowerCase().includes(q)) ||
+      doc.type.toLowerCase().includes(q) ||
+      doc.status.toLowerCase().includes(q)
+    return matchesProject && matchesSearch
+  })
+
+  const filteredTemplates = templates.filter(template => {
+    const q = searchQuery.toLowerCase()
+    return !q ||
+      template.title.toLowerCase().includes(q) ||
+      template.description.toLowerCase().includes(q)
+  })
 
   return (
-    <div className={cn("max-w-5xl mx-auto space-y-8 pb-12", hideHeader ? "animate-fade-in" : "animate-in fade-in slide-in-from-bottom-4 duration-500")}>
+    <div className={cn("max-w-5xl mx-auto space-y-8 pb-12 animate-fade-in")}>
       {!hideHeader && (
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="flex-1">
@@ -112,50 +134,46 @@ export function DocumentsClientView({
               {t('documents.page_subtitle')}
             </p>
           </div>
-          
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-xl border w-full sm:w-auto">
-              <span className="text-xs font-semibold px-3 uppercase text-muted-foreground hidden sm:inline-block">
-                {t('dashboard.filter')}
-              </span>
-              <select 
-                className="bg-transparent text-sm font-medium focus:outline-none p-1.5 min-w-[160px]"
-                value={selectedProjectId}
-                onChange={(e) => setSelectedProjectId(e.target.value)}
-              >
-                <option value="all">{t('documents.filter_all_projects')}</option>
-                {projects.map(p => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
-            </div>
-            <UploadDocumentModal />
-          </div>
         </div>
       )}
 
-      {hideHeader && (
-         <div className="flex justify-end -mt-14">
-            <div className="flex flex-col sm:flex-row items-center gap-3">
-              <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-xl border w-full sm:w-auto">
-                <span className="text-xs font-semibold px-3 uppercase text-muted-foreground hidden sm:inline-block">
-                  {t('dashboard.filter')}
-                </span>
-                <select 
-                  className="bg-transparent text-sm font-medium focus:outline-none p-1.5 min-w-[160px]"
-                  value={selectedProjectId}
-                  onChange={(e) => setSelectedProjectId(e.target.value)}
-                >
-                  <option value="all">{t('documents.filter_all_projects')}</option>
-                  {projects.map(p => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </select>
-              </div>
-              <UploadDocumentModal />
-            </div>
-         </div>
-      )}
+      {/* Unified Filter Bar — matches /dashboard/expenses and /dashboard/checklists */}
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-card p-4 rounded-xl border border-border/50 shadow-sm">
+        {/* Search */}
+        <div className="relative flex-1 w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Szukaj dokumentu…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 bg-secondary/30 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+          />
+        </div>
+
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground hidden sm:inline-block">
+              {t('dashboard.filter')}
+            </span>
+            <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+              <SelectTrigger className="w-full sm:w-[200px] h-10 rounded-lg font-medium bg-background">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 opacity-50" />
+                  <SelectValue placeholder={t('documents.filter_all_projects')} />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('documents.filter_all_projects')}</SelectItem>
+                {projects.map(p => (
+                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <UploadDocumentModal />
+        </div>
+      </div>
 
       <Tabs defaultValue="my-documents" className="w-full">
         <TabsList className="grid w-full grid-cols-2 max-w-md bg-muted/50 p-1 rounded-xl border">
@@ -177,11 +195,18 @@ export function DocumentsClientView({
         </TabsContent>
         
         <TabsContent value="templates" className="mt-8">
-          <div className="grid gap-4">
-            {templates.map(template => (
-              <TemplateCard key={template.id} template={template} />
-            ))}
-          </div>
+          {filteredTemplates.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed rounded-xl bg-muted/5">
+              <FileText className="w-12 h-12 text-muted-foreground mb-4 opacity-50" />
+              <p className="text-muted-foreground text-sm">Brak szablonów pasujących do wyszukiwania.</p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {filteredTemplates.map(template => (
+                <TemplateCard key={template.id} template={template} />
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>

@@ -255,6 +255,7 @@ export async function updateExpense(projectId: string, expenseId: string, data: 
     })
 
     revalidatePath(`/dashboard/projects/${projectId}`)
+    revalidatePath('/dashboard/expenses')
     return { success: true }
   } catch (err: any) {
     return { success: false, error: err.message }

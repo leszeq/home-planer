@@ -54,6 +54,10 @@ export async function toggleChecklistItem(itemId: string, isDone: boolean, proje
   await checkPermission(projectId)
   const supabase = await createClient()
   await supabase.from('checklist_items').update({ is_done: isDone }).match({ id: itemId })
+  
+  const { data: item } = await supabase.from('checklist_items').select('checklist_id').eq('id', itemId).single()
+  if (item) await syncStageStatus(item.checklist_id, projectId)
+
   revalidatePath(`/dashboard/checklists`)
   revalidatePath(`/dashboard/projects/${projectId}`)
 }
@@ -142,6 +146,8 @@ export async function addChecklistItem(checklistId: string, content: string, pro
     is_done: false,
   })
 
+  await syncStageStatus(checklistId, projectId)
+
   revalidatePath('/dashboard/checklists')
   revalidatePath(`/dashboard/projects/${projectId}`)
 }
@@ -175,12 +181,45 @@ export async function updateChecklistItemsOrder(checklistId: string, orderedIds:
 export async function deleteChecklistItem(itemId: string) {
   const supabase = await createClient()
   
-  const { data: item } = await supabase.from('checklist_items').select('checklists(project_id)').eq('id', itemId).single()
+  const { data: item } = await supabase.from('checklist_items').select('checklist_id, checklists(project_id)').eq('id', itemId).single()
   const projectId = (item?.checklists as any)?.project_id
   if (projectId) await checkPermission(projectId)
 
+  const checklistId = item?.checklist_id
+
   await supabase.from('checklist_items').delete().match({ id: itemId })
+  
+  if (checklistId) await syncStageStatus(checklistId, projectId)
+
   revalidatePath('/dashboard/checklists')
   if (projectId) revalidatePath(`/dashboard/projects/${projectId}`)
 }
 
+async function syncStageStatus(checklistId: string, projectId: string) {
+  const supabase = await createClient()
+  
+  const { data: checklist } = await supabase.from('checklists').select('stage_id').eq('id', checklistId).single()
+  if (!checklist || !checklist.stage_id) return
+  
+  const { data: siblingChecklists } = await supabase.from('checklists').select('id').eq('stage_id', checklist.stage_id)
+  if (!siblingChecklists || siblingChecklists.length === 0) return
+  
+  const checklistIds = siblingChecklists.map(c => c.id)
+  
+  const { data: items } = await supabase.from('checklist_items').select('is_done').in('checklist_id', checklistIds)
+  
+  let newStatus = 'todo'
+  if (items && items.length > 0) {
+    const total = items.length
+    const done = items.filter(i => i.is_done).length
+    if (done === total) newStatus = 'done'
+    else if (done > 0) newStatus = 'in_progress'
+  }
+  
+  const { data: stage } = await supabase.from('stages').select('status').eq('id', checklist.stage_id).single()
+  
+  if (stage && stage.status !== newStatus) {
+    await supabase.from('stages').update({ status: newStatus }).eq('id', checklist.stage_id)
+    revalidatePath(`/dashboard/projects/${projectId}`)
+  }
+}
