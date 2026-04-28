@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { FileText, Trash2, Download, ExternalLink, Clock, CheckCircle2, AlertCircle, RefreshCw, Eye, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useTranslation } from '@/lib/i18n/LanguageContext'
@@ -10,6 +10,7 @@ import { DeleteConfirmationModal } from './delete-confirmation-modal'
 import { DocumentPreviewModal } from './document-preview-modal'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Checkbox } from '@/components/ui/checkbox'
 
 export interface Document {
   id: string
@@ -35,11 +36,50 @@ export function DocumentList({ documents, isLoading, projectNames }: DocumentLis
   const { t, locale } = useTranslation()
   const [isRefreshing, setIsRefreshing] = useState<string | null>(null)
   const [isOpeningUrl, setIsOpeningUrl] = useState<string | null>(null)
-  const [isDeletingId, setIsDeletingId] = useState<string | null>(null)
   const [docToDelete, setDocToDelete] = useState<Document | null>(null)
   const [previewDoc, setPreviewDoc] = useState<Document | null>(null)
+  const [isDeletingId, setIsDeletingId] = useState<string | null>(null)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [isDeletingBatch, setIsDeletingBatch] = useState(false)
   
   const supabase = createClient()
+
+  const toggleSelectAll = (checked: boolean) => {
+    if (checked) setSelectedIds(new Set(documents.map(f => f.id)))
+    else setSelectedIds(new Set())
+  }
+
+  const toggleSelect = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    const newSelected = new Set(selectedIds)
+    if (newSelected.has(id)) newSelected.delete(id)
+    else newSelected.add(id)
+    setSelectedIds(newSelected)
+  }
+
+  const handleBatchDelete = async () => {
+    if (selectedIds.size === 0) return
+    setIsDeletingBatch(true)
+    const toastId = toast.loading(t('common.deleting') || 'Usuwanie...')
+    
+    // We need both ID and path for storage cleanup
+    let hasError = false
+    for (const id of Array.from(selectedIds)) {
+      const doc = documents.find(d => d.id === id)
+      if (doc) {
+        const res = await deleteDocument(doc.id, doc.storage_path || undefined)
+        if (!res.success) hasError = true
+      }
+    }
+    
+    if (!hasError) {
+      toast.success(t('common.deleted'), { id: toastId })
+      setSelectedIds(new Set())
+    } else {
+      toast.error(t('common.error'), { id: toastId })
+    }
+    setIsDeletingBatch(false)
+  }
 
   const handleDownload = async (e: React.MouseEvent, doc: Document) => {
     e.stopPropagation()
@@ -153,13 +193,52 @@ export function DocumentList({ documents, isLoading, projectNames }: DocumentLis
 
   return (
     <>
-      <div className="space-y-3">
-        {documents.map((doc) => (
-          <div 
-            key={doc.id} 
-            className="flex items-center gap-4 p-4 rounded-xl border bg-card hover:shadow-md hover:border-primary/20 cursor-pointer transition-all group"
-            onClick={() => setPreviewDoc(doc)}
-          >
+      <div className="space-y-4">
+        {/* Selection Header */}
+        <div className="flex items-center justify-between p-4 bg-secondary/10 rounded-xl border border-border/50">
+          <div className="flex items-center gap-3">
+            <Checkbox 
+              checked={selectedIds.size === documents.length && documents.length > 0} 
+              onCheckedChange={(checked) => toggleSelectAll(!!checked)}
+            />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+              {t('common.select_all')}
+            </span>
+          </div>
+          {selectedIds.size > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-primary mr-2">
+                {selectedIds.size} {t('common.selected')}
+              </span>
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                className="h-8 text-[11px] font-bold uppercase"
+                onClick={handleBatchDelete}
+                disabled={isDeletingBatch}
+              >
+                {t('common.delete_selected')}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-3">
+          {documents.map((doc) => (
+            <div 
+              key={doc.id} 
+              className={cn(
+                "flex items-center gap-4 p-4 rounded-xl border bg-card hover:shadow-md hover:border-primary/20 cursor-pointer transition-all group",
+                selectedIds.has(doc.id) && "bg-primary/5 ring-1 ring-primary/20 shadow-sm border-primary/20"
+              )}
+              onClick={() => setPreviewDoc(doc)}
+            >
+              <div onClick={(e) => toggleSelect(doc.id, e)}>
+                <Checkbox 
+                  checked={selectedIds.has(doc.id)} 
+                  onCheckedChange={() => {}} // Controlled by div onClick
+                />
+              </div>
             <div 
               className={cn(
                 "p-3 rounded-lg flex-shrink-0 transition-colors",
@@ -245,8 +324,9 @@ export function DocumentList({ documents, isLoading, projectNames }: DocumentLis
           </div>
         ))}
       </div>
+    </div>
 
-      <DeleteConfirmationModal 
+    <DeleteConfirmationModal 
         isOpen={!!docToDelete}
         onClose={() => setDocToDelete(null)}
         onConfirm={handleDelete}

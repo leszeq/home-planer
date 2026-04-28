@@ -211,7 +211,7 @@ export function ExpenseList({
             />
           </div>
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-full sm:w-[180px] h-9 text-xs font-bold bg-secondary/5 border-muted-foreground/20">
+            <SelectTrigger className="w-full sm:w-[215px] h-9 text-xs font-bold bg-secondary/5 border-muted-foreground/20">
               <div className="flex items-center gap-2">
                 <ArrowUpDown className="w-3.5 h-3.5 opacity-50" />
                 <SelectValue placeholder="Sortuj" />
@@ -410,7 +410,7 @@ export function ExpenseList({
               <thead className="bg-secondary/10">
                 <tr className="text-left font-bold text-muted-foreground uppercase tracking-tighter text-[11px]">
                   {canEdit && (
-                    <th className="p-4 w-10">
+                    <th className="p-4 w-[60px] text-center">
                       <Checkbox
                         checked={selectedIds.size === processedExpenses.length && processedExpenses.length > 0}
                         onCheckedChange={(checked) => toggleSelectAll(!!checked)}

@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Card } from "@/components/ui/card"
 import { Filter, Search, Receipt, ChevronUp, ChevronDown, ChevronsUpDown, Printer } from "lucide-react"
+import { Checkbox as CustomCheckbox } from "@/components/ui/checkbox"
 import { useTranslation } from "@/lib/i18n/LanguageContext"
 import {
   Select,
@@ -118,7 +119,7 @@ export function ExpensesClientView({
     return <ChevronsUpDown className="w-3 h-3 ml-1 inline opacity-40 hover:opacity-100" />
   }
 
-  const handleSelectAll = (checked: boolean) => {
+  const toggleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedIds(paginatedExpenses.map(e => e.id))
     } else {
@@ -280,11 +281,9 @@ export function ExpensesClientView({
               onClick={() => setEditingExpense(expense)}
             >
               <div className="pt-0.5" onClick={(e) => e.stopPropagation()}>
-                <input
-                  type="checkbox"
+                <CustomCheckbox
                   checked={selectedIds.includes(expense.id)}
-                  onChange={() => toggleSelection(expense.id)}
-                  className="w-5 h-5 rounded border-primary/50 text-primary cursor-pointer"
+                  onCheckedChange={() => toggleSelection(expense.id)}
                 />
               </div>
               <div className="flex-1 min-w-0">
@@ -313,12 +312,10 @@ export function ExpensesClientView({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-secondary/20">
-                <th className="p-4 text-center w-[50px]">
-                  <input
-                    type="checkbox"
+                <th className="p-4 text-center w-[60px]">
+                  <CustomCheckbox 
                     checked={isAllSelected}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="w-4 h-4 rounded border-primary/50 text-primary cursor-pointer align-middle"
+                    onCheckedChange={toggleSelectAll}
                   />
                 </th>
                 <th className="p-4 text-left font-semibold text-muted-foreground uppercase tracking-wider text-[10px] cursor-pointer hover:bg-secondary/40 select-none transition-colors" onClick={() => requestSort('date')}>
@@ -352,12 +349,10 @@ export function ExpensesClientView({
                     className="hover:bg-secondary/70 transition-colors group cursor-pointer"
                     onClick={() => setEditingExpense(expense)}
                   >
-                    <td className="p-4 text-center" onClick={(e) => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
+                    <td className="px-4 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                      <CustomCheckbox
                         checked={selectedIds.includes(expense.id)}
-                        onChange={() => toggleSelection(expense.id)}
-                        className="w-4 h-4 rounded border-primary/50 text-primary cursor-pointer align-middle"
+                        onCheckedChange={() => toggleSelection(expense.id)}
                       />
                     </td>
                     <td className="p-4 text-muted-foreground">

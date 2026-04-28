@@ -210,11 +210,15 @@ export function FileList({
             <CardDescription className="text-sm font-medium">{t('files.subtitle')}</CardDescription>
           </div>
           {filteredFiles.length > 0 && canEdit && (
-            <Checkbox 
-              checked={selectedIds.size === filteredFiles.length && filteredFiles.length > 0} 
-              onCheckedChange={(checked) => toggleSelectAll(!!checked)}
-              className="mr-2"
-            />
+            <div className="flex items-center gap-2">
+              <Checkbox 
+                checked={selectedIds.size === filteredFiles.length && filteredFiles.length > 0} 
+                onCheckedChange={(checked) => toggleSelectAll(!!checked)}
+              />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                {t('common.select_all')}
+              </span>
+            </div>
           )}
         </div>
       </CardHeader>

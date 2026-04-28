@@ -16,7 +16,7 @@ export function ClientPageHeader({ titleKey, descKey, icon, variant = 'default' 
   if (variant === 'xl') {
     return (
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="flex-1 pl-14 md:pl-0">
+        <div className="flex-1">
           <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight">{t(titleKey)}</h1>
           <p className="text-muted-foreground mt-2 text-base md:text-lg max-w-2xl">
             {t(descKey)}
@@ -27,7 +27,7 @@ export function ClientPageHeader({ titleKey, descKey, icon, variant = 'default' 
   }
 
   return (
-    <div className="flex items-center gap-4 pl-14 md:pl-0">
+    <div className="flex items-center gap-4">
       {icon && (
         <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
           {icon}

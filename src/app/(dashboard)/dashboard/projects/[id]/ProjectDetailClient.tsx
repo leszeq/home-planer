@@ -6,11 +6,12 @@ import { StageList } from "@/components/stages/stage-list"
 import { ProjectTimeline } from "@/components/stages/project-timeline"
 import { TeamManagementSheet } from "@/components/team/team-management-sheet"
 import { ExpenseList } from "@/components/expenses/expense-list"
+import { StagesCostChart } from "@/components/expenses/stages-cost-chart"
 import { FileList } from "@/components/files/file-list"
 import { Button } from "@/components/ui/button"
 import { PrintButton } from "@/components/ui/print-button"
 import { DeleteProjectButton } from "@/components/projects/delete-project-button"
-import { ProjectHeaderClient, ProjectStatsClient } from "@/components/projects/project-detail-client"
+import { ProjectHeaderClient, ProjectBudgetCard, ProjectStagesCard, ProjectExpensesPieChart } from "@/components/projects/project-detail-client"
 import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
 import { Suspense, useMemo } from "react"
@@ -94,7 +95,7 @@ export function ProjectDetailClient({ projectId }: { projectId: string }) {
   if (isLoading && !data) {
     return (
       <div className="space-y-8 animate-fade-in">
-        <div className="flex items-center gap-4 ml-14 md:ml-0">
+        <div className="flex items-center gap-4">
            <Link href="/dashboard/projects">
              <Button variant="ghost" size="icon">
                <ChevronLeft className="w-5 h-5" />
@@ -119,7 +120,7 @@ export function ProjectDetailClient({ projectId }: { projectId: string }) {
     <div className="space-y-8 pb-12 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-        <div className="flex items-center gap-4 ml-14 md:ml-0">
+        <div className="flex items-center gap-4">
           <Link href="/dashboard/projects">
             <Button variant="ghost" size="icon">
               <ChevronLeft className="w-5 h-5" />
@@ -148,13 +149,17 @@ export function ProjectDetailClient({ projectId }: { projectId: string }) {
       </div>
 
       {/* Top Level Metric Cards */}
-      <ProjectStatsClient 
-        project={project}
-        expenses={result.expenses}
-        stages={result.stages}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 auto-rows-fr gap-8">
+         <ProjectBudgetCard project={project} expenses={result.expenses} />
+         <ProjectStagesCard stages={result.stages} />
+         <ProjectExpensesPieChart expenses={result.expenses} />
+         <StagesCostChart 
+           expenses={result.expenses} 
+           stages={result.stages} 
+         />
+      </div>
 
-      {/* Timeline */}
+      {/* Row 3: Timeline (Full width) */}
       <ProjectTimeline stages={result.stages} />
 
       {/* Main Content Areas - Full Width */}

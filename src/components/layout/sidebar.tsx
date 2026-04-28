@@ -118,14 +118,25 @@ export function Sidebar() {
         <SidebarContent />
       </aside>
 
-      {/* Mobile: Hamburger trigger button */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className="md:hidden fixed top-3 left-3 z-50 flex items-center justify-center w-11 h-11 rounded-xl bg-primary shadow-lg shadow-primary/30 text-white ring-2 ring-primary/20 hover:brightness-110 active:scale-95 transition-all"
-        aria-label="Otwórz menu"
-      >
-        <Menu className="w-5 h-5" />
-      </button>
+      {/* Mobile: Top App Bar */}
+      <header className="md:hidden fixed top-0 left-0 right-0 z-40 bg-sidebar border-b border-[var(--sidebar-border)] h-16 flex items-center justify-between px-4">
+        <div className="flex flex-1 items-center gap-3 group">
+          <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-primary shadow-lg">
+            <HardHat className="w-5 h-5 text-white" />
+          </div>
+          <span className="block text-sm font-bold text-white tracking-wide uppercase leading-none">
+            {/* Translated in sidebar content, hardcoded fallback or we can leave it. Since we are outside the SidebarContent let's just use CSS uppercase */}
+            PLANER BUDOWY
+          </span>
+        </div>
+        <button
+          onClick={() => setIsOpen(true)}
+          className="flex items-center justify-center w-10 h-10 rounded-xl bg-[var(--sidebar-accent)]/80 text-white shadow-lg hover:brightness-110 active:scale-95 transition-all"
+          aria-label="Otwórz menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      </header>
 
       {/* Mobile: Backdrop overlay */}
       {isOpen && (
