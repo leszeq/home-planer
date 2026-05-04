@@ -158,6 +158,12 @@ export function ChecklistView({
   const doneCount = items.filter(i => i.is_done).length
   const progress = items.length > 0 ? (doneCount / items.length) * 100 : 0
 
+  useEffect(() => {
+    if (items.length > 0 && doneCount === items.length) {
+      setIsOpen(false)
+    }
+  }, [doneCount, items.length])
+
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return

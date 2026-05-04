@@ -178,6 +178,11 @@ export async function createExpense(projectId: string, data: {
     
     if (error) return { success: false, error: error.message }
     
+    // Sync stage to attached file
+    if (data.file_id && data.stage_id !== undefined) {
+      await supabase.from('project_files').update({ stage_id: data.stage_id }).eq('id', data.file_id)
+    }
+    
     await logActivity(projectId, 'create_expense', 'expense', undefined, { 
       amount: data.amount, 
       category: data.category,
@@ -248,6 +253,12 @@ export async function updateExpense(projectId: string, expenseId: string, data: 
     const supabase = await createClient()
     const { error } = await supabase.from('expenses').update(data).match({ id: expenseId, project_id: projectId })
     if (error) return { success: false, error: error.message }
+    
+    // Sync stage to attached file
+    const { data: updatedExpense } = await supabase.from('expenses').select('file_id, stage_id').eq('id', expenseId).single()
+    if (updatedExpense?.file_id && updatedExpense.stage_id !== undefined) {
+      await supabase.from('project_files').update({ stage_id: updatedExpense.stage_id }).eq('id', updatedExpense.file_id)
+    }
     
     await logActivity(projectId, 'update_expense' as any, 'expense', expenseId, { 
       desc: data.description,

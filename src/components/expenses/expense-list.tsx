@@ -66,6 +66,7 @@ export function ExpenseList({
   const [addingCustomCategory, setAddingCustomCategory] = useState('')
   const [customCategories, setCustomCategories] = useState<any[]>([])
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [previewFile, setPreviewFile] = useState<any>(null)
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -266,13 +267,36 @@ export function ExpenseList({
                   setFormErrors({})
                   
                   try {
+                    let finalFileId = selectedFileId;
+                    
+                    if (pendingFile) {
+                      let uploadedFileId: string | null = null;
+                      const uploadResult = await uploadFiles(
+                        [pendingFile],
+                        async (f, storagePath) => {
+                          const recRes = await addFileRecord(projectId, f.name, storagePath, f.type, f.size)
+                          if (recRes.success && recRes.data?.id) {
+                            uploadedFileId = recRes.data.id;
+                          }
+                          return recRes
+                        },
+                        `${userId}/${projectId}`
+                      );
+                      
+                      if (!uploadResult?.success || !uploadedFileId) {
+                        setIsSubmitting(false)
+                        return // Stop if file upload failed
+                      }
+                      finalFileId = uploadedFileId;
+                    }
+
                     const data = {
                       amount: parseFloat(amountStr),
                       category: category,
                       description: description.trim(),
                       stage_id: formData.get('stage_id') as string || null,
                       date: date,
-                      file_id: selectedFileId
+                      file_id: finalFileId
                     }
 
                     if (addingCategory === '__custom__' && addingCustomCategory) {
@@ -288,6 +312,7 @@ export function ExpenseList({
                       setAddingCategory('')
                       setAddingCustomCategory('')
                       setSelectedFileId(null)
+                      setPendingFile(null)
                       toast.success(t('expenses.expense_added').replace('{{desc}}', data.description || '').replace('{{amount}}', String(data.amount)))
                     } else {
                       toast.error(response.error)
@@ -347,22 +372,12 @@ export function ExpenseList({
                       <p className="text-[10px] text-muted-foreground font-bold uppercase">{t('expenses.upload_new') || "Wgraj nowy"}</p>
                       <Input 
                         type="file" 
-                        onChange={async (e) => {
+                        onChange={(e) => {
                           if (e.target.files && e.target.files[0]) {
-                            const file = e.target.files[0]
-                            await uploadFiles(
-                              [file],
-                              async (f, storagePath) => {
-                                const recRes = await addFileRecord(projectId, f.name, storagePath, f.type, f.size)
-                                if (recRes.success && recRes.data?.id) {
-                                  setSelectedFileId(recRes.data.id)
-                                  toast.info(t('expenses.file_uploaded_success') || "Plik wgrany pomyślnie.")
-                                  queryClient.invalidateQueries({ queryKey: ['project', projectId] })
-                                }
-                                return recRes
-                              },
-                              `${userId}/${projectId}`
-                            )
+                            setPendingFile(e.target.files[0])
+                            setSelectedFileId(null) // Clear existing file selection
+                          } else {
+                            setPendingFile(null)
                           }
                         }}
                         className="h-10 text-xs" 
@@ -371,7 +386,18 @@ export function ExpenseList({
                     </div>
                     <div className="space-y-2">
                       <p className="text-[10px] text-muted-foreground font-bold uppercase">{t('expenses.link_existing') || "Połącz z istniejącym"}</p>
-                      <Select value={selectedFileId || 'none'} onValueChange={val => setSelectedFileId(val === 'none' ? null : val)}>
+                      <Select 
+                        value={selectedFileId || 'none'} 
+                        onValueChange={val => {
+                          setSelectedFileId(val === 'none' ? null : val);
+                          if (val !== 'none') {
+                            setPendingFile(null); // Clear new file selection
+                            // Clear the file input visually
+                            const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+                            if (fileInput) fileInput.value = '';
+                          }
+                        }}
+                      >
                         <SelectTrigger className="h-10 text-xs border-muted-foreground/20 bg-card">
                           <SelectValue placeholder={t('expenses.select_file') || "Wybierz plik..."} />
                         </SelectTrigger>
@@ -392,7 +418,7 @@ export function ExpenseList({
                 </div>
 
                 <div className="md:col-span-2 flex justify-end gap-2 pt-4 border-t mt-2">
-                  <Button variant="ghost" type="button" onClick={() => { setIsAdding(false); setFormErrors({}); }} className="rounded-xl font-bold">{t('common.cancel')}</Button>
+                  <Button variant="ghost" type="button" onClick={() => { setIsAdding(false); setFormErrors({}); setPendingFile(null); setSelectedFileId(null); }} className="rounded-xl font-bold">{t('common.cancel')}</Button>
                   <Button type="submit" className="rounded-xl font-bold shadow-md shadow-primary/20" disabled={isUploadingFile || isSubmitting}>
                     {(isUploadingFile || isSubmitting) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     {t('expenses.add_expense')}
@@ -568,7 +594,7 @@ export function ExpenseList({
                                   </select>
                                 </div>
                                 <div className="space-y-1 md:col-span-2">
-                                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t('expenses.document')}</label>
+                                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t('expenses.document_label') || 'Powiązany dokument'}</label>
                                   <Select 
                                     value={editData.file_id || 'none'} 
                                     onValueChange={val => setEditData(d => ({ ...d, file_id: val === 'none' ? null : val }))}

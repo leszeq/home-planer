@@ -29,7 +29,7 @@ interface Expense {
   projects?: { name: string }
 }
 
-import { cn } from "@/lib/utils"
+import { cn, getProjectColorClasses } from "@/lib/utils"
 
 import { CreateExpenseModal } from "./create-expense-modal"
 import { EditExpenseModal } from "./edit-expense-modal"
@@ -48,9 +48,9 @@ export function ExpensesClientView({
   const [searchQuery, setSearchQuery] = useState('')
   const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(50)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
-  const pageSize = 25
 
   const processedExpenses = useMemo(() => {
     let filtered = initialExpenses.filter(expense => {
@@ -93,7 +93,7 @@ export function ExpensesClientView({
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchQuery, selectedProjectId, sortConfig])
+  }, [searchQuery, selectedProjectId, sortConfig, pageSize])
 
   const totalAmount = processedExpenses.reduce((sum, e) => sum + Number(e.amount), 0)
 
@@ -360,7 +360,7 @@ export function ExpensesClientView({
                     </td>
                     <td className="p-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-6 rounded-full bg-primary/30 group-hover:bg-primary transition-colors" />
+                        <div className={cn("w-1.5 h-6 rounded-full transition-colors", getProjectColorClasses(expense.project_id))} />
                         <span className="font-medium">{expense.projects?.name}</span>
                       </div>
                     </td>
@@ -381,36 +381,55 @@ export function ExpensesClientView({
         </div>
       </Card>
 
-      {/* Pagination — shared for both mobile and desktop */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between px-2 py-2">
-          <div className="text-xs text-muted-foreground">
-            Strona <span className="font-semibold text-foreground">{currentPage}</span> z <span className="font-semibold text-foreground">{totalPages}</span>
+      {/* Pagination & Page Size */}
+      {processedExpenses.length > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between px-2 py-4 gap-4 bg-card rounded-xl border border-border/50 shadow-sm">
+          <div className="flex items-center gap-4 text-xs text-muted-foreground w-full sm:w-auto justify-between sm:justify-start">
+            <div>
+              Strona <span className="font-semibold text-foreground">{currentPage}</span> z <span className="font-semibold text-foreground">{totalPages}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>Wpisów na stronę:</span>
+              <Select value={pageSize.toString()} onValueChange={(v) => { setPageSize(Number(v)); setCurrentPage(1); }}>
+                <SelectTrigger className="h-8 w-16 text-xs bg-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="h-10 px-4"
-            >
-              Poprzednia
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="h-10 px-4"
-            >
-              Następna
-            </Button>
-          </div>
+          
+          {totalPages > 1 && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="h-8 px-4 text-xs"
+              >
+                Poprzednia
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="h-8 px-4 text-xs"
+              >
+                Następna
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
       <EditExpenseModal
+        key={editingExpense?.id || 'edit-modal'}
         isOpen={!!editingExpense}
         onClose={() => setEditingExpense(null)}
         expense={editingExpense}

@@ -30,7 +30,7 @@ export function CreateChecklistForm({ projectId: initialProjectId, stageId = nul
   const [projectId, setProjectId] = useState(initialProjectId)
   const [internalStageId, setInternalStageId] = useState(stageId || '')
   const queryClient = useQueryClient()
-  
+
   const filteredStages = stages?.filter(s => s.project_id === projectId) || []
 
   const addItemField = () => setItems(prev => [...prev, ''])
@@ -84,8 +84,8 @@ export function CreateChecklistForm({ projectId: initialProjectId, stageId = nul
 
   if (!isOpen) {
     return (
-      <Button onClick={handleOpen} className="gap-2">
-        <ListChecks className="w-4 h-4" />
+      <Button onClick={handleOpen} size="sm" className="gap-2 h-8 px-3 text-xs font-medium">
+        <ListChecks className="w-3.5 h-3.5" />
         {displayLabel}
       </Button>
     )
@@ -117,7 +117,7 @@ export function CreateChecklistForm({ projectId: initialProjectId, stageId = nul
           {projects && projects.length > 1 && !stageId && (
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-muted-foreground">{t('checklists.select_project')}</label>
-              <select 
+              <select
                 className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 value={projectId}
                 onChange={e => { setProjectId(e.target.value); setInternalStageId('') }}
@@ -126,7 +126,7 @@ export function CreateChecklistForm({ projectId: initialProjectId, stageId = nul
               </select>
             </div>
           )}
-          
+
           {!stageId && (
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-muted-foreground">{t('checklists.assign_to_stage')}</label>

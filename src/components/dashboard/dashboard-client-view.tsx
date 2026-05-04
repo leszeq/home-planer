@@ -7,7 +7,7 @@ import { BarChart3, TrendingDown, TrendingUp, Layers, AlertTriangle, Filter } fr
 import Link from "next/link"
 import { useTranslation } from "@/lib/i18n/LanguageContext"
 import { CreateProjectModal } from "@/components/projects/create-project-modal"
-
+import { cn, getProjectColorClasses } from "@/lib/utils"
 
 interface Project {
   id: string
@@ -244,7 +244,7 @@ export function DashboardClientView({
                 <Link key={p.id} href={`/dashboard/projects/${p.id}`}>
                   <div className="flex items-center justify-between p-3 rounded-xl hover:bg-secondary transition-colors cursor-pointer group border border-border/30">
                     <div className="flex items-center gap-3">
-                      <div className="w-2 h-8 rounded-full bg-primary/50 group-hover:bg-primary transition-colors" />
+                      <div className={cn("w-2 h-8 rounded-full transition-colors", getProjectColorClasses(p.id))} />
                       <div>
                         <p className="text-sm font-semibold">{p.name}</p>
                         <p className="text-xs text-muted-foreground">{budget.toLocaleString()} zł {t('dashboard.budget_label')}</p>

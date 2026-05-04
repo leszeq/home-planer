@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { addFileRecord, deleteFile, deleteMultipleFiles, updateFileStage } from '@/app/(dashboard)/dashboard/projects/[id]/files/actions'
 import { useTranslation } from '@/lib/i18n/LanguageContext'
 import { DocumentPreviewModal } from '@/components/documents/document-preview-modal'
+import { DeleteConfirmationModal } from '@/components/documents/delete-confirmation-modal'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { useFileUpload } from '@/hooks/use-file-upload'
@@ -64,6 +65,8 @@ export function FileList({
   const [selectedStageId, setSelectedStageId] = useState<string>('none')
   const [filterStageId, setFilterStageId] = useState<string>('all')
   const [previewFile, setPreviewFile] = useState<ProjectFile | null>(null)
+  const [fileToDelete, setFileToDelete] = useState<ProjectFile | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [isDeletingBatch, setIsDeletingBatch] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -173,14 +176,13 @@ export function FileList({
   }
 
   const handleDeleteFile = async (file: ProjectFile) => {
-    const toastId = toast.loading(t('common.deleting') || 'Usuwanie...')
     const response = await deleteFile(projectId, file.id, file.storage_path)
     
     if (response.success) {
       queryClient.invalidateQueries({ queryKey: ['project', projectId] })
-      toast.success(t('common.deleted') || 'Usunięto!', { id: toastId })
+      toast.success(t('common.deleted') || 'Usunięto!')
     } else {
-      toast.error(response.error || t('common.error'), { id: toastId })
+      toast.error(response.error || t('common.error'))
     }
   }
 
@@ -399,7 +401,7 @@ export function FileList({
                           </SelectContent>
                         </Select>
 
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteFile(file)} className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive transition-colors">
+                        <Button variant="ghost" size="icon" onClick={() => setFileToDelete(file)} className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive transition-colors">
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -453,6 +455,20 @@ export function FileList({
             storage_path: previewFile.storage_path,
             type: 'scan'
           } : null}
+        />
+
+        <DeleteConfirmationModal
+          isOpen={!!fileToDelete}
+          onClose={() => setFileToDelete(null)}
+          onConfirm={async () => {
+            if (!fileToDelete) return
+            setIsDeleting(true)
+            await handleDeleteFile(fileToDelete)
+            setIsDeleting(false)
+            setFileToDelete(null)
+          }}
+          itemName={fileToDelete?.name || ''}
+          isDeleting={isDeleting}
         />
       </CardContent>
     </Card>

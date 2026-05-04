@@ -4,6 +4,7 @@ import { X, Loader2, FileText, ExternalLink, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { createClient } from '@/lib/supabase/client'
 import { useTranslation } from '@/lib/i18n/LanguageContext'
 import { getBoldSignUrl } from '@/app/(dashboard)/dashboard/documents/actions'
@@ -29,8 +30,13 @@ export function DocumentPreviewModal({ document, isOpen, onClose }: DocumentPrev
   const [loading, setLoading] = useState(false)
   const [isOpeningBoldSign, setIsOpeningBoldSign] = useState(false)
   const [error, setError] = useState(false)
+  const [mounted, setMounted] = useState(false)
   
   const supabase = createClient()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     async function getSignedUrl() {
@@ -79,12 +85,12 @@ export function DocumentPreviewModal({ document, isOpen, onClose }: DocumentPrev
     }
   }
 
-  if (!isOpen || !document) return null
+  if (!isOpen || !document || !mounted) return null
 
   const isImage = document.storage_path?.match(/\.(jpg|jpeg|png|gif|webp)$/i)
   const isPdf = document.storage_path?.toLowerCase().endsWith('.pdf')
 
-  return (
+  const modalContent = (
     <div className="fixed inset-0 bg-background/90 backdrop-blur-md flex items-center justify-center p-4 z-[9999] animate-in fade-in duration-300">
       <Card className="w-full max-w-5xl h-[90vh] flex flex-col shadow-2xl border-primary/20 animate-in zoom-in-95 duration-300 overflow-hidden">
         <CardHeader className="flex flex-row items-center justify-between border-b bg-muted/10 shrink-0">
@@ -179,4 +185,6 @@ export function DocumentPreviewModal({ document, isOpen, onClose }: DocumentPrev
       </Card>
     </div>
   )
+
+  return createPortal(modalContent, window.document.body)
 }

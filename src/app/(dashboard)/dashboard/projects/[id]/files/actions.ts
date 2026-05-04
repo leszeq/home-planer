@@ -105,6 +105,9 @@ export async function updateFileStage(projectId: string, fileId: string, stageId
     
     if (error) return { success: false, error: error.message }
     
+    // Sync stage to associated expense
+    await supabase.from('expenses').update({ stage_id: stageId }).eq('file_id', fileId).eq('project_id', projectId)
+    
     await logActivity(projectId, 'update_file_stage', 'file', fileId, { stage_id: stageId })
     revalidatePath(`/dashboard/projects/${projectId}`)
     return { success: true }

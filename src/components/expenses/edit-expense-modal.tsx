@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
 import { X, Loader2, Save } from 'lucide-react'
 import { useTranslation } from '@/lib/i18n/LanguageContext'
-import { updateExpense } from '@/app/(dashboard)/dashboard/projects/[id]/actions'
+import { updateExpense, getProjectCategories, createCategory } from '@/app/(dashboard)/dashboard/projects/[id]/actions'
 import {
   Select,
   SelectContent,
@@ -36,11 +36,13 @@ export function EditExpenseModal({
   const [mounted, setMounted] = useState(false)
 
   // Form states matching standard Next.js forms or controlled
-  const [selectedProjectId, setSelectedProjectId] = useState<string>('')
-  const [selectedCategory, setSelectedCategory] = useState<string>('')
-  const [amount, setAmount] = useState<string>('')
-  const [description, setDescription] = useState<string>('')
-  const [date, setDate] = useState<string>('')
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(expense?.project_id ? String(expense.project_id) : '')
+  const [selectedCategory, setSelectedCategory] = useState<string>(expense?.category ? String(expense.category) : '')
+  const [amount, setAmount] = useState<string>(expense?.amount ? String(expense.amount) : '')
+  const [description, setDescription] = useState<string>(expense?.description || '')
+  const [date, setDate] = useState<string>(expense?.date ? new Date(expense.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0])
+  const [customCategories, setCustomCategories] = useState<any[]>([])
+  const [addingCustomCategory, setAddingCustomCategory] = useState('')
 
   useEffect(() => {
     setMounted(true)
@@ -48,14 +50,47 @@ export function EditExpenseModal({
 
   useEffect(() => {
     if (expense && isOpen) {
-      setSelectedProjectId(expense.project_id || '')
-      setSelectedCategory(expense.category || '')
+      setSelectedProjectId(expense.project_id ? String(expense.project_id) : '')
+      setSelectedCategory(expense.category ? String(expense.category) : '')
       setAmount(expense.amount ? String(expense.amount) : '')
       setDescription(expense.description || '')
       setDate(expense.date ? new Date(expense.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0])
       setErrors({})
+    } else if (!isOpen) {
+      setSelectedProjectId('')
+      setSelectedCategory('')
+      setAmount('')
+      setDescription('')
+      setDate('')
+      setErrors({})
+      setAddingCustomCategory('')
     }
   }, [expense, isOpen])
+
+  useEffect(() => {
+    if (selectedProjectId) {
+      getProjectCategories(selectedProjectId).then(res => {
+        if (res.success && res.data) setCustomCategories(res.data)
+      })
+    } else {
+      setCustomCategories([])
+    }
+  }, [selectedProjectId])
+
+  const allCategories = useMemo(() => {
+    const base = [
+      { id: 'materials', name: t('expenses.category_materials') },
+      { id: 'labor', name: t('expenses.category_labor') },
+      { id: 'other', name: t('expenses.category_other') },
+    ]
+    const custom = customCategories.map(c => ({ id: c.name, name: c.name }))
+    
+    if (expense?.category && expense.category !== '__custom__' && !base.find(b => b.id === expense.category) && !custom.find(c => c.id === expense.category)) {
+      custom.push({ id: expense.category, name: expense.category })
+    }
+
+    return [...base, ...custom]
+  }, [customCategories, t, expense?.category])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -87,9 +122,15 @@ export function EditExpenseModal({
     setIsSubmitting(true)
 
     try {
+      let finalCategory = selectedCategory;
+      if (selectedCategory === '__custom__' && addingCustomCategory) {
+        finalCategory = addingCustomCategory;
+        await createCategory(selectedProjectId, addingCustomCategory);
+      }
+
       const result = await updateExpense(selectedProjectId, expense.id, {
         amount: Number(amount),
-        category: selectedCategory,
+        category: finalCategory,
         description: description.trim(),
         date: date
       })
@@ -118,7 +159,7 @@ export function EditExpenseModal({
       <Card className="w-full sm:max-w-md sm:rounded-xl rounded-t-2xl rounded-b-none shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <form onSubmit={handleSubmit}>
           <CardHeader className="flex flex-row items-center justify-between pb-4">
-            <CardTitle>{t('dashboard.stats.expenses')}</CardTitle>
+            <CardTitle>{t('expenses.edit_expense')}</CardTitle>
             <Button variant="ghost" size="icon" type="button" onClick={onClose}>
               <X className="w-4 h-4" />
             </Button>
@@ -129,7 +170,7 @@ export function EditExpenseModal({
               <label className={cn("text-sm font-medium", errors.projectId && "text-destructive")}>
                 Projekt
               </label>
-              <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+              <Select value={selectedProjectId ? String(selectedProjectId) : undefined} onValueChange={setSelectedProjectId}>
                 <SelectTrigger className={cn(errors.projectId && "border-destructive ring-1 ring-destructive")}>
                   <SelectValue placeholder={t('common.select')} />
                 </SelectTrigger>
@@ -171,17 +212,32 @@ export function EditExpenseModal({
 
             <div className="space-y-2">
               <label className={cn("text-sm font-medium", errors.category && "text-destructive")}>Kategoria</label>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <Select 
+                value={selectedCategory ? String(selectedCategory) : undefined} 
+                onValueChange={(val) => {
+                  setSelectedCategory(val);
+                  if (val !== '__custom__') setAddingCustomCategory('');
+                }}
+              >
                 <SelectTrigger className={cn(errors.category && "border-destructive ring-1 ring-destructive")}>
                   <SelectValue placeholder={t('common.select')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="materials">{t('expenses.category_materials')}</SelectItem>
-                  <SelectItem value="labor">{t('expenses.category_labor')}</SelectItem>
-                  <SelectItem value="other">{t('expenses.category_other')}</SelectItem>
+                  {allCategories.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                  <SelectItem value="__custom__">+ {t('expenses.category_custom')}</SelectItem>
                 </SelectContent>
               </Select>
               {errors.category && <p className="text-[10px] font-bold text-destructive animate-in fade-in slide-in-from-top-1">{errors.category}</p>}
+              {selectedCategory === '__custom__' && (
+                <Input 
+                  className="mt-2 h-9 text-sm" 
+                  placeholder={t('expenses.custom_category_label')} 
+                  value={addingCustomCategory} 
+                  onChange={e => setAddingCustomCategory(e.target.value)} 
+                />
+              )}
             </div>
 
             <div className="space-y-2">
