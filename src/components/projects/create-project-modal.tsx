@@ -44,7 +44,7 @@ export function CreateProjectModal() {
 
     try {
       const result = await createProject(formData)
-      
+
       if (result && !result.success) {
         setErrors((prev) => ({ ...prev, name: result.error }))
       } else {
@@ -59,7 +59,7 @@ export function CreateProjectModal() {
 
   if (!isOpen) {
     return (
-      <Button onClick={() => setIsOpen(true)}>
+      <Button onClick={() => setIsOpen(true)} data-testid="create-project-trigger-btn">
         <Plus className="w-4 h-4 mr-2" />
         {t('projects.new_project')}
       </Button>
@@ -81,9 +81,9 @@ export function CreateProjectModal() {
               <label className={`text-sm font-medium ${errors.name ? 'text-destructive' : ''}`}>
                 {t('projects.project_name')}
               </label>
-              <Input 
-                name="name" 
-                placeholder={t('projects.project_name')} 
+              <Input
+                name="name"
+                data-testid="create-project-name-input"
                 className={errors.name ? 'border-destructive focus-visible:ring-destructive' : ''}
               />
               {errors.name && <p className="text-xs text-destructive font-semibold">{errors.name}</p>}
@@ -92,17 +92,17 @@ export function CreateProjectModal() {
               <label className={`text-sm font-medium ${errors.budget ? 'text-destructive' : ''}`}>
                 {t('projects.budget')} (zł)
               </label>
-              <Input 
-                name="budget" 
-                type="number" 
-                placeholder="500000" 
+              <Input
+                name="budget"
+                type="number"
+                data-testid="create-project-budget-input"
                 className={errors.budget ? 'border-destructive focus-visible:ring-destructive' : ''}
               />
               {errors.budget && <p className="text-xs text-destructive font-semibold">{errors.budget}</p>}
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full font-bold" disabled={isSubmitting}>
+            <Button type="submit" className="w-full font-bold" disabled={isSubmitting} data-testid="create-project-submit-btn">
               {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : t('projects.create')}
             </Button>
           </CardFooter>

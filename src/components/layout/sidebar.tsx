@@ -59,6 +59,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
               href={item.href}
               onClick={onLinkClick}
               style={{ animationDelay: `${i * 60}ms` }}
+              data-testid={`sidebar-nav-${item.href.split('/').pop() || 'dashboard'}`}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group animate-fade-in-up',
                 isActive

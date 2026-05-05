@@ -55,6 +55,7 @@ export function DeleteProjectButton({ projectId, isShared }: { projectId: string
         className="hidden sm:flex print:hidden relative z-20 w-8 h-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
         onClick={handleOpen}
         title="Usuń projekt"
+        data-testid="delete-project-trigger"
       >
         <Trash2 className="w-4 h-4" />
       </Button>
@@ -97,7 +98,7 @@ export function DeleteProjectButton({ projectId, isShared }: { projectId: string
               <Button variant="outline" onClick={handleClose} disabled={isDeleting}>
                 Anuluj
               </Button>
-              <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+              <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} data-testid="delete-project-confirm-btn">
                 {isDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trash2 className="w-4 h-4 mr-2" />}
                 Tak, usuń trwale
               </Button>

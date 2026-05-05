@@ -79,6 +79,10 @@ export async function loginWithMagicLink(formData: FormData) {
 
 export async function signOut() {
   const supabase = await createClient()
-  await supabase.auth.signOut()
+  try {
+    await supabase.auth.signOut()
+  } catch (err) {
+    console.error('Error during sign out:', err)
+  }
   return redirect('/login')
 }

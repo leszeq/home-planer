@@ -100,17 +100,17 @@ export function AuthForm({ initialMode = 'login', error, message }: { initialMod
             <div className="space-y-4">
               <div className="relative">
                 <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input name="email" type="email" placeholder={t('auth.email_placeholder')} required className="pl-10 h-11" />
+                <Input name="email" type="email" placeholder={t('auth.email_placeholder')} required className="pl-10 h-11" data-testid="login-email-input" />
               </div>
               <div className="relative">
                 <KeyRound className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input name="password" type={showPassword ? "text" : "password"} placeholder={t('auth.password_placeholder')} required className="pl-10 pr-10 h-11" />
+                <Input name="password" type={showPassword ? "text" : "password"} placeholder={t('auth.password_placeholder')} required className="pl-10 pr-10 h-11" data-testid="login-password-input" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
-            <Button type="submit" variant="glow" className="w-full h-11 text-base group">
+            <Button type="submit" variant="glow" className="w-full h-11 text-base group" data-testid="login-submit-button">
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
                 <>{t('auth.login_button')} <ArrowRight className="w-4 h-4 ml-2 opacity-70 group-hover:translate-x-1 transition-transform" /></>
               )}
