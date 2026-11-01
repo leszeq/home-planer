@@ -84,7 +84,7 @@ export function CreateChecklistForm({ projectId: initialProjectId, stageId = nul
 
   if (!isOpen) {
     return (
-      <Button onClick={handleOpen} size="sm" className="gap-2 h-8 px-3 text-xs font-medium">
+      <Button onClick={handleOpen} size="sm" className="gap-2 h-8 px-3 text-xs font-medium" data-testid="create-checklist-trigger-btn">
         <ListChecks className="w-3.5 h-3.5" />
         {displayLabel}
       </Button>
@@ -112,6 +112,7 @@ export function CreateChecklistForm({ projectId: initialProjectId, stageId = nul
               value={name}
               onChange={e => setName(e.target.value)}
               className="h-12 text-base"
+              data-testid="create-checklist-name-input"
             />
           </div>
           {projects && projects.length > 1 && !stageId && (
@@ -159,6 +160,7 @@ export function CreateChecklistForm({ projectId: initialProjectId, stageId = nul
                     onChange={e => updateItem(index, e.target.value)}
                     onKeyDown={e => handleKeyDown(e, index)}
                     className="h-11 text-sm flex-1"
+                    data-testid="create-checklist-item-input"
                   />
                   {items.length > 1 && (
                     <Button type="button" variant="ghost" size="icon" className="h-9 w-9 shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => removeItemField(index)}>
@@ -177,7 +179,7 @@ export function CreateChecklistForm({ projectId: initialProjectId, stageId = nul
           <Button type="button" variant="ghost" className="h-10 px-6" onClick={handleClose}>
             {t('common.cancel')}
           </Button>
-          <Button type="submit" className="h-10 px-10 font-semibold" disabled={loading || !name.trim() || !internalStageId}>
+          <Button type="submit" className="h-10 px-10 font-semibold" disabled={loading || !name.trim() || !internalStageId} data-testid="create-checklist-submit-btn">
             {loading ? t('common.creating') : t('checklists.save')}
           </Button>
         </CardFooter>

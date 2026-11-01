@@ -43,7 +43,7 @@ export function ProjectBudgetCard({ project, expenses }: { project: any, expense
   }
 
   return (
-    <Card className={cn("flex flex-col h-full group", isOverBudget ? "border-destructive relative shadow-sm" : "")}>
+    <Card className={cn("flex flex-col h-full group", isOverBudget ? "border-destructive relative shadow-sm" : "")} data-testid="project-budget-card">
       <CardHeader className="pb-2 flex-none">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-muted-foreground" />
@@ -116,7 +116,7 @@ export function ProjectStagesCard({ stages }: { stages: any[] }) {
   const progressPercentStages = totalStages > 0 ? (inProgressStages / totalStages) * 100 : 0
 
   return (
-    <Card className="flex flex-col h-full">
+    <Card className="flex flex-col h-full" data-testid="project-stages-card">
       <CardHeader className="pb-2 flex-none">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <LayoutList className="w-4 h-4 text-muted-foreground" />
@@ -193,7 +193,7 @@ export function ProjectExpensesPieChart({ expenses }: { expenses: any[] }) {
   const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#64748b']
 
   return (
-    <Card className="flex flex-col h-full">
+    <Card className="flex flex-col h-full" data-testid="project-expenses-chart">
       <CardHeader className="pb-2 flex-none">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <PieChartIcon className="w-4 h-4 text-muted-foreground" />
@@ -254,7 +254,7 @@ export function ProjectHeaderClient({ name }: { name: string }) {
   const { t } = useTranslation()
   return (
     <div>
-      <h2 className="text-3xl font-bold tracking-tight">{name}</h2>
+      <h2 className="text-3xl font-bold tracking-tight" data-testid="project-header-title">{name}</h2>
       <p className="text-muted-foreground italic print:hidden">{t('projects.summary_subtitle')}</p>
     </div>
   )

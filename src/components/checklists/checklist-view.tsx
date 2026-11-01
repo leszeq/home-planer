@@ -62,6 +62,7 @@ function SortableItem({
       ref={setNodeRef}
       style={style}
       className="flex items-center gap-2 px-3 py-2.5 hover:bg-secondary/30 transition-colors group/item border-b border-border/30 last:border-0"
+      data-testid="checklist-item"
     >
       <button
         {...attributes}
@@ -75,6 +76,7 @@ function SortableItem({
         className="shrink-0"
         onClick={() => onToggle(item.id, !item.is_done)}
         disabled={!canEdit}
+        data-testid="item-toggle"
       >
         {item.is_done ? (
           <CheckCircle2 className="w-5 h-5 text-[var(--accent-green)]" />
@@ -193,7 +195,7 @@ export function ChecklistView({
   }
 
   return (
-    <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
+    <div className="border rounded-xl overflow-hidden bg-card shadow-sm" data-testid="checklist-container">
       {/* Header */}
       <div
         className="flex items-center gap-4 p-4 cursor-pointer hover:bg-secondary/50 transition-colors"
@@ -201,7 +203,7 @@ export function ChecklistView({
       >
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <h3 className="font-semibold">{checklist.name}</h3>
+            <h3 className="font-semibold" data-testid="checklist-title">{checklist.name}</h3>
             <span className="text-xs font-medium px-2 py-0.5 rounded-full badge-progress">
               {doneCount}/{items.length}
             </span>
@@ -221,6 +223,7 @@ export function ChecklistView({
               className="h-8 w-8 text-muted-foreground hover:text-primary"
               onClick={() => { setIsOpen(true); setIsAddingItem(true) }}
               title={t('checklists.add_item')}
+              data-testid="add-item-btn"
             >
               <Plus className="w-4 h-4" />
             </Button>
@@ -295,8 +298,9 @@ export function ChecklistView({
                   placeholder={t('checklists.add_item_placeholder')}
                   className="h-8 text-sm border-0 bg-transparent focus-visible:ring-0 p-0 flex-1"
                   onKeyDown={e => e.key === 'Escape' && (setIsAddingItem(false), setNewItem(''))}
+                  data-testid="item-input"
                 />
-                <Button size="sm" type="submit" className="h-7 text-xs">{t('common.add')}</Button>
+                <Button size="sm" type="submit" className="h-7 text-xs" data-testid="save-item-btn">{t('common.add')}</Button>
                 <Button size="sm" variant="ghost" type="button" className="h-7 w-7 p-0" onClick={() => { setIsAddingItem(false); setNewItem('') }}>
                   <X className="w-4 h-4" />
                 </Button>

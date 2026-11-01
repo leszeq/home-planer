@@ -27,7 +27,7 @@ export function ProjectTimeline({ stages }: { stages: Stage[] }) {
 
   if (stagesWithDates.length === 0) {
     return (
-      <Card className="border-dashed">
+      <Card className="border-dashed" data-testid="project-timeline-card">
         <CardContent className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
           <CalendarDays className="w-10 h-10 mb-3 opacity-20" />
           <p className="text-sm font-medium">{t('stages.no_timeline_data')}</p>
@@ -44,7 +44,7 @@ export function ProjectTimeline({ stages }: { stages: Stage[] }) {
   const totalDays = Math.max(differenceInDays(timelineEnd, timelineStart), 1)
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden" data-testid="project-timeline-card">
       <CardHeader className="bg-muted/50 pb-4 border-b">
         <div className="flex items-center justify-between">
           <div>
@@ -83,7 +83,7 @@ export function ProjectTimeline({ stages }: { stages: Stage[] }) {
               const widthPercent = (duration / totalDays) * 100
 
               return (
-                <div key={stage.id} className="flex items-center relative z-10 text-sm group">
+                <div key={stage.id} className="flex items-center relative z-10 text-sm group" data-testid="timeline-stage-item">
                   <div className="w-[30%] pr-4 flex-shrink-0">
                     <p className={cn("truncate font-medium text-xs md:text-sm", stage.status === 'done' ? 'text-muted-foreground line-through' : 'text-foreground')}>
                       {stage.name}

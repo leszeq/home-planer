@@ -70,6 +70,7 @@ export function AddChecklistModal({
       variant={variant}
       size={variant === 'ghost' ? 'sm' : undefined}
       className={variant === 'ghost' ? 'h-8 text-xs px-2' : ''}
+      data-testid="add-template-trigger-btn"
     >
       <Layout className="w-4 h-4 mr-2" />
       {variant === 'ghost' ? t('checklists.add_from_template_short') : t('checklists.add_from_template')}
@@ -123,6 +124,7 @@ export function AddChecklistModal({
                 onClick={() => setSelected(selected === tmpl.id ? null : tmpl.id)}
                 className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-all ${selected === tmpl.id ? 'border-primary bg-[var(--primary-glow)]' : 'border-border hover:bg-secondary'
                   }`}
+                data-testid={`template-select-${tmpl.id}`}
               >
                 <ListChecks className={`w-5 h-5 mt-0.5 shrink-0 ${selected === tmpl.id ? 'text-primary' : 'text-muted-foreground'}`} />
                 <div>
@@ -134,7 +136,7 @@ export function AddChecklistModal({
           </div>
         </CardContent>
         <CardFooter>
-          <Button onClick={handleAdd} disabled={!selected || pending || !stageId} className="w-full">
+          <Button onClick={handleAdd} disabled={!selected || pending || !stageId} className="w-full" data-testid="template-submit-btn">
             {pending ? t('checklists.adding_template') : t('checklists.add_from_template')}
           </Button>
         </CardFooter>

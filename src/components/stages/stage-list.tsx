@@ -137,6 +137,7 @@ function SortableStage({
       ref={setNodeRef}
       style={style}
       className="flex flex-col gap-3 p-4 bg-card border rounded-xl shadow-sm hover:shadow-md transition-shadow"
+      data-testid="stage-card"
     >
       <div className="flex items-center gap-3">
         {/* Drag Handle */}
@@ -166,6 +167,7 @@ function SortableStage({
           }}
           className="shrink-0"
           disabled={!canEdit}
+          data-testid="stage-status-toggle"
         >
           {stage.status === 'done' ? (
             <CheckCircle2 className="w-5 h-5 text-[var(--accent-green)]" />
@@ -202,7 +204,7 @@ function SortableStage({
             </div>
           ) : (
             <>
-              <p className={cn('font-medium text-sm truncate', stage.status === 'done' && 'line-through text-muted-foreground')}>
+              <p className={cn('font-medium text-sm truncate', stage.status === 'done' && 'line-through text-muted-foreground')} data-testid="stage-name-text">
                 {t(`stages.predefined.${stage.name}`) === `stages.predefined.${stage.name}` ? stage.name : t(`stages.predefined.${stage.name}`)}
               </p>
               {canEdit && (
@@ -245,6 +247,7 @@ function SortableStage({
               size="icon"
               className={cn("hover:text-primary shrink-0 transition-colors", isEditingDates ? "text-primary bg-primary/10" : "text-muted-foreground")}
               onClick={() => setIsEditingDates(!isEditingDates)}
+              data-testid="stage-calendar-btn"
             >
               <Calendar className="w-4 h-4" />
             </Button>
@@ -286,16 +289,16 @@ function SortableStage({
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1 space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">{t('stages.start_date')}</label>
-              <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="h-9 text-xs" />
+              <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="h-9 text-xs" data-testid="stage-start-date-input" />
             </div>
             <div className="flex-1 space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">{t('stages.end_date')}</label>
-              <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="h-9 text-xs" />
+              <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="h-9 text-xs" data-testid="stage-end-date-input" />
             </div>
           </div>
           <div className="flex justify-end mt-4 gap-2">
             <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setIsEditingDates(false)}>{t('common.cancel')}</Button>
-            <Button size="sm" className="h-8 text-xs" disabled={isSavingDates} onClick={handleSaveDates}>{t('stages.save_dates')}</Button>
+            <Button size="sm" className="h-8 text-xs" disabled={isSavingDates} onClick={handleSaveDates} data-testid="stage-save-dates-btn">{t('stages.save_dates')}</Button>
           </div>
         </div>
       )}
@@ -429,7 +432,7 @@ export function StageList({
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-bold">{t('stages.title')}</h3>
         {canEdit && (
-          <Button variant="outline" size="sm" onClick={() => setIsAdding(true)}>
+          <Button variant="outline" size="sm" onClick={() => setIsAdding(true)} data-testid="add-stage-btn">
             <Plus className="w-4 h-4 mr-2" />
             {t('projects.add_stage')}
           </Button>
@@ -446,8 +449,9 @@ export function StageList({
                   onChange={e => setNewName(e.target.value)}
                   placeholder={t('stages.suggested_title')}
                   autoFocus
+                  data-testid="new-stage-name-input"
                 />
-                <Button type="submit" disabled={!newName.trim()}>{t('common.save')}</Button>
+                <Button type="submit" disabled={!newName.trim()} data-testid="save-stage-btn">{t('common.save')}</Button>
                 <Button variant="ghost" type="button" onClick={() => setIsAdding(false)}>{t('common.cancel')}</Button>
               </div>
               <div className="flex flex-wrap gap-1.5 mt-1">
